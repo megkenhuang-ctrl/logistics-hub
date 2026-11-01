@@ -86,21 +86,12 @@
         <p class="text-xs text-slate-400 mt-1">Fab Fleet Logistics Intelligence & Timetable Portal</p>
       </div>
 
-      <!-- Quick Fill Default Account Tip -->
-      <div class="mb-5 bg-indigo-950/50 border border-indigo-500/40 rounded-xl p-3 flex items-center justify-between text-xs text-indigo-300 shadow-inner">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-key text-indigo-400 text-sm"></i>
-          <span>預設帳號：<strong class="font-mono text-white">adm</strong> ｜ 密碼：<strong class="font-mono text-white">adm</strong></span>
-        </div>
-        <button type="button" onclick="quickFillCredentials()" class="text-[11px] bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded-lg font-semibold transition-all shadow hover:shadow-indigo-500/50 flex items-center gap-1">
-          <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> 一鍵填入
-        </button>
-      </div>
+
 
       <!-- Error Alert Message -->
       <div id="loginErrorAlert" class="hidden mb-4 bg-red-950/70 border border-red-500/50 text-red-300 text-xs rounded-xl p-3 flex items-center gap-2.5 shadow-lg">
         <i class="fa-solid fa-triangle-exclamation text-red-400 text-base shrink-0"></i>
-        <span id="loginErrorMsg">帳號或密碼錯誤！（預設帳號: adm / 密碼: adm）</span>
+        <span id="loginErrorMsg">帳號或密碼錯誤，請重新輸入！</span>
       </div>
 
       <!-- Login Form -->
@@ -111,7 +102,7 @@
           </label>
           <div class="relative">
             <input type="text" id="loginUsername" required autocomplete="username"
-                   placeholder="請輸入使用者帳號 (預設: adm)"
+                   placeholder="請輸入使用者帳號"
                    class="w-full bg-slate-950/90 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-mono">
           </div>
         </div>
@@ -122,7 +113,7 @@
           </label>
           <div class="relative">
             <input type="password" id="loginPassword" required autocomplete="current-password"
-                   placeholder="請輸入密碼 (預設: adm)"
+                   placeholder="請輸入密碼"
                    class="w-full bg-slate-950/90 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all pr-10 font-mono">
             <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors" title="顯示/隱藏密碼">
               <i id="passwordEyeIcon" class="fa-solid fa-eye"></i>
@@ -1416,15 +1407,6 @@
       }
     }
 
-    function quickFillCredentials() {
-      const u = document.getElementById('loginUsername');
-      const p = document.getElementById('loginPassword');
-      if (u) u.value = 'adm';
-      if (p) p.value = 'adm';
-      const alertEl = document.getElementById('loginErrorAlert');
-      if (alertEl) alertEl.classList.add('hidden');
-      if (p) p.focus();
-    }
 
     function togglePasswordVisibility() {
       const pwdInput = document.getElementById('loginPassword');
@@ -1504,7 +1486,7 @@
         if (headerUserEl) headerUserEl.innerText = username;
       } else {
         if (alertEl) alertEl.classList.remove('hidden');
-        if (msgEl) msgEl.innerText = '帳號或密碼錯誤！（預設帳號: adm / 密碼: adm）';
+        if (msgEl) msgEl.innerText = '帳號或密碼錯誤，請重新輸入！';
         if (pInput) {
           pInput.value = '';
           pInput.focus();

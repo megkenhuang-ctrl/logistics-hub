@@ -661,7 +661,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             if (u == 'adm' and p == 'adm') or (u == 'admin' and p in ['adm', 'admin']):
                 return self.send_json({'success': True, 'user': u, 'role': 'admin'})
             else:
-                return self.send_json({'success': False, 'error': '帳號或密碼錯誤 (預設帳密: adm/adm)'}, status=401)
+                return self.send_json({'success': False, 'error': '帳號或密碼錯誤，請重新輸入'}, status=401)
 
         elif path == '/api/reload_db':
             try:
