@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>廠區物流系統規範與性能算法 | System Specs & Performance Methodology</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- KaTeX for Math Formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+    body { font-family: 'Noto Sans TC', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 sticky top-0 z-50 px-4 lg:px-8 py-3.5 shadow-xl">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white hover:bg-blue-500 transition shadow-lg">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+          <h1 class="font-extrabold text-base lg:text-lg text-white">廠區物流系統規範與性能算法手冊</h1>
+          <p class="text-xs text-slate-400">System Specifications, Operational Resources & Mathematical Methodology</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-3.5 py-2 rounded-lg font-medium transition flex items-center gap-1.5 border border-slate-600">
+          <i class="fa-solid fa-gauge-high text-blue-400"></i>
+          <span>返回戰情總網</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-4 lg:p-8 space-y-10">
+
+    <!-- Quick Navigation Index -->
+    <nav class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-lg">
+      <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-list-ul text-blue-400"></i>
+        <span>規格手冊目錄綱要</span>
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <a href="#sec-problem" class="p-3 rounded-xl bg-slate-900/60 border border-slate-700/60 hover:border-blue-500 transition flex items-center gap-2.5 text-xs text-slate-200">
+          <span class="w-6 h-6 rounded-lg bg-red-500/20 text-red-400 font-bold flex items-center justify-center font-mono">1</span>
+          <span>問題的描述 (Problem)</span>
+        </a>
+        <a href="#sec-resources" class="p-3 rounded-xl bg-slate-900/60 border border-slate-700/60 hover:border-blue-500 transition flex items-center gap-2.5 text-xs text-slate-200">
+          <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center font-mono">2</span>
+          <span>資源的描述 (Resources)</span>
+        </a>
+        <a href="#sec-services" class="p-3 rounded-xl bg-slate-900/60 border border-slate-700/60 hover:border-blue-500 transition flex items-center gap-2.5 text-xs text-slate-200">
+          <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center font-mono">3</span>
+          <span>服務的描述 (Services)</span>
+        </a>
+        <a href="#sec-math" class="p-3 rounded-xl bg-slate-900/60 border border-slate-700/60 hover:border-blue-500 transition flex items-center gap-2.5 text-xs text-slate-200">
+          <span class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center font-mono">4</span>
+          <span>性能的計算方法 (Math)</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- 1. 問題的描述 (Problem Description)       -->
+    <!-- ========================================== -->
+    <section id="sec-problem" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 lg:p-8 shadow-xl space-y-6">
+      <div class="border-b border-slate-700/80 pb-4 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-white">一、 問題的描述（Problem Description & Domain Context）</h2>
+          <p class="text-xs text-slate-400 mt-0.5">半導體高科技廠區跨廠晶圓與物料運籌之痛點與目標定義</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-sm text-slate-300 leading-relaxed">
+        <p>
+          在半導體晶圓廠與封測廠區的營運生態中，跨廠區物料（晶圓盒 FOUP、光罩 Cassette、化學品、研發驗證樣品）的流動是保障產線連續不中斷的核心生命線。本專案所面對的核心問題場景為：
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-700">
+            <h3 class="font-bold text-amber-300 text-sm mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-exclamation text-amber-400"></i>
+              <span>傳統單車巡迴的崩潰風險 (Single Truck Bottleneck)</span>
+            </h3>
+            <p class="text-xs text-slate-300">
+              原始構想若僅採用 1 部 40 儲位貨車在 A、E、F、S 廠區間依序巡迴（AE, AF, AS, EF, ES, FS），在面臨跨廠高頻急件時，將立即陷入嚴重的<strong>「排隊擁塞（Congestion）」</strong>與<strong>「滿車過站不入（Deadlock）」</strong>：前一站滿載 40 批後，後續站點完全無法上貨，造成等待時間暴增至 2~3 小時以上，產線發生致命停機待料。
+            </p>
+          </div>
+
+          <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-700">
+            <h3 class="font-bold text-emerald-300 text-sm mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-crosshairs text-emerald-400"></i>
+              <span>現代全廠物流的優化目標 (Fleet Optimization Goals)</span>
+            </h3>
+            <p class="text-xs text-slate-300">
+              透過由單車擴展為 <strong>Car A、B、C、D、E 五部專業分工車隊</strong>，將物流問題轉化為具有嚴格約束的「多運作模式連續動態排程」：
+              <span class="block mt-1 text-slate-400">
+                1. <strong>最小化平均班距等候時間</strong>：核心樞紐廠（8F、8CD）等候時間壓縮至 30~37 分鐘以內。<br>
+                2. <strong>防呆防錯置指令</strong>：每站嚴格定義在途載量上限（環廠限 ≤16~24 批），確保隨時有空位。<br>
+                3. <strong>滿足率最大化</strong>：對照 <code class="text-cyan-300 font-mono">from_to.xlsx</code> 需求，提供 10 倍以上高安全裕度。
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 text-xs space-y-2">
+          <strong class="text-blue-400 block font-mono">核心業務痛點分析：</strong>
+          <ul class="list-disc list-inside space-y-1 text-slate-400">
+            <li><strong class="text-slate-200">垂直與平面動線差異</strong>：FAB8CD 裝卸碼頭位於 3F（司機需搭乘貨梯換推車作業，耗時 25 分鐘），而 FAB8AB / 8E 則為 1F 大廳平面裝卸，裝卸節奏極度不對稱。</li>
+            <li><strong class="text-slate-200">外廠跨境延伸</strong>：除廠內 8AB、8CD、8E、8F、8S 外，尚有嘉晶外廠（篤行廠、創新廠），涉及更長行車時間（15 分鐘）與外廠專屬門禁作業。</li>
+            <li><strong class="text-slate-200">日夜班對稱性與生理交接</strong>：日班（07:35~19:35）與夜班（19:35~07:35）需保持精確 12 小時鏡像對稱，且必須預留嚴謹的中午用餐（12:00~13:00）與交接換班窗口。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 2. 資源的描述 (Resource Architecture)      -->
+    <!-- ========================================== -->
+    <section id="sec-resources" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 lg:p-8 shadow-xl space-y-6">
+      <div class="border-b border-slate-700/80 pb-4 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-truck-ramp-box"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-white">二、 資源的描述（Resource Specifications & Constraints）</h2>
+          <p class="text-xs text-slate-400 mt-0.5">車隊設備規格、母站基礎設施、裝卸能力與時間約束</p>
+        </div>
+      </div>
+
+      <div class="space-y-6 text-sm text-slate-300">
+        <!-- Subsection 1: Vehicles -->
+        <div>
+          <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+            <span class="text-amber-400">2.1</span> 全車隊運載資源矩陣 (Fleet Vehicles)
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border border-slate-700 rounded-xl overflow-hidden">
+              <thead class="bg-slate-900 text-slate-400 uppercase font-mono">
+                <tr>
+                  <th class="p-3">車輛編號</th>
+                  <th class="p-3">大本營 (母站 Hub)</th>
+                  <th class="p-3">隨車公務專線</th>
+                  <th class="p-3">營運模式組合</th>
+                  <th class="p-3 text-center">單班趟數</th>
+                  <th class="p-3 text-center">單班目標總運能</th>
+                  <th class="p-3">核心任務指派</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-700/60 font-medium">
+                <tr class="hover:bg-slate-700/30">
+                  <td class="p-3 font-bold text-blue-400">Car A</td>
+                  <td class="p-3 text-white font-bold">FAB8E 1F 大廳</td>
+                  <td class="p-3 font-mono text-emerald-400">8644824（0960-717239）</td>
+                  <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-900/60 border border-blue-600/40 text-blue-300">專車 + 外廠 + 環廠</span></td>
+                  <td class="p-3 text-center font-mono">19 趟</td>
+                  <td class="p-3 text-center font-mono font-bold text-amber-400">360 批</td>
+                  <td class="p-3 text-slate-300">外廠門戶旗艦，獨家專營嘉晶外廠（篤行/創新）對開</td>
+                </tr>
+                <tr class="hover:bg-slate-700/30">
+                  <td class="p-3 font-bold text-amber-400">Car B</td>
+                  <td class="p-3 text-white font-bold">FAB8F 代工出入口</td>
+                  <td class="p-3 font-mono text-emerald-400">8644828（0960-717178）</td>
+                  <td class="p-3"><span class="px-2 py-0.5 rounded bg-red-900/60 border border-red-600/40 text-red-300">專車直達 + 小環</span></td>
+                  <td class="p-3 text-center font-mono">18 趟</td>
+                  <td class="p-3 text-center font-mono font-bold text-amber-400">600 批 (冠軍)</td>
+                  <td class="p-3 text-slate-300">8F 主動脈超級重砲，高密度對開 8CD，含午休跨休專車</td>
+                </tr>
+                <tr class="hover:bg-slate-700/30">
+                  <td class="p-3 font-bold text-cyan-400">Car C</td>
+                  <td class="p-3 text-white font-bold">FAB8AB 1F 大廳</td>
+                  <td class="p-3 font-mono text-emerald-400">8644830（0960-717258）</td>
+                  <td class="p-3"><span class="px-2 py-0.5 rounded bg-amber-900/60 border border-amber-600/40 text-amber-300">專車直達 + 小環</span></td>
+                  <td class="p-3 text-center font-mono">16 趟</td>
+                  <td class="p-3 text-center font-mono font-bold text-amber-400">480 批</td>
+                  <td class="p-3 text-slate-300">力行 8AB 核心主力，晨間密集對開 8F，午後支援大環</td>
+                </tr>
+                <tr class="hover:bg-slate-700/30">
+                  <td class="p-3 font-bold text-emerald-400">Car D</td>
+                  <td class="p-3 text-white font-bold">FAB8CD 裝卸碼頭上3F</td>
+                  <td class="p-3 font-mono text-emerald-400">8681029（0965-702916）</td>
+                  <td class="p-3"><span class="px-2 py-0.5 rounded bg-indigo-900/60 border border-indigo-600/40 text-indigo-300">全日純環廠巡迴</span></td>
+                  <td class="p-3 text-center font-mono">16 趟</td>
+                  <td class="p-3 text-center font-mono font-bold text-amber-400">240 批</td>
+                  <td class="p-3 text-slate-300">純環廠巡迴（8CD➔8F➔8S➔8E➔8AB），在途限 ≤16~24 批</td>
+                </tr>
+                <tr class="hover:bg-slate-700/30">
+                  <td class="p-3 font-bold text-red-400">Car E</td>
+                  <td class="p-3 text-white font-bold">FAB8S 1F 碼頭/8S5A</td>
+                  <td class="p-3 font-mono text-emerald-400">8681030（0965-702918）</td>
+                  <td class="p-3"><span class="px-2 py-0.5 rounded bg-purple-900/60 border border-purple-600/40 text-purple-300">專車直達 + 小環</span></td>
+                  <td class="p-3 text-center font-mono">16 趟</td>
+                  <td class="p-3 text-center font-mono font-bold text-amber-400">480 批</td>
+                  <td class="p-3 text-slate-300">8S 庫房始發，深度裝載晨送 8F，日班試運行/夜班交接</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Subsection 2: Infrastructure & Times -->
+        <div>
+          <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+            <span class="text-amber-400">2.2</span> 場站設施與時間物理約束 (Physical Constraints)
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 space-y-2">
+              <strong class="text-white block font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-boxes-stacked text-amber-400"></i>
+                <span>裝載儲位容量 (Capacity Slots)</span>
+              </strong>
+              <p class="text-slate-400 leading-normal">
+                每部貨車標準貨廂儲位為 <strong>40 個批次（Batches）</strong>。專車直達模式可滿載 40 批；環廠巡迴模式因中途需持續上卸，規定在途載量嚴格限制在 <strong>16 ~ 24 批</strong> 以內，保留剩餘空間。
+              </p>
+            </div>
+
+            <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 space-y-2">
+              <strong class="text-white block font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-stopwatch text-cyan-400"></i>
+                <span>停靠作業時間 (Dwell Time)</span>
+              </strong>
+              <p class="text-slate-400 leading-normal">
+                各廠作業時間非固定常數：平面大廳裝卸（8AB, 8E）需 <strong>15~25 分鐘</strong>；8CD 碼頭上 3F 貨梯作業需 <strong>25 分鐘</strong>；8S5A 庫房深層配貨需 <strong>55 分鐘</strong>；午休暫停 <strong>60 分鐘</strong>。
+              </p>
+            </div>
+
+            <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 space-y-2">
+              <strong class="text-white block font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-road text-emerald-400"></i>
+                <span>站間行車時間 (Transit Time)</span>
+              </strong>
+              <p class="text-slate-400 leading-normal">
+                園區內部鄰近廠區（如 8F ➔ 8CD、8AB ➔ 8F）行車時間為 <strong>5 分鐘</strong>；跨園區走廊（如 8E ➔ 8CD、8S ➔ 8F）為 <strong>10 分鐘</strong>；外廠至嘉晶廠區行車時間為 <strong>15 分鐘</strong>。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 3. 服務的描述 (Service Taxonomy)           -->
+    <!-- ========================================== -->
+    <section id="sec-services" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 lg:p-8 shadow-xl space-y-6">
+      <div class="border-b border-slate-700/80 pb-4 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-bell-concierge"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-white">三、 服務的描述（Service Taxonomy & Operational Models）</h2>
+          <p class="text-xs text-slate-400 mt-0.5">專車、環廠、小環、外廠與跨休連載五大標準化物流服務型態</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+        
+        <!-- Service 1 -->
+        <div class="bg-slate-900/80 p-5 rounded-2xl border border-red-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-red-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt"></i> 專車直達服務 (Express Line)
+            </span>
+            <span class="bg-red-500/20 text-red-300 px-2 py-0.5 rounded font-mono font-bold">滿載 40 批</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>服務定義</strong>：兩點間（OD）點對點直達運輸，中途不停靠其他站點，享有全額 40 批載運配額。<br>
+            <strong>適用場景</strong>：晨間開工急件（08:00 前）、8F 與 8CD 母港大進大出物料、8S 庫房每日大宗進廠。<br>
+            <strong>代表班次</strong>：Car A (8E➔8CD)、Car B (8F➔8CD 對開)、Car E (8S➔8F 晨間專車)。
+          </p>
+        </div>
+
+        <!-- Service 2 -->
+        <div class="bg-slate-900/80 p-5 rounded-2xl border border-blue-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-blue-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-arrows-spin"></i> 全廠環廠巡迴 (Outer Loop)
+            </span>
+            <span class="bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded font-mono font-bold">在途 ≤ 16~24 批</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>服務定義</strong>：沿標準環廠路徑（8CD ➔ 8F ➔ 8S ➔ 8E ➔ 8AB）順時鐘巡迴，每站均提供收貨與下貨服務。<br>
+            <strong>防呆機制</strong>：實施「動態在途限額」，司機在任何時點不得裝載超過 24 批，保留空位供下一站即時上下貨。<br>
+            <strong>代表班次</strong>：Car D 全日純環廠專職循環、Car A 午後環廠巡迴。
+          </p>
+        </div>
+
+        <!-- Service 3 -->
+        <div class="bg-slate-900/80 p-5 rounded-2xl border border-amber-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-amber-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-notch"></i> 小環廠快速循環 (Inner Loop)
+            </span>
+            <span class="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-mono font-bold">運能 16~20 批</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>服務定義</strong>：針對高流動性的熱點三角區域（如 8F ➔ 8CD ➔ 8AB ➔ 8F）穿插執行的小範圍短巡迴。<br>
+            <strong>服務效益</strong>：大幅縮減次要路線的迂迴時間，將熱點廠區的班車間隔壓縮至 20 分鐘以內。<br>
+            <strong>代表班次</strong>：Car B 小環 1/2、Car C 力行小環、Car E 庫房小環。
+          </p>
+        </div>
+
+        <!-- Service 4 -->
+        <div class="bg-slate-900/80 p-5 rounded-2xl border border-cyan-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-cyan-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-earth-americas"></i> 嘉晶外廠專營對開 (External Line)
+            </span>
+            <span class="bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-mono font-bold">行車 15 分鐘</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>服務定義</strong>：跨出本廠區，專為嘉晶篤行廠與嘉晶創新廠提供點對點對開與外廠物料清關作業。<br>
+            <strong>安全規範</strong>：由 Car A 獨家對開，抵達外廠站點後需遵循專屬出入廠 SOP。<br>
+            <strong>代表班次</strong>：Car A 站次 6 (8E➔篤行)、站次 7 (篤行➔8CD)、站次 14 (8S➔創新)。
+          </p>
+        </div>
+
+        <!-- Service 5 -->
+        <div class="bg-slate-900/80 p-5 rounded-2xl border border-purple-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-purple-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-moon"></i> 午休跨休與夜班對稱 (24H Continuity)
+            </span>
+            <span class="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-mono font-bold">24H 零斷點</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>服務定義</strong>：午休（12:00~13:00）期間各車司機錯峰用餐，並預先在上半天末班載滿物料，確保中午後即有現成物料可送；夜班由 +12 小時鏡像對稱車班無縫銜接。<br>
+            <strong>代表班次</strong>：Car B 午休跨休專車、Car E 與 U 車交接。
+          </p>
+        </div>
+
+        <!-- Service 6 -->
+        <div class="bg-slate-900/80 p-5 rounded-2xl border border-emerald-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-emerald-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-triangle-exclamation"></i> 異常處置與防呆 SOP (Quality Assurance)
+            </span>
+            <span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono font-bold">100% 簽收確認</span>
+          </div>
+          <p class="text-slate-300 leading-relaxed">
+            <strong>服務定義</strong>：包含 8CD 3F 換車點簽收、8S5A 庫房品項核對、遇滿載即刻通報分流調度。<br>
+            <strong>品質保證</strong>：全車隊所有班次均落實標準 11 大作業欄位防呆檢驗。
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 4. 性能的計算方法 (Math & Performance)    -->
+    <!-- ========================================== -->
+    <section id="sec-math" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 lg:p-8 shadow-xl space-y-6">
+      <div class="border-b border-slate-700/80 pb-4 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg font-bold">
+          <i class="fa-solid fa-square-root-variable"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-white">四、 性能的計算方法（Mathematical Formulations & Performance Models）</h2>
+          <p class="text-xs text-slate-400 mt-0.5">班距、預期等候時間、運能結算與排隊論嚴密工程數學公式定義</p>
+        </div>
+      </div>
+
+      <div class="space-y-8 text-sm text-slate-300">
+
+        <!-- Formula 1: Headway -->
+        <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-700 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+              <span class="text-cyan-400">4.1</span> 廠區車輛到站班距（Headway）與平均班距計算
+            </h3>
+            <span class="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded border border-slate-700">時間間隔度量</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            設某一特定廠區 $f$ 在指定時段內共有 $N$ 個車次抵達，各班次按抵達時刻排序為 $t_1, t_2, \dots, t_N$（單位為分鐘），則相鄰兩班車的進站間隔時間（Headway）定義為：
+          </p>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-cyan-300 text-base overflow-x-auto">
+            $$H_i = t_i - t_{i-1}, \quad \forall i \in \{2, 3, \dots, N\}$$
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            全時段內該廠區的<strong>平均到站班距（Average Headway）</strong> $\bar{H}_f$ 則為所有相鄰間隔的算術平均值：
+          </p>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-cyan-300 text-base overflow-x-auto">
+            $$\bar{H}_f = \frac{1}{N - 1} \sum_{i=2}^{N} H_i = \frac{t_N - t_1}{N - 1}$$
+          </div>
+          <p class="text-xs text-slate-400">
+            <strong>實務意義</strong>：$\bar{H}_f$ 代表廠區平均每隔幾分鐘就有一部班車靠站。例如 FAB8F 日班共抵達 23 班次，$t_1 = 07:35$ (455m), $t_{23} = 18:35$ (1115m)，其平均班距為 $\bar{H}_{8F} = \frac{1115 - 455}{22} = \mathbf{30.0\text{ 分鐘}}$。
+          </p>
+        </div>
+
+        <!-- Formula 2: Expected Waiting Time -->
+        <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-700 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+              <span class="text-cyan-400">4.2</span> 現場物料預期等候時間（Expected Waiting Time & Inspection Paradox）
+            </h3>
+            <span class="text-xs font-mono text-amber-400 bg-amber-950/60 px-2.5 py-1 rounded border border-amber-800">排隊論核心公式</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            產線完成晶圓或物料準備完成（Ready for Pickup）並送達站點的時間點在統計上通常為隨機到達（Random Arrival）。依據<strong>更新過程與檢驗悖論（Renewal Theory & Inspection Paradox）</strong>，隨機到達之物料等待下一班車的預期平均等待時間 $E[W]$ 為：
+          </p>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-emerald-400 text-base overflow-x-auto">
+            $$E[W] = \frac{E[H^2]}{2 E[H]} = \frac{\bar{H}}{2} \cdot \left( 1 + \frac{\sigma_H^2}{\bar{H}^2} \right) = \frac{\bar{H}}{2} \cdot \left( 1 + C_v^2 \right)$$
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            其中：
+          </p>
+          <ul class="list-disc list-inside text-xs text-slate-400 space-y-1 pl-2">
+            <li>$\bar{H}$ 為平均班距。</li>
+            <li>$\sigma_H^2 = \frac{1}{M}\sum_{i=2}^N (H_i - \bar{H})^2$ 為班距變異數（Variance）。</li>
+            <li>$C_v = \frac{\sigma_H}{\bar{H}}$ 為變異係數（Coefficient of Variation）。</li>
+          </ul>
+          <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 text-xs space-y-1">
+            <strong class="text-white block">工程應用準則：</strong>
+            <p class="text-slate-300">
+              當班次完全等間隔排程時（$\sigma_H = 0$），$E[W] = \frac{1}{2} \bar{H}$（即半班距）。當班距存在尖離峰不均勻時（$\sigma_H > 0$），實際預期等待時間會略大於半班距。在戰情網中，我們同時呈現<strong>平均班距 $\bar{H}$</strong> 與<strong>預期等候時間 $\approx \frac{1}{2}\bar{H}$</strong>，以供現場主管與現場作業人員雙重參考。
+            </p>
+          </div>
+        </div>
+
+        <!-- Formula 3: Visit Counts & Consultation Counts -->
+        <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-700 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+              <span class="text-cyan-400">4.3</span> 被訪問次數與會診（互聯）次數計算
+            </h3>
+            <span class="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded border border-slate-700">廠區互聯活躍度</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            設全排程集合為 $\mathcal{S}$，各班次標示為 $s$：
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <strong class="text-amber-400 text-xs block mb-1">🎯 被訪問次數（Visit Frequency, $V_f$）</strong>
+              <p class="text-xs text-slate-400 mb-2">統計所有車輛在該廠實施停靠作業的總次數（扣除純休息用餐）：</p>
+              <div class="text-center font-mono text-white text-sm">
+                $$V_f = \sum_{s \in \mathcal{S}} \mathbb{I}\Big(\text{fab}(s) = f \;\land\; \text{is\_break}(s) = 0\Big)$$
+              </div>
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <strong class="text-cyan-400 text-xs block mb-1">🤝 會診/互聯次數（Consultation Connectivity, $C_f$）</strong>
+              <p class="text-xs text-slate-400 mb-2">統計該廠與其他廠區建立物料起訖直達專線的班次總數：</p>
+              <div class="text-center font-mono text-white text-sm">
+                $$C_f = \sum_{s \in \mathcal{S}} \mathbb{I}\Big((\text{orig}(s) = f \;\lor\; \text{dest}(s) = f) \;\land\; \text{is\_break} = 0\Big)$$
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formula 4: Capacity & Fulfillment -->
+        <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-700 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+              <span class="text-cyan-400">4.4</span> From-To（OD）流向運能與需求滿足率公式
+            </h3>
+            <span class="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded border border-emerald-800">運能結算</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            對於任意起訖廠區對 $(o, d)$，其<strong>總供給流向運能 $\text{Cap}(o, d)$</strong> 為所有服務該 OD 走廊班次之載量配額總和：
+          </p>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-emerald-400 text-sm overflow-x-auto">
+            $$\text{Cap}(o, d) = \sum_{s \in \mathcal{S}_{o \to d}} \text{Cap}(s)$$
+          </div>
+          <p class="text-xs text-slate-400">
+            其中專車模式每趟 $\text{Cap}(s) = 40$ 批；環廠巡迴每趟按站點分配 $\text{Cap}(s) = 16 \sim 24$ 批。
+          </p>
+          <p class="text-xs text-slate-400 leading-relaxed mt-2">
+            將實際供給運能對照基準需求矩陣 $\text{Demand}(o, d)$（來自 <code class="text-cyan-300 font-mono">from_to.xlsx</code>），其<strong>需求滿足率倍數（Fulfillment Ratio）</strong>定義為：
+          </p>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-amber-400 text-sm overflow-x-auto">
+            $$\text{Fulfillment}(o, d) = \frac{\text{Cap}(o, d)}{\text{Demand}(o, d)} \times 100\%$$
+          </div>
+          <p class="text-xs text-slate-400">
+            若 $\text{Fulfillment} \ge 100\%$，表示完全滿足基本運載要求；若超過 $500\%$（5 倍以上），則代表具備極佳的急件容受裕度與高韌性。
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-950 border-t border-slate-800 py-6 text-center text-xs text-slate-500 mt-12">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p>廠區物流系統規範與性能算法手冊 © 2026 Fleet Intelligence System</p>
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="text-blue-400 hover:underline">返回戰情網</a>
+        <span>•</span>
+        <span class="text-slate-400">LaTeX KaTeX Math Engine</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

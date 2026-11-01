@@ -1,0 +1,3811 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>廠區物流時刻表資料庫戰情網 | Fab Fleet Logistics Hub</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- KaTeX for Math Formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+    body {
+      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .badge-mode-special {
+      background-color: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fca5a5;
+    }
+    .badge-mode-loop {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+      border: 1px solid #93c5fd;
+    }
+    .badge-mode-small {
+      background-color: #fef3c7;
+      color: #b45309;
+      border: 1px solid #fcd34d;
+    }
+    .badge-mode-out {
+      background-color: #ccfbf1;
+      color: #0f766e;
+      border: 1px solid #5eead4;
+    }
+    .badge-mode-break {
+      background-color: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Top Navbar -->
+  <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 sticky top-0 z-50 px-4 lg:px-8 py-3.5 shadow-xl">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <i class="fa-solid fa-truck-fast text-white text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-lg lg:text-xl tracking-tight text-white flex items-center gap-2">
+              廠區物流時刻表資料庫戰情網
+              <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono font-medium">SQLite DB</span>
+            </h1>
+          </div>
+          <p class="text-xs text-slate-400">Fab Fleet Intelligence & Timetable Database System</p>
+        </div>
+      </div>
+
+      <!-- Quick Shift Toggles & DB Status -->
+      <div class="flex items-center gap-3 flex-wrap">
+        <!-- Shift Selector -->
+        <div class="bg-slate-900/90 border border-slate-700 rounded-lg p-1 flex items-center text-xs font-medium">
+          <button id="btnShiftDay" onclick="setGlobalShift('day')" class="px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-blue-600 text-white shadow">
+            <span>☀️</span><span>日班 (07:35~19:35)</span>
+          </button>
+          <button id="btnShiftNight" onclick="setGlobalShift('night')" class="px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+            <span>🌙</span><span>夜班 (19:35~07:35)</span>
+          </button>
+          <button id="btnShiftAll" onclick="setGlobalShift('all')" class="px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+            <span>🕒</span><span>24H 全日</span>
+          </button>
+        </div>
+
+        <!-- DB Live Indicator -->
+        <div class="hidden sm:flex items-center gap-2 bg-slate-900/70 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-lg text-xs font-mono">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="dbStatusBadge">logistics.db 連線中</span>
+        </div>
+
+        <!-- Clock -->
+        <div id="liveClock" class="hidden md:block font-mono text-xs text-slate-400 bg-slate-900/70 px-2.5 py-1.5 rounded-lg border border-slate-700">
+          --:--:--
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-7xl mx-auto mt-3 pt-2 border-t border-slate-700/60 flex space-x-1 lg:space-x-2 overflow-x-auto text-sm">
+      <button onclick="switchTab('tab-cars')" id="nav-tab-cars" class="nav-tab active-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 bg-blue-600 text-white transition-all shadow-md">
+        <i class="fa-solid fa-bus"></i>
+        <span>1. 班車車班查詢</span>
+      </button>
+      <button onclick="switchTab('tab-fabs')" id="nav-tab-fabs" class="nav-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all">
+        <i class="fa-solid fa-industry"></i>
+        <span>2. Fab 廠區到站與等候查詢</span>
+      </button>
+      <button onclick="switchTab('tab-summary')" id="nav-tab-summary" class="nav-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>3. 統計總結報表 (Summary)</span>
+      </button>
+      <button onclick="switchTab('tab-spec')" id="nav-tab-spec" class="nav-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all">
+        <i class="fa-solid fa-book-open text-cyan-400"></i>
+        <span>4. 系統規範與性能算法</span>
+      </button>
+      <button onclick="switchTab('tab-roster')" id="nav-tab-roster" class="nav-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all">
+        <i class="fa-solid fa-id-card-clip text-amber-400"></i>
+        <span>6. 司機與車輛排班 (Driver Roster)</span>
+      </button>
+      <button onclick="switchTab('tab-db')" id="nav-tab-db" class="nav-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all">
+        <i class="fa-solid fa-database"></i>
+        <span>5. 資料庫管理 & SQL 查詢台</span>
+      </button>
+      <a href="spec.html" target="_blank" class="px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-750 transition-all border border-slate-700/60 ml-auto" title="在新分頁開啟獨立完整規格手冊">
+        <i class="fa-solid fa-arrow-up-right-from-square text-cyan-400"></i>
+        <span>獨立手冊</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 space-y-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: 班車車班查詢 (Fleet Schedules)        -->
+    <!-- ========================================== -->
+    <section id="tab-cars" class="tab-pane space-y-6">
+      
+      <!-- Vehicle Select Buttons & Filters Bar -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          
+          <!-- Car Selector Buttons -->
+          <div>
+            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">請選擇車輛班次：</label>
+            <div class="flex flex-wrap gap-2" id="carButtonGroup">
+              <button onclick="selectCar('ALL')" class="car-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400" data-car="ALL" title="全部車隊 (全日 236 站次)">
+                🌐 全部車隊
+              </button>
+              <button onclick="selectCar('Car_A')" class="car-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400" data-car="Car_A" title="外廠與全巡迴 (FAB8F/8CD/8E/嘉晶)">
+                🚗 Car A
+              </button>
+              <button onclick="selectCar('Car_B')" class="car-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-blue-600 text-white border-blue-500 shadow-md" data-car="Car_B" title="8F 母港主動脈 (專車直達+全環廠)">
+                🚚 Car B
+              </button>
+              <button onclick="selectCar('Car_C')" class="car-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400" data-car="Car_C" title="8AB 力行心臟 (專車+中環廠)">
+                🚙 Car C
+              </button>
+              <button onclick="selectCar('Car_D')" class="car-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400" data-car="Car_D" title="8CD 母港純環廠 (高頻定點巡迴)">
+                🚛 Car D
+              </button>
+              <button onclick="selectCar('Car_E')" class="car-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400" data-car="Car_E" title="8S 庫房母港 (庫房專車+小環廠)">
+                🚐 Car E
+              </button>
+              <button onclick="selectCar('Car_U')" class="car-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400" data-car="Car_U" title="支援專車+小環 (離峰與備援)">
+                🚐 Car U
+              </button>
+            </div>
+          </div>
+
+          <!-- Secondary Filters (Mode, Search, Export) -->
+          <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <!-- Mode Filter -->
+            <div>
+              <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">模式：</label>
+              <select id="filterMode" onchange="renderCarSchedules()" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 outline-none focus:border-blue-500">
+                <option value="ALL">全部模式</option>
+                <option value="專車">專車直達 (滿載 40 批)</option>
+                <option value="環廠">全廠環廠 (巡迴 16~24 批)</option>
+                <option value="小環">小環廠</option>
+                <option value="外廠">嘉晶外廠</option>
+              </select>
+            </div>
+
+            <!-- Search box -->
+            <div class="flex-1 sm:w-48">
+              <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">快速搜尋：</label>
+              <div class="relative">
+                <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                <input type="text" id="scheduleSearch" oninput="renderCarSchedules()" placeholder="搜尋廠區、SOP、指令..." class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg pl-8 pr-3 py-2 outline-none focus:border-blue-500">
+              </div>
+            </div>
+
+            <!-- Export Button -->
+            <div class="self-end">
+              <button onclick="exportCurrentTableToCSV()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-3.5 py-2 rounded-lg font-medium border border-slate-600 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-file-csv text-emerald-400"></i>
+                <span>匯出 CSV</span>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Vehicle Detail Meta Card -->
+        <div id="carMetaCard" class="mt-5 p-4 rounded-xl bg-slate-900/80 border border-slate-700/80 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <!-- Populated by JS -->
+        </div>
+        <!-- 2026-11 On-Duty Driver & Fleet Roster Widget -->
+        <div id="carDriverRosterWidget" class="mt-3.5 pt-3 border-t border-slate-700/50 bg-slate-900/70 p-3.5 rounded-xl border border-slate-700/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 flex items-center gap-1.5">
+              <i class="fa-solid fa-id-card-clip text-amber-400"></i> 2026/11 執勤排班
+            </span>
+            <div class="flex items-center gap-1.5">
+              <label class="text-slate-400 font-medium">排班日期：</label>
+              <input type="date" id="rosterWidgetDate" value="2026-11-01" min="2026-11-01" max="2026-11-30" onchange="onRosterDateChange(this.value)" class="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-slate-200 text-xs font-mono outline-none focus:border-amber-400">
+            </div>
+          </div>
+          <div id="rosterWidgetDriverInfo" class="flex flex-wrap items-center gap-3 text-xs">
+            <!-- Dynamically populated driver info -->
+          </div>
+          <button onclick="switchTab('tab-roster')" class="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 font-semibold underline underline-offset-4 ml-auto">
+            查看全月排班總表 <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ================================================================ -->
+      <!-- By Car 各車次 OD、Capacity、總站次、營運站次、專/環車與司機休息時間分析 -->
+      <!-- ================================================================ -->
+      <div id="carOdSummaryPanel" class="bg-slate-800 border border-indigo-500/40 rounded-2xl overflow-hidden shadow-xl">
+        <div class="px-6 py-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-slate-800 via-indigo-950/50 to-slate-800">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+              <i class="fa-solid fa-calculator"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 id="carOdPanelTitle" class="font-bold text-base text-white">Car B 車次營運結構、專/環車統計、司機休息時間與各段 OD & Capacity 結算</h2>
+                <span id="carOdShiftBadge" class="bg-indigo-900/70 border border-indigo-500/40 text-indigo-300 text-xs px-2.5 py-0.5 rounded-full font-mono">☀️ 日班 (12H) + 24H 對照</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">點擊上方車次按鈕可即時切換查詢各車之「總站次、營運站次(扣除休息/交接)、專車/環車次數與運量、司機休息時間、各段 OD 載運量」</p>
+            </div>
+          </div>
+          <button onclick="toggleCarOdDetailTable()" id="btnToggleCarOdTable" class="bg-slate-700/80 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-600 transition flex items-center gap-1.5 font-semibold">
+            <i class="fa-solid fa-table-list text-cyan-400"></i>
+            <span id="btnToggleCarOdTableText">收合 OD 明細表</span>
+          </button>
+        </div>
+
+        <div class="p-5 space-y-5">
+          <!-- 6 Core Metric Cards -->
+          <div id="carOdKpiGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Per-Car OD & Capacity Breakdown Table -->
+          <div id="carOdTableWrapper" class="bg-slate-900/90 border border-slate-700/80 rounded-xl overflow-hidden">
+            <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-route"></i>
+                <span id="carOdTableSubtitle">Car B 各段 OD (起迄流向) 趟次與載運量 (Capacity) 彙總表</span>
+              </span>
+              <span id="carOdTableSummaryBadge" class="text-[11px] font-mono text-slate-400">共 7 條 OD 走廊</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-950/70 text-slate-400 uppercase font-semibold text-[11px] border-b border-slate-800">
+                  <tr>
+                    <th class="py-2.5 px-3 text-center">#</th>
+                    <th class="py-2.5 px-3">OD 起迄走廊 (From ➔ To)</th>
+                    <th class="py-2.5 px-3 text-center">服務模式</th>
+                    <th class="py-2.5 px-3 text-center">單班 (12H) 趟次</th>
+                    <th class="py-2.5 px-3 text-center">單班 (12H) 載運量</th>
+                    <th class="py-2.5 px-3 text-center">全日 (24H) 趟次</th>
+                    <th class="py-2.5 px-3 text-center">全日 (24H) 載運量</th>
+                    <th class="py-2.5 px-3 text-center">佔本車運能比</th>
+                    <th class="py-2.5 px-3 text-center">全廠 24H 需求 (D)</th>
+                    <th class="py-2.5 px-3 text-center">本車對全廠貢獻度</th>
+                    <th class="py-2.5 px-3">對應站次、發車時刻與單趟配額</th>
+                  </tr>
+                </thead>
+                <tbody id="carOdSummaryTableBody" class="divide-y divide-slate-800/70">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Timetable Table -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+        <div class="px-6 py-4 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3 bg-slate-800/80">
+          <div class="flex items-center gap-2">
+            <i class="fa-regular fa-clock text-blue-400 text-lg"></i>
+            <h2 id="scheduleTableTitle" class="font-bold text-base text-white">Car B 日班逐站標準作業時刻表</h2>
+            <span id="scheduleRowCount" class="bg-blue-900/60 border border-blue-600/40 text-blue-300 text-xs px-2.5 py-0.5 rounded-full font-mono">20 站</span>
+          </div>
+          <div class="text-xs text-slate-400 flex items-center gap-4">
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>專車 (直達)</span>
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>環廠 (巡迴)</span>
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>小環廠</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs lg:text-sm text-slate-300">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase font-semibold text-[11px] tracking-wider border-b border-slate-700">
+              <tr>
+                <th class="py-3 px-3 text-center">車次</th>
+                <th class="py-3 px-3 text-center">站次</th>
+                <th class="py-3 px-4">停靠廠區與作業位置</th>
+                <th class="py-3 px-3 text-center">模式</th>
+                <th class="py-3 px-3 text-center">物料起迄流向 (OD)</th>
+                <th class="py-3 px-3 text-center">載運量 (Cap)</th>
+                <th class="py-3 px-4 text-center font-mono">停靠時段 (到 - 離)</th>
+                <th class="py-3 px-3 text-center">作業 (Dwell)</th>
+                <th class="py-3 px-3 text-center">行車 (Transit)</th>
+                <th class="py-3 px-4">📦 上下貨與在途指令 (防呆關鍵)</th>
+                <th class="py-3 px-4">現場執行重點與 SOP</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleTableBody" class="divide-y divide-slate-700/60 font-normal">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: Fab 廠區到站與等候查詢 (Fab Timetable) -->
+    <!-- ========================================== -->
+    <section id="tab-fabs" class="tab-pane hidden space-y-6">
+
+      <!-- Fab Picker Bar -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+        <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">請選擇欲查詢之 Fab 廠區：</label>
+        <div class="flex flex-wrap gap-2.5" id="fabButtonGroup">
+          <button onclick="selectFab('FAB8F')" class="fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-amber-600 text-white border-amber-500 shadow-md" data-fab="FAB8F" title="代工母港樞紐">
+            🏭 FAB8F
+          </button>
+          <button onclick="selectFab('FAB8CD')" class="fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-emerald-400" data-fab="FAB8CD" title="裝卸碼頭上3F">
+            🏗️ FAB8CD
+          </button>
+          <button onclick="selectFab('FAB8E')" class="fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-purple-400" data-fab="FAB8E" title="外廠對接門戶">
+            🚪 FAB8E
+          </button>
+          <button onclick="selectFab('FAB8AB')" class="fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400" data-fab="FAB8AB" title="力行核心大廳">
+            🏢 FAB8AB
+          </button>
+          <button onclick="selectFab('FAB8S')" class="fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-red-400" data-fab="FAB8S" title="庫房母港 8S5A">
+            📦 FAB8S
+          </button>
+          <button onclick="selectFab('嘉晶篤行')" class="fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-cyan-400" data-fab="嘉晶篤行" title="外廠 (篤行)">
+            🌐 嘉晶篤行
+          </button>
+          <button onclick="selectFab('嘉晶創新')" class="fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-teal-400" data-fab="嘉晶創新" title="外廠 (創新)">
+            🌐 嘉晶創新
+          </button>
+        </div>
+      </div>
+
+      <!-- Fab KPI Cards Grid (Average Wait Time, Arrivals, Capacity, Headway) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="fabKpiContainer">
+        <!-- Average Headway / Waiting Time -->
+        <div class="bg-gradient-to-br from-slate-800 to-slate-850 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden">
+          <div class="absolute -right-3 -bottom-3 text-blue-500/10 text-7xl font-bold"><i class="fa-solid fa-hourglass-half"></i></div>
+          <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">班次平均間隔 (班距 Headway)</p>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span id="kpiAvgHeadway" class="text-3xl lg:text-4xl font-extrabold text-blue-400 font-mono">30.0</span>
+            <span class="text-sm text-slate-400">分鐘</span>
+          </div>
+          <div class="mt-3 flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-700/60">
+            <span>最短班距: <strong id="kpiMinHeadway" class="text-emerald-400 font-mono">5</strong> 分鐘</span>
+            <span>最長班距: <strong id="kpiMaxHeadway" class="text-amber-400 font-mono">85</strong> 分鐘</span>
+          </div>
+        </div>
+
+        <!-- Expected Average Wait Time for Random Arrival -->
+        <div class="bg-gradient-to-br from-slate-800 to-slate-850 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden">
+          <div class="absolute -right-3 -bottom-3 text-cyan-500/10 text-7xl font-bold"><i class="fa-solid fa-stopwatch"></i></div>
+          <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">現場人員平均等候時間 (預期值)</p>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span id="kpiExpectedWait" class="text-3xl lg:text-4xl font-extrabold text-cyan-400 font-mono">15.0</span>
+            <span class="text-sm text-slate-400">分鐘 (半班距)</span>
+          </div>
+          <p class="mt-3 text-xs text-slate-400 pt-2 border-t border-slate-700/60">
+            物料產出後隨時送達碼頭之平均等車時間
+          </p>
+        </div>
+
+        <!-- Total Arrivals / Visits -->
+        <div class="bg-gradient-to-br from-slate-800 to-slate-850 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden">
+          <div class="absolute -right-3 -bottom-3 text-amber-500/10 text-7xl font-bold"><i class="fa-solid fa-truck-ramp-box"></i></div>
+          <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">被訪問 / 車次抵達總數</p>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span id="kpiTotalVisits" class="text-3xl lg:text-4xl font-extrabold text-amber-400 font-mono">23</span>
+            <span class="text-sm text-slate-400">班次停靠</span>
+          </div>
+          <div class="mt-3 flex items-center gap-2 text-xs text-slate-400 pt-2 border-t border-slate-700/60" id="kpiModeBreakdown">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Total Logistics Capacity -->
+        <div class="bg-gradient-to-br from-slate-800 to-slate-850 p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden">
+          <div class="absolute -right-3 -bottom-3 text-emerald-500/10 text-7xl font-bold"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">廠區總承載運能供給</p>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span id="kpiTotalCap" class="text-3xl lg:text-4xl font-extrabold text-emerald-400 font-mono">752</span>
+            <span class="text-sm text-slate-400">批 (Batches)</span>
+          </div>
+          <p class="mt-3 text-xs text-slate-400 pt-2 border-t border-slate-700/60" id="kpiCarsServing">
+            服務車隊: Car B, C, D, E
+          </p>
+        </div>
+      </div>
+
+      <!-- 24-Hour Visual Arrival Timeline & Destination Flow Swimlanes -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg overflow-visible">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-timeline text-indigo-400"></i>
+              <span>全日 24 小時班車抵達與流向分佈圖 (Visual Arrival & OD Flow Density)</span>
+            </h3>
+            <div class="inline-flex bg-slate-900 p-0.5 rounded-lg border border-slate-700 text-[11px]">
+              <button id="btnTimelineSwimlane" onclick="setTimelineMode('swimlane')" class="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-semibold transition">流向泳道圖 (依目的廠分層)</button>
+              <button id="btnTimelineCompact" onclick="setTimelineMode('compact')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">單軸流向標籤圖</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-400 text-[11px] font-semibold flex items-center gap-1 mr-0.5">
+              <i class="fa-solid fa-car-side text-indigo-400"></i> 車輛顯示：
+            </span>
+            <div id="timelineCarToggleGroup" class="flex flex-wrap items-center gap-1.5">
+              <!-- Dynamically rendered by JS (Default: Car A~E on, Car U off) -->
+            </div>
+            <div class="flex items-center gap-1 pl-1.5 ml-1 border-l border-slate-700">
+              <button onclick="setAllTimelineCars(true)" class="text-[10px] text-slate-300 hover:text-white px-2 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-slate-500 transition">全選</button>
+              <button onclick="resetDefaultTimelineCars()" class="text-[10px] text-indigo-300 hover:text-white px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-700/60 hover:bg-indigo-900 transition" title="重設為預設：Car A~E 顯示，Car U 不顯示">預設(不含U車)</button>
+            </div>
+            <span class="text-slate-600 mx-0.5">|</span>
+            <span class="text-[11px] text-slate-400">標籤格式：<strong class="text-slate-200 font-mono">車次➔目的廠</strong>（懸停看明細）</span>
+          </div>
+        </div>
+
+        <!-- The timeline container (overflow-visible so hover tooltips are never clipped) -->
+        <div class="relative bg-slate-900 rounded-xl border border-slate-700 overflow-visible p-3" id="visualTimelineContainer">
+          <div id="timelineMarkers" class="relative w-full overflow-visible"></div>
+        </div>
+      </div>
+
+      <!-- Interactive Route Planner (From this Fab -> Destination) -->
+      <div class="bg-gradient-to-r from-slate-800 via-indigo-950/40 to-slate-800 border border-indigo-500/30 rounded-2xl p-5 shadow-lg">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-lg shadow">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm lg:text-base text-white">跨廠路徑物料派遣即時規劃 (OD Route Finder)</h3>
+              <p class="text-xs text-slate-400">查看從當前廠區發往目標廠區的對應車班與預計抵達時間</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="text-xs font-semibold text-slate-300">目的地：</span>
+            <select id="routeDestPicker" onchange="updateRouteFinder()" class="bg-slate-900 border border-indigo-500/50 text-indigo-300 font-semibold text-xs rounded-lg px-3 py-2 outline-none focus:border-indigo-400">
+              <option value="FAB8CD">FAB8CD 裝卸碼頭</option>
+              <option value="FAB8AB">FAB8AB 1F大廳</option>
+              <option value="FAB8E">FAB8E 1F大廳</option>
+              <option value="FAB8S">FAB8S 庫房</option>
+              <option value="嘉晶外廠">嘉晶外廠 (篤行/創新)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="routeResultsContainer" class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Chronological Arrival Table -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+        <div class="px-6 py-4 border-b border-slate-700 flex items-center justify-between bg-slate-800/80">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-calendar-check text-amber-400 text-lg"></i>
+            <h3 id="fabTableTitle" class="font-bold text-base text-white">FAB8F 班車抵達時刻與等候時間明細表</h3>
+          </div>
+          <span id="fabArrivalCount" class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1 rounded-full font-mono">23 班次</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs lg:text-sm text-slate-300">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase font-semibold text-[11px] tracking-wider border-b border-slate-700">
+              <tr>
+                <th class="py-3 px-3 text-center">班次序</th>
+                <th class="py-3 px-4 font-mono text-center">抵達時刻 (Arrival)</th>
+                <th class="py-3 px-4 font-mono text-center">發車時刻 (Departure)</th>
+                <th class="py-3 px-3 text-center">車次編號</th>
+                <th class="py-3 px-3 text-center">前班等候間隔 (班距)</th>
+                <th class="py-3 px-3 text-center">作業型態</th>
+                <th class="py-3 px-4 text-center">目標目的地 (Destination)</th>
+                <th class="py-3 px-3 text-center">預估行車</th>
+                <th class="py-3 px-3 text-center">承載運能</th>
+                <th class="py-3 px-5">📦 該站作業與裝載防呆指令</th>
+              </tr>
+            </thead>
+            <tbody id="fabArrivalTableBody" class="divide-y divide-slate-700/60 font-normal">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: 統計總結報表 (Summary Table & Charts) -->
+    <!-- ========================================== -->
+    <section id="tab-summary" class="tab-pane hidden space-y-6">
+
+      <!-- Summary Introduction Banner -->
+      <div class="bg-gradient-to-r from-slate-800 via-slate-800 to-blue-950/40 border border-slate-700 rounded-2xl p-5 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h2 class="font-bold text-lg text-white flex items-center gap-2">
+            <i class="fa-solid fa-table-list text-blue-400"></i>
+            <span>全廠區物聯綜合營運指標統計總綱 (Fab Master Summary Table)</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">計算每個工廠之被訪問次數、會診次數 (OD跨廠互訪次數)、平均等候時間 (班距) 以及總運能供給。</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportSummaryToCSV()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-4 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow">
+            <i class="fa-solid fa-file-excel"></i>
+            <span>匯出總表 CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- The Core Summary Table (Requirement #3) -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+        <div class="px-6 py-4 border-b border-slate-700 bg-slate-800/80 flex items-center justify-between">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2">
+            <span>📊 廠區指標總表 (依被訪問次數排序)</span>
+          </h3>
+          <span class="text-xs text-slate-400 font-mono">統計時段：<strong id="summaryShiftLabel" class="text-blue-400">☀️ 日班 (07:35~19:35)</strong></span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs lg:text-sm text-slate-300">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase font-semibold text-[11px] tracking-wider border-b border-slate-700">
+              <tr>
+                <th class="py-3.5 px-4">工廠代號 / 廠區</th>
+                <th class="py-3.5 px-4 text-center">🎯 被訪問次數<br><span class="text-[10px] text-slate-500 font-normal">(車輛停靠總次數)</span></th>
+                <th class="py-3.5 px-4 text-center">🚀 出發/發車次數<br><span class="text-[10px] text-slate-500 font-normal">(裝載啟程趟數)</span></th>
+                <th class="py-3.5 px-4 text-center">🤝 會診/互聯次數<br><span class="text-[10px] text-slate-500 font-normal">(跨廠 OD 專線班次)</span></th>
+                <th class="py-3.5 px-4 text-center font-mono">⏱️ 平均等候時間<br><span class="text-[10px] text-slate-500 font-normal">(平均班距 / 預期等候)</span></th>
+                <th class="py-3.5 px-4 text-center font-mono">等候時間區間<br><span class="text-[10px] text-slate-500 font-normal">(最短 ~ 最長)</span></th>
+                <th class="py-3.5 px-4 text-center font-mono">📦 總承載運能<br><span class="text-[10px] text-slate-500 font-normal">(批次 Batches)</span></th>
+                <th class="py-3.5 px-4">服務車隊 (Fleet)</th>
+              </tr>
+            </thead>
+            <tbody id="masterSummaryTableBody" class="divide-y divide-slate-700/60 font-medium">
+              <!-- Populated by JS -->
+            </tbody>
+            <tfoot id="masterSummaryTableFoot" class="bg-slate-900/90 font-bold border-t border-slate-600 text-white text-xs">
+              <!-- Populated by JS -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Chart 1: Visits vs Average Wait Time -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-bold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-chart-column text-indigo-400"></i>
+              <span>各廠區被訪問次數 vs. 平均班距等候時間</span>
+            </h4>
+            <span class="text-xs text-slate-400">柱狀：次數 / 折線：分鐘</span>
+          </div>
+          <div class="h-64 relative">
+            <canvas id="chartVisitsWait"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Capacity Distribution -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="font-bold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-emerald-400"></i>
+              <span>各廠區物料運能承載佔比 (Capacity Share)</span>
+            </h4>
+            <span class="text-xs text-slate-400">單位：批次 (Batches)</span>
+          </div>
+          <div class="h-64 relative flex items-center justify-center">
+            <canvas id="chartCapacity"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- OD From-To Matrix Heatmap -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+          <div>
+            <h3 class="font-bold text-sm lg:text-base text-white flex items-center gap-2">
+              <i class="fa-solid fa-arrows-split-up-and-left text-cyan-400"></i>
+              <span>廠區互聯流向矩陣與需求滿足率對比 (OD From-To Supply vs. Demand_from_to.xlsx)</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">縱列為起點 (From)，橫欄為迄點 (To)，完整對照 <code class="text-amber-300 font-mono">Demand_from_to.xlsx</code> 全日 24H 基準需求（跨廠 OD 合計 2,720 批 / 廠區 Sum 總計 5,294 批）與排程供給滿足率。</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-700 text-xs">
+              <button id="btnOdDemandAuto" onclick="setOdDemandScale('auto')" class="px-2.5 py-1 rounded-md bg-cyan-600 text-white font-semibold transition">
+                依班別對應基準 (24H=全日 / 日夜班=÷2)
+              </button>
+              <button id="btnOdDemandRaw24" onclick="setOdDemandScale('raw24')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">
+                固定顯示 Excel 24H 原始值
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Demand vs Supply KPI Strip -->
+        <div id="odDemandKpiStrip" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-center text-xs border border-slate-700 rounded-xl overflow-hidden font-mono" id="odMatrixTable">
+            <!-- Populated by JS -->
+          </table>
+        </div>
+
+        <!-- OD Utilization & Waiting Time Definitions + Segment Detail Table -->
+        <div class="pt-4 border-t border-slate-700/80 space-y-4">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="bg-slate-900/90 border border-cyan-500/30 rounded-xl p-4">
+              <div class="font-bold text-cyan-300 text-xs sm:text-sm flex items-center gap-2 mb-1.5">
+                <i class="fa-solid fa-percent"></i>
+                <span>定義一：每一段 OD 的「使用率 (Utilization Rate, ρ)」與「滿足率」</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                設該段 OD 需求量為 <code class="text-amber-300 font-mono">D</code>（批）、排程載運量為 <code class="text-cyan-300 font-mono">C</code>（批）：<br>
+                • <strong class="text-white">OD 使用率 (ρ) = 需求量 D ÷ 載運量 C × 100%</strong>：代表該航段派出的車廂儲位被實際需求填滿的比例（<span class="text-emerald-400">&lt;60% 充裕</span>、<span class="text-cyan-300">60%~95% 健康高效</span>、<span class="text-amber-300">95%~100% 滿載臨界</span>、<span class="text-rose-400">&gt;100% 直達超載需靠跨站順道</span>）。<br>
+                • <strong class="text-white">OD 滿足率 = 載運量 C ÷ 需求量 D × 100%</strong>（使用率之倒數）。
+              </p>
+            </div>
+            <div class="bg-slate-900/90 border border-amber-500/30 rounded-xl p-4">
+              <div class="font-bold text-amber-300 text-xs sm:text-sm flex items-center gap-2 mb-1.5">
+                <i class="fa-solid fa-clock"></i>
+                <span>定義二：每一段 OD 的「等候時間 (Waiting Time, W)」</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                設該段 OD 於週期 <code class="text-amber-300 font-mono">T</code>（全日 1440 分 / 單班 720 分）內有 <code class="text-cyan-300 font-mono">N</code> 趟發車，相鄰發車間隔為班距 <code class="text-white font-mono">H_i</code>：<br>
+                • <strong class="text-white">平均班距 (H̄) = T ÷ N</strong> ｜ <strong class="text-emerald-300">均勻預期等候 E[W]_unif = H̄ ÷ 2</strong>（假設班次等距分佈）。<br>
+                • <strong class="text-amber-300">真實排程預期等候 E[W]_exact = (Σ ½ H_i²) ÷ T</strong>：考慮尖峰連發或午休/跨班長空窗的不均勻性，反映貨物隨機抵達碼頭時的真實平均等車時間。
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/70 border border-slate-700 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-700 bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h4 class="font-bold text-xs sm:text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-route text-emerald-400"></i>
+                <span>各段 OD 載運量、需求量、使用率與等候時間完整計算明細表</span>
+              </h4>
+              <span class="text-[11px] text-slate-400 font-mono">涵蓋 22 段核心需求走廊 + 4 段環廠中繼跳板航段</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300 font-mono">
+                <thead class="bg-slate-950 text-slate-400 text-[11px] border-b border-slate-700">
+                  <tr>
+                    <th class="py-2.5 px-3 text-center">#</th>
+                    <th class="py-2.5 px-3">OD 航段 (起點 ➔ 迄點)</th>
+                    <th class="py-2.5 px-3 text-center">需求量 (D)</th>
+                    <th class="py-2.5 px-3 text-center">排程班次 (N)</th>
+                    <th class="py-2.5 px-3 text-center">載運量 (C)</th>
+                    <th class="py-2.5 px-3 text-center">使用率 (ρ=D/C)</th>
+                    <th class="py-2.5 px-3 text-center">滿足率 (C/D)</th>
+                    <th class="py-2.5 px-3 text-center">平均班距 (H̄)</th>
+                    <th class="py-2.5 px-3 text-center">均勻等候 (H̄/2)</th>
+                    <th class="py-2.5 px-3 text-center">真實排程等候 E[W]</th>
+                    <th class="py-2.5 px-3 text-center">最短/最長班距</th>
+                    <th class="py-2.5 px-3">發車時刻與車隊運能明細</th>
+                  </tr>
+                </thead>
+                <tbody id="odSegmentDetailTableBody" class="divide-y divide-slate-800">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: 系統規格、資源服務與性能算法手冊        -->
+    <!-- ========================================== -->
+    <section id="tab-spec" class="tab-pane hidden space-y-8">
+      
+      <!-- Top Banner -->
+      <div class="bg-gradient-to-r from-slate-800 via-indigo-950/60 to-slate-800 border border-indigo-500/30 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-mono font-bold">規格文檔與數理模型</span>
+            <span class="text-xs text-slate-400">System Specifications & Mathematical Modeling</span>
+          </div>
+          <h2 class="text-xl font-extrabold text-white mt-1">廠區物流排程：問題定義、資源架構、服務模式與性能算法</h2>
+          <p class="text-xs text-slate-300 mt-1 max-w-3xl leading-relaxed">
+            深入說明半導體廠區物流本質挑戰、5 大專業車隊與場站資源約束、5 大標準化物流服務型態，以及班距、排隊論等候時間、運能結算的完整工程數學公式。
+          </p>
+        </div>
+        <a href="spec.html" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-4 py-2.5 rounded-xl font-bold transition flex items-center gap-2 shadow-lg shadow-indigo-600/30 flex-shrink-0">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          <span>開啟獨立完整手冊</span>
+        </a>
+      </div>
+
+      <!-- Part 1: 問題的描述 -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg space-y-4">
+        <div class="flex items-center gap-3 border-b border-slate-700/80 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center font-bold">1</div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
+            <span>問題的描述（Problem Description & Domain Context）</span>
+          </h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-300">
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80 space-y-2">
+            <strong class="text-amber-300 block font-semibold">1.1 單車巡迴之死局 (Single Truck Bottleneck)</strong>
+            <p class="text-slate-400 leading-relaxed">
+              若依據原始簡化模型僅以 1 部貨車在 A、E、F、S 廠區間依序巡迴（AE, AF, AS, EF, ES, FS），在面臨急件與非對稱貨量時，貨車在前站滿載（40 批）後便無法在後續站點上貨，將導致物料滯留、班距拉長至 2 小時以上，引發產線斷料風險。
+            </p>
+          </div>
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80 space-y-2">
+            <strong class="text-cyan-300 block font-semibold">1.2 多廠區動線與垂直高度差異</strong>
+            <p class="text-slate-400 leading-relaxed">
+              各廠作業型態各異：FAB8CD 裝卸碼頭位於 3F（需搭乘大型貨梯換車作業，停留長達 25 分鐘）；FAB8AB 與 8E 為 1F 平面大廳；FAB8S5A 為深層倉庫；嘉晶外廠則跨越園區道路（單趟車程 15 分鐘），具有嚴格的時間與空間約束。
+            </p>
+          </div>
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80 space-y-2">
+            <strong class="text-emerald-300 block font-semibold">1.3 排程優化的核心目標</strong>
+            <p class="text-slate-400 leading-relaxed">
+              將物流問題由單車擴展為 5 車聯防：達到「核心走廊最短班距（20~30 分鐘）」、「各廠在途載量防呆控制（避免滿載拒收）」與「滿足基準需求矩陣 10 倍以上高裕度」，實現 24 小時不間斷晶圓流轉。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Part 2: 資源的描述 -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg space-y-4">
+        <div class="flex items-center gap-3 border-b border-slate-700/80 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">2</div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-truck-ramp-box text-amber-400"></i>
+            <span>資源的描述（Resource Specifications & Constraints）</span>
+          </h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+          <div class="bg-slate-900/80 p-3.5 rounded-xl border border-blue-500/30">
+            <strong class="text-blue-400 font-bold block text-sm">Car A (外廠與巡迴)</strong>
+            <span class="text-slate-400 text-[11px] block mt-1">母站: 8E 1F大廳</span>
+            <span class="text-amber-400 font-mono text-[11px] block">運能: 360 批 (19趟)</span>
+            <p class="text-slate-400 text-[11px] mt-2">外廠門戶旗艦，獨家專營嘉晶外廠（篤行/創新）對開。</p>
+          </div>
+          <div class="bg-slate-900/80 p-3.5 rounded-xl border border-amber-500/30">
+            <strong class="text-amber-400 font-bold block text-sm">Car B (代工主動脈)</strong>
+            <span class="text-slate-400 text-[11px] block mt-1">母站: 8F 代工出入口</span>
+            <span class="text-amber-400 font-mono text-[11px] block font-bold">運能: 600 批 (冠軍)</span>
+            <p class="text-slate-400 text-[11px] mt-2">8F 樞紐超級重砲，高密度對開 8CD，含午休跨休專車。</p>
+          </div>
+          <div class="bg-slate-900/80 p-3.5 rounded-xl border border-cyan-500/30">
+            <strong class="text-cyan-400 font-bold block text-sm">Car C (力行心臟)</strong>
+            <span class="text-slate-400 text-[11px] block mt-1">母站: 8AB 1F大廳</span>
+            <span class="text-amber-400 font-mono text-[11px] block">運能: 480 批 (16趟)</span>
+            <p class="text-slate-400 text-[11px] mt-2">力行主力，晨間密集對開 8F，午後支援大環廠巡迴。</p>
+          </div>
+          <div class="bg-slate-900/80 p-3.5 rounded-xl border border-emerald-500/30">
+            <strong class="text-emerald-400 font-bold block text-sm">Car D (純環廠巡迴)</strong>
+            <span class="text-slate-400 text-[11px] block mt-1">母站: 8CD 碼頭上3F</span>
+            <span class="text-amber-400 font-mono text-[11px] block">運能: 240 批 (16趟)</span>
+            <p class="text-slate-400 text-[11px] mt-2">純環廠專職循環，嚴格限制在途載量 ≤16~24 批防塞。</p>
+          </div>
+          <div class="bg-slate-900/80 p-3.5 rounded-xl border border-purple-500/30">
+            <strong class="text-purple-400 font-bold block text-sm">Car E (庫房母港)</strong>
+            <span class="text-slate-400 text-[11px] block mt-1">母站: 8S 庫房8S5A</span>
+            <span class="text-amber-400 font-mono text-[11px] block">運能: 480 批 (16趟)</span>
+            <p class="text-slate-400 text-[11px] mt-2">8S 庫房始發，深度裝載晨送 8F，日夜班交接順暢。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Part 3: 服務的描述 -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg space-y-4">
+        <div class="flex items-center gap-3 border-b border-slate-700/80 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">3</div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-bell-concierge text-emerald-400"></i>
+            <span>服務的描述（Service Taxonomy & Operational Models）</span>
+          </h3>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-red-500/30 space-y-1.5">
+            <strong class="text-red-400 block font-bold text-sm">🚀 專車直達服務 (Express Line)</strong>
+            <p class="text-slate-300">滿載 40 批，點對點直達，中途不拆盤、不停靠。專門承接晨間緊急投料與 8F 代工、8S 庫房大宗出料需求。</p>
+          </div>
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-blue-500/30 space-y-1.5">
+            <strong class="text-blue-400 block font-bold text-sm">🔄 全廠環廠巡迴 (Outer Loop)</strong>
+            <p class="text-slate-300">沿 8CD➔8F➔8S➔8E➔8AB 順時鐘定班循環。實施「在途載量上限防呆（≤24批）」，保障各廠隨時皆有空位可上貨。</p>
+          </div>
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-amber-500/30 space-y-1.5">
+            <strong class="text-amber-400 block font-bold text-sm">⚡ 小環廠快速循環 (Inner Loop)</strong>
+            <p class="text-slate-300">針對 8F-8CD-8AB 等高流動熱點穿插短巡迴，縮短迂迴時間，將代工走廊等候班距壓制在 20 分鐘以內。</p>
+          </div>
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-cyan-500/30 space-y-1.5">
+            <strong class="text-cyan-400 block font-bold text-sm">🌐 嘉晶外廠專營對開 (External Line)</strong>
+            <p class="text-slate-300">跨園區專線直達嘉晶篤行廠與創新廠，遵循專屬外廠出入 SOP 與物料交接單確認。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Part 4: 性能的計算方法 -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg space-y-6">
+        <div class="flex items-center gap-3 border-b border-slate-700/80 pb-3">
+          <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">4</div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-square-root-variable text-cyan-400"></i>
+            <span>性能的計算方法（Mathematical Formulations & Queueing Models）</span>
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-300">
+          
+          <!-- Math 1 -->
+          <div class="bg-slate-900/90 p-5 rounded-xl border border-slate-700 space-y-2">
+            <strong class="text-cyan-400 font-bold block text-sm">4.1 班距 (Headway) 與 平均班距計算</strong>
+            <p class="text-slate-400 leading-relaxed">
+              設廠區 $f$ 在指定時段共有 $N$ 班車依序抵達時刻為 $t_1, t_2, \dots, t_N$（單位為分鐘），相鄰班距定義為：
+            </p>
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-cyan-300 my-1">
+              \( H_i = t_i - t_{i-1}, \quad \forall i \in \{2, \dots, N\} \)
+            </div>
+            <p class="text-slate-400 leading-relaxed">
+              全時段平均班距 $\bar{H}_f$ 為所有間隔的平均值：
+            </p>
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-cyan-300 my-1">
+              \( \bar{H}_f = \frac{1}{N - 1} \sum_{i=2}^{N} H_i = \frac{t_N - t_1}{N - 1} \)
+            </div>
+          </div>
+
+          <!-- Math 2 -->
+          <div class="bg-slate-900/90 p-5 rounded-xl border border-slate-700 space-y-2">
+            <strong class="text-emerald-400 font-bold block text-sm">4.2 隨機到達物料之預期等候時間 (Inspection Paradox)</strong>
+            <p class="text-slate-400 leading-relaxed">
+              依據排隊論與更新過程（Renewal Theory），現場隨機產出物料的平均等候時間為：
+            </p>
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-emerald-400 my-1">
+              \( E[W] = \frac{E[H^2]}{2E[H]} = \frac{\bar{H}}{2} \left( 1 + \frac{\sigma_H^2}{\bar{H}^2} \right) = \frac{\bar{H}}{2} (1 + C_v^2) \)
+            </div>
+            <p class="text-slate-400 leading-relaxed">
+              當班次完全等距時（$\sigma_H = 0$），預期等候為半班距 $\frac{1}{2}\bar{H}$；在班距不均勻時，$C_v > 0$，精準反映尖離峰實際等待時間。
+            </p>
+          </div>
+
+          <!-- Math 3 -->
+          <div class="bg-slate-900/90 p-5 rounded-xl border border-slate-700 space-y-2">
+            <strong class="text-amber-400 font-bold block text-sm">4.3 訪問次數與會診（互聯）次數計算</strong>
+            <p class="text-slate-400 leading-relaxed">
+              <strong>被訪問次數（$V_f$）</strong>：統計車輛停靠該廠作業之總次數：
+            </p>
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-white my-1">
+              \( V_f = \sum_{s \in \mathcal{S}} \mathbb{I}(\text{fab}(s) = f \land \text{is\_break}(s) = 0) \)
+            </div>
+            <p class="text-slate-400 leading-relaxed">
+              <strong>會診/互聯次數（$C_f$）</strong>：該廠與跨廠建立直達 OD 專線之班次總數：
+            </p>
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-white my-1">
+              \( C_f = \sum_{s \in \mathcal{S}} \mathbb{I}((\text{orig}(s) = f \lor \text{dest}(s) = f) \land \text{is\_break}=0) \)
+            </div>
+          </div>
+
+          <!-- Math 4 -->
+          <div class="bg-slate-900/90 p-5 rounded-xl border border-slate-700 space-y-2">
+            <strong class="text-purple-400 font-bold block text-sm">4.4 OD 運能供給與需求滿足率 (Fulfillment Ratio)</strong>
+            <p class="text-slate-400 leading-relaxed">
+              對於任一走廊 $(o, d)$，其總供給流向運能為該 OD 所有班次載量配額總和：
+            </p>
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-purple-300 my-1">
+              \( \text{Cap}(o, d) = \sum_{s \in \mathcal{S}_{o \to d}} \text{Cap}(s) \)
+            </div>
+            <p class="text-slate-400 leading-relaxed">
+              對照基準需求矩陣 $\text{Demand}(o, d)$ 之需求滿足率為：
+            </p>
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-purple-300 my-1">
+              \( \text{Fulfillment}(o, d) = \frac{\text{Cap}(o, d)}{\text{Demand}(o, d)} \times 100\% \)
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: 資料庫管理 & SQL 查詢台 (DB Console)  -->
+    <!-- ========================================== -->
+    <!-- ========================================== -->
+    <!-- TAB 6: 司機與車輛排班看板 (Driver Roster)    -->
+    <!-- ========================================== -->
+    <section id="tab-roster" class="tab-pane hidden space-y-6">
+      
+      <!-- Header & Filter Bar -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <span class="w-3 h-3 rounded-full bg-amber-400 animate-pulse"></span>
+              <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-id-card-clip text-amber-400"></i>
+                2026 年 11 月 司機與車輛排班管理看板 (Driver & Fleet Roster Hub)
+              </h2>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">完整數位化 2026/11 全月車輛調度、執勤司機排班、日夜班輪替及出勤工時統計分析。</p>
+          </div>
+
+          <!-- Export buttons -->
+          <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+            <a href="driver_roster_202611.xlsx" download class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow">
+              <i class="fa-solid fa-file-excel"></i> 下載 Excel 排班表 (.xlsx)
+            </a>
+            <a href="driver_roster_202611.csv" download class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-file-csv"></i> CSV
+            </a>
+            <a href="driver_roster_202611.json" download class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-code"></i> JSON
+            </a>
+          </div>
+        </div>
+
+        <!-- Date & Shift Filter Row -->
+        <div class="pt-4 border-t border-slate-700/60 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-xl p-1">
+              <button onclick="stepRosterDate(-1)" class="px-2.5 py-1.5 hover:bg-slate-800 text-slate-300 rounded text-xs transition" title="前一天">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <input type="date" id="rosterMainDate" value="2026-11-01" min="2026-11-01" max="2026-11-30" onchange="renderDriverRosterView()" class="bg-transparent text-white font-mono text-xs px-2 py-1 outline-none font-bold">
+              <button onclick="stepRosterDate(1)" class="px-2.5 py-1.5 hover:bg-slate-800 text-slate-300 rounded text-xs transition" title="後一天">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+              <button onclick="setRosterDateToday()" class="px-2.5 py-1 text-[11px] bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded transition ml-1">
+                首日 (11/01)
+              </button>
+            </div>
+
+            <div class="flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-xl p-1 text-xs">
+              <button id="btnRosterShiftDay" onclick="setRosterShift('Day')" class="px-3 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition">☀️ 日班</button>
+              <button id="btnRosterShiftNight" onclick="setRosterShift('Night')" class="px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition">🌙 夜班</button>
+              <button id="btnRosterShiftAll" onclick="setRosterShift('all')" class="px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition">全日</button>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs text-slate-400 font-mono">
+            <span id="rosterDateLabel" class="text-amber-400 font-bold text-sm">2026-11-01 (週日)</span>
+            <span class="text-slate-600">|</span>
+            <span id="rosterShiftSummaryBadge" class="bg-slate-900 px-2.5 py-1 rounded border border-slate-700 text-slate-300">執勤車輛：5 輛</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fleet Roster Grid (Selected Day) -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-truck-ramp-box text-cyan-400"></i>
+          <span id="rosterGridTitle">2026-11-01 各車執勤司機與車輛調度看板</span>
+        </h3>
+        <div id="rosterCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <!-- Driver Attendance Leaderboard & Hours Statistics -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-ranking-star text-amber-400"></i>
+              全月 17 位司機出勤統計與工時排行榜 (Driver Attendance Leaderboard)
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">統計 2026 年 11 月份各司機總執勤班次、日夜班輪值分佈、主責車輛與累計工時估算。</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="flex items-center gap-1.5 text-blue-400"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>聯倉車隊 (13位)</span>
+            <span class="flex items-center gap-1.5 text-emerald-400"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>UM車隊支援 (4位)</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-700">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-900/90 text-slate-300 uppercase font-mono text-[11px] border-b border-slate-700">
+              <tr>
+                <th class="py-3 px-4">排名</th>
+                <th class="py-3 px-4">司機姓名</th>
+                <th class="py-3 px-4">車隊廠商</th>
+                <th class="py-3 px-4 text-center">總出勤班次</th>
+                <th class="py-3 px-4 text-center">☀️ 日班</th>
+                <th class="py-3 px-4 text-center">🌙 夜班</th>
+                <th class="py-3 px-4">日/夜班輪替佔比</th>
+                <th class="py-3 px-4">主要執勤車輛</th>
+                <th class="py-3 px-4 text-right">預估總工時</th>
+              </tr>
+            </thead>
+            <tbody id="driverStatsTableBody" class="divide-y divide-slate-700/60 bg-slate-800/40 font-mono">
+              <!-- Dynamically rendered -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Full Month Calendar Matrix (横向甘特排程矩陣) -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-calendar-days text-blue-400"></i>
+              全月車輛排班總覽甘特矩陣 (Full Month 30-Day Fleet Schedule Matrix)
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">展示 2026/11/01～11/30 全月每日、日夜雙班 6 輛車之執勤司機全景排程。</p>
+          </div>
+          <div class="flex items-center gap-2 text-[11px]">
+            <span class="px-2 py-0.5 rounded bg-blue-900/40 text-blue-300 border border-blue-500/30">聯倉車隊 (Car A~E)</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-900/40 text-emerald-300 border border-emerald-500/30">UM車隊 (Car U)</span>
+            <span class="px-2 py-0.5 rounded bg-slate-900/40 text-slate-400 border border-slate-700">無班次/停駛</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-700 max-h-[600px] overflow-y-auto">
+          <table id="rosterMatrixTable" class="w-full text-center text-xs border-collapse">
+            <!-- Dynamically generated 30-day matrix table -->
+          </table>
+        </div>
+      </div>
+
+      <!-- Compliance & Scheduling Insights -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 space-y-2">
+          <h4 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-shield-check text-emerald-400"></i> 聯倉車隊 (13位) 排班與工時合規
+          </h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            聯倉 13 位司機負責 Car A～Car E 主力車隊，全月執勤 15～24 班（日班主力：謝芳羽、陳紹群、詹桂榮、李煒、張立辰、李本彬、何峻哲；夜班主力：王顥鈞、陳盈忠、陳紹豐、葉天誠、黃浩銓、黃煜程），排休均符合一例一休規範。
+          </p>
+        </div>
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 space-y-2">
+          <h4 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-people-arrows text-cyan-400"></i> UM 車隊 (Car U) 專責調度
+          </h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Car U（車牌 RGE-2107）由 UM 車隊 4 位司機執勤：日班由吳忠信（12班）支援週一至週五；夜班由洪志成（19班）、何學禮（7班）、陳俊宏（4班）30天全月無休輪值。
+          </p>
+        </div>
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 space-y-2">
+          <h4 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-truck-fast text-amber-400"></i> 跨車機動代班與車牌定錨
+          </h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            全車隊固定配屬車牌（Car A: KPC-6593、Car B: KPC-6586、Car C: KPC-6588、Car D: KPA-7309、Car E: KPC-6131、Car U: RGE-2107），並由謝芳羽、張立辰、黃浩銓、黃煜程進行跨車機動輪替。
+          </p>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="tab-db" class="tab-pane hidden space-y-6">
+
+      <!-- DB Architecture Info -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div>
+            <h2 class="font-bold text-base text-white flex items-center gap-2">
+              <i class="fa-solid fa-server text-emerald-400"></i>
+              <span>SQLite 本地資料庫引擎 (logistics.db)</span>
+              <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono">SQLite 3.53</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">時刻表已完全正規化轉為關係型資料庫，包含 <code class="text-blue-300 font-mono">schedules</code> (198 筆), <code class="text-blue-300 font-mono">cars</code> (5 筆), <code class="text-blue-300 font-mono">fabs</code> (7 筆), <code class="text-blue-300 font-mono">demand_matrix</code>。</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="reloadDatabase()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3.5 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow">
+              <i class="fa-solid fa-arrows-rotate"></i>
+              <span>從時刻表重構資料庫 (ETL Reset)</span>
+            </button>
+            <button onclick="downloadDbFile()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-3.5 py-2 rounded-lg font-medium border border-slate-600 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-download"></i>
+              <span>下載 logistics.db</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Schema preview pills -->
+        <div class="mt-4 pt-3 border-t border-slate-700/60 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 text-xs">
+            <strong class="text-blue-400 font-mono block">TABLE: cars</strong>
+            <p class="text-slate-400 text-[11px] mt-1">id, name, title, hub, phone, shift_target_cap, description</p>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 text-xs">
+            <strong class="text-purple-400 font-mono block">TABLE: fabs</strong>
+            <p class="text-slate-400 text-[11px] mt-1">code, name, display_name, color, description</p>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 text-xs">
+            <strong class="text-emerald-400 font-mono block">TABLE: schedules</strong>
+            <p class="text-slate-400 text-[11px] mt-1">id, car_id, stop_no, shift, fab_code, mode, od_flow, arr_time, dep_time, dwell_mins, transit_mins, cargo_cmd, sop_details</p>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 text-xs">
+            <strong class="text-amber-400 font-mono block">TABLE: demand_matrix (22 筆)</strong>
+            <p class="text-slate-400 text-[11px] mt-1">from_fab, to_fab, demand_batches (24H全日), demand_shift_batches (12H單班) — 源自 Demand_from_to.xlsx</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time SQL Query Console -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2">
+            <i class="fa-solid fa-terminal text-cyan-400 font-mono"></i>
+            <span>即時 SQL 查詢終端 (Live SQL Console)</span>
+          </h3>
+          <span class="text-xs text-slate-400">支援即時執行標準 SQLite SELECT 語法</span>
+        </div>
+
+        <!-- Quick Preset Query Buttons -->
+        <div class="flex flex-wrap gap-2 text-xs">
+          <span class="text-slate-400 py-1">常用快捷查詢：</span>
+          <button onclick="setQueryPreset(1)" class="bg-slate-900 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-700 transition">
+            1. 統計各車輛作業時間與趟數
+          </button>
+          <button onclick="setQueryPreset(2)" class="bg-slate-900 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-700 transition">
+            2. 查詢所有直達專車班次 (40批)
+          </button>
+          <button onclick="setQueryPreset(3)" class="bg-slate-900 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-700 transition">
+            3. FAB8F 代工出入口全日到站
+          </button>
+          <button onclick="setQueryPreset(4)" class="bg-slate-900 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-700 transition">
+            4. 嘉晶外廠對開班次
+          </button>
+          <button onclick="setQueryPreset(5)" class="bg-amber-950/60 hover:bg-amber-900/70 text-amber-300 px-2.5 py-1 rounded border border-amber-700/60 transition font-semibold">
+            5. 查詢 Demand_from_to.xlsx 需求矩陣 (22筆)
+          </button>
+        </div>
+
+        <!-- SQL Input Area -->
+        <div class="relative">
+          <textarea id="sqlInput" rows="4" class="w-full bg-slate-950 text-emerald-400 font-mono text-xs p-3.5 rounded-xl border border-slate-700 outline-none focus:border-cyan-400 shadow-inner" placeholder="輸入 SQL 查詢，例如：SELECT car_name, stop_no, fab_code, arr_time, dep_time, mode FROM schedules WHERE shift='day' LIMIT 20;"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div id="sqlExecutionMsg" class="text-xs text-slate-400 font-mono">
+            等待執行查詢...
+          </div>
+          <button onclick="executeSQL()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-cyan-600/30">
+            <i class="fa-solid fa-play"></i>
+            <span>執行 SQL 查詢</span>
+          </button>
+        </div>
+
+        <!-- SQL Results Table -->
+        <div class="bg-slate-900 rounded-xl border border-slate-700 overflow-x-auto max-h-96">
+          <table class="w-full text-left text-xs text-slate-300 font-mono" id="sqlResultTable">
+            <thead class="bg-slate-950 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800" id="sqlResultHead">
+              <!-- Result Headers -->
+            </thead>
+            <tbody class="divide-y divide-slate-800" id="sqlResultBody">
+              <tr><td class="p-4 text-center text-slate-500">尚無查詢結果，請點擊上方快捷查詢或自行輸入 SQL 執行。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-950 border-t border-slate-800 py-5 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>廠區物流時刻表智慧戰情與資料庫系統 © 2026 Fleet Intelligence System</p>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-1"><i class="fa-solid fa-database text-emerald-400"></i> SQLite 3.53</span>
+        <span>•</span>
+        <span class="inline-flex items-center gap-1"><i class="fa-solid fa-bolt text-amber-400"></i> Localhost API</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    // --- Global State ---
+    let currentTab = 'tab-cars';
+    let currentShift = 'day'; // 'day', 'night', 'all'
+    let selectedCar = 'Car_B';
+    let selectedFab = 'FAB8F';
+    let isLiveServer = false;
+    let fallbackData = null;
+
+    let chartVisitsWaitInstance = null;
+    let chartCapacityInstance = null;
+
+    // Car metadata dictionary
+    const CARS_INFO = {
+      'Car_A': {
+        name: 'Car A',
+        title: 'Car A 車班表（外廠門戶與全廠巡迴旗艦）',
+        hub: 'FAB8E 1F 大廳',
+        phone: '8644824（0960-717239）',
+        target_cap: '472 批 (單班實質) / 360 批',
+        mission: '專車直達（晨間）+ 嘉晶外廠專營 + 環廠巡迴'
+      },
+      'Car_B': {
+        name: 'Car B',
+        title: 'Car B 車班表（FAB8F 代工母港主動脈專車）',
+        hub: 'FAB8F 代工出入口',
+        phone: '8644828（0960-717178）',
+        target_cap: '600 批 (單班冠軍)',
+        mission: '8F 十字路口超級重砲，高密度對開與午休跨休專車'
+      },
+      'Car_C': {
+        name: 'Car C',
+        title: 'Car C 車班表（FAB8AB 力行心臟與 8F 密集對開）',
+        hub: 'FAB8AB 1F 大廳',
+        phone: '8644830（0960-717258）',
+        target_cap: '544 批 (單班實質) / 520 批',
+        mission: '力行 8AB 大廳主力與午後大環巡迴'
+      },
+      'Car_D': {
+        name: 'Car D',
+        title: 'Car D 車班表（FAB8CD 母港全日純環廠巡迴車）',
+        hub: 'FAB8CD 裝卸碼頭上 3F',
+        phone: '8681029（0965-702916）',
+        target_cap: '256 批 (單班實質) / 240 批',
+        mission: '全廠巡迴（8CD➔8F➔8S➔8E➔8AB），主扛 8S 庫房'
+      },
+      'Car_E': {
+        name: 'Car E',
+        title: 'Car E 車班表（FAB8S 庫房母港專車與小環）',
+        hub: 'FAB8S 1F 碼頭/8S5A',
+        phone: '8681030（0965-702918）',
+        target_cap: '488 批 (單班實質) / 480 批',
+        plate: 'KPC-6131',
+        mission: '8S 庫房始發，日班試運行，密集庫房出入料'
+      },
+      'Car_U': {
+        name: 'Car U',
+        title: 'Car U 車班表（聯電同仁支援加班車・專車+小環）',
+        hub: 'FAB8S 1F 碼頭/8S5A',
+        phone: '8638834（0975-612990）',
+        target_cap: '496 批 (單班)',
+        plate: 'RGE-2107',
+        mission: '聯電同仁支援加班車（專車+藍色框小環），窗口：洪婷 8638833'
+      }
+    };
+
+    // --- Initialization ---
+    window.addEventListener('DOMContentLoaded', async () => {
+      startLiveClock();
+      await checkServerConnection();
+      renderCarSchedules();
+      renderFabAnalysis();
+      renderSummaryReport();
+      renderODMatrix();
+    });
+
+    function startLiveClock() {
+      const el = document.getElementById('liveClock');
+      function update() {
+        const d = new Date();
+        el.innerText = d.toLocaleTimeString('zh-TW', { hour12: false });
+      }
+      setInterval(update, 1000);
+      update();
+    }
+
+    async function checkServerConnection() {
+      try {
+        const res = await fetch('/api/cars');
+        if (res.ok) {
+          isLiveServer = true;
+          document.getElementById('dbStatusBadge').innerText = 'logistics.db 已連線 (SQLite)';
+          document.getElementById('dbStatusBadge').parentElement.classList.replace('text-emerald-400', 'text-emerald-400');
+          return;
+        }
+      } catch (e) {
+        console.warn('API server not detected, attempting db_export.json fallback...');
+      }
+
+      // Offline / Static fallback
+      try {
+        const res = await fetch('db_export.json');
+        if (res.ok) {
+          fallbackData = await res.json();
+          document.getElementById('dbStatusBadge').innerText = '本機 JSON 快取模式 (236 筆)';
+          document.getElementById('dbStatusBadge').parentElement.classList.replace('text-emerald-400', 'text-cyan-400');
+          return;
+        }
+      } catch (err) {
+        console.error('Failed to load fallback data', err);
+      }
+    }
+
+    // --- Tab Navigation ---
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.classList.remove('active-tab', 'bg-blue-600', 'text-white', 'shadow-md');
+        btn.classList.add('text-slate-300', 'hover:bg-slate-700');
+      });
+
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) {
+        activeNav.classList.add('active-tab', 'bg-blue-600', 'text-white', 'shadow-md');
+        activeNav.classList.remove('text-slate-300', 'hover:bg-slate-700');
+      }
+
+      if (tabId === 'tab-summary') {
+        setTimeout(renderCharts, 100);
+      }
+      if (tabId === 'tab-roster') {
+        renderDriverRosterView();
+      }
+      if (tabId === 'tab-spec' && typeof renderMathInElement === 'function') {
+        renderMathInElement(document.getElementById('tab-spec'), {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '$', right: '$', display: false}
+          ]
+        });
+      }
+    }
+
+    function setGlobalShift(shift) {
+      currentShift = shift;
+
+      // Update Shift Button Styles
+      const bDay = document.getElementById('btnShiftDay');
+      const bNight = document.getElementById('btnShiftNight');
+      const bAll = document.getElementById('btnShiftAll');
+
+      [bDay, bNight, bAll].forEach(b => {
+        b.className = 'px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 text-slate-400 hover:text-white';
+      });
+
+      if (shift === 'day') {
+        bDay.className = 'px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-blue-600 text-white shadow';
+        document.getElementById('summaryShiftLabel').innerText = '☀️ 日班 (07:35~19:35)';
+      } else if (shift === 'night') {
+        bNight.className = 'px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-purple-600 text-white shadow';
+        document.getElementById('summaryShiftLabel').innerText = '🌙 夜班 (19:35~07:35)';
+      } else {
+        bAll.className = 'px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-indigo-600 text-white shadow';
+        document.getElementById('summaryShiftLabel').innerText = '🕒 24H 全日時間軸';
+      }
+
+      renderCarSchedules();
+      renderFabAnalysis();
+      renderSummaryReport();
+      renderODMatrix();
+    }
+
+    // ==========================================
+    // 1. CAR SCHEDULE FUNCTIONS
+    // ==========================================
+    function selectCar(carKey) {
+      selectedCar = carKey;
+
+      // Update button styling
+      document.querySelectorAll('.car-btn').forEach(btn => {
+        if (btn.getAttribute('data-car') === carKey) {
+          btn.className = 'car-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-blue-600 text-white border-blue-500 shadow-md';
+        } else {
+          btn.className = 'car-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400';
+        }
+      });
+
+      renderCarSchedules();
+    }
+
+    async function fetchSchedules(carId, shift, mode, search) {
+      if (isLiveServer) {
+        let url = `/api/schedules?car_id=${carId}&shift=${shift}`;
+        if (mode && mode !== 'ALL') url += `&mode=${encodeURIComponent(mode)}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        const res = await fetch(url);
+        return await res.json();
+      }
+
+      // Fallback local query
+      if (fallbackData && fallbackData.schedules) {
+        let rows = [...fallbackData.schedules];
+        if (carId !== 'ALL') rows = rows.filter(r => r.car_id === carId);
+        if (shift !== 'all') rows = rows.filter(r => r.shift === shift);
+        if (mode && mode !== 'ALL') rows = rows.filter(r => r.mode.includes(mode));
+        if (search) {
+          const s = search.toLowerCase();
+          rows = rows.filter(r => 
+            (r.cargo_cmd && r.cargo_cmd.toLowerCase().includes(s)) ||
+            (r.sop_details && r.sop_details.toLowerCase().includes(s)) ||
+            (r.station_location && r.station_location.toLowerCase().includes(s)) ||
+            (r.od_flow && r.od_flow.toLowerCase().includes(s))
+          );
+        }
+        if (carId !== 'ALL') {
+          rows.sort((a, b) => {
+            const shiftA = a.shift === 'day' ? 0 : 1;
+            const shiftB = b.shift === 'day' ? 0 : 1;
+            if (shiftA !== shiftB) return shiftA - shiftB;
+            return a.stop_no - b.stop_no;
+          });
+        } else {
+          const getTimelineMin = (r) => {
+            if (shift === 'night') return (r.arr_min - 1175 + 1440) % 1440;
+            if (r.shift === 'day') return r.arr_min;
+            return r.arr_min >= 455 ? r.arr_min : r.arr_min + 1440;
+          };
+          rows.sort((a, b) => getTimelineMin(a) - getTimelineMin(b));
+        }
+        return rows;
+      }
+      return [];
+    }
+
+    async function renderCarSchedules() {
+      // 1. Update meta card
+      const metaContainer = document.getElementById('carMetaCard');
+      if (selectedCar === 'ALL') {
+        metaContainer.innerHTML = `
+          <div class="col-span-4 flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white">🌐 全車隊整合巡迴監控總覽 (Fleet Overview)</h3>
+              <p class="text-xs text-slate-400 mt-1">涵蓋 Car A、Car B、Car C、Car D、Car E、Car U 全車隊連續排程時刻表。</p>
+            </div>
+            <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 font-mono text-cyan-300">
+              6 輛車 | 單班目標 2,656 批
+            </div>
+          </div>
+        `;
+      } else {
+        const info = CARS_INFO[selectedCar];
+        metaContainer.innerHTML = `
+          <div class="border-r border-slate-700/60 pr-2">
+            <span class="text-[10px] text-slate-500 uppercase tracking-wider block">車輛母站 (Hub)</span>
+            <span class="text-sm font-bold text-white mt-0.5 block flex items-center gap-1.5">
+              <i class="fa-solid fa-location-dot text-red-400"></i> ${info.hub}
+            </span>
+          </div>
+          <div class="border-r border-slate-700/60 pr-2">
+            <span class="text-[10px] text-slate-500 uppercase tracking-wider block">專線電話 (Phone)</span>
+            <span class="text-sm font-bold text-emerald-400 font-mono mt-0.5 block flex items-center gap-1.5">
+              <i class="fa-solid fa-phone text-emerald-400"></i> ${info.phone}
+            </span>
+          </div>
+          <div class="border-r border-slate-700/60 pr-2">
+            <span class="text-[10px] text-slate-500 uppercase tracking-wider block">單班目標總運能</span>
+            <span class="text-sm font-bold text-amber-400 font-mono mt-0.5 block flex items-center gap-1.5">
+              <i class="fa-solid fa-boxes-packing text-amber-400"></i> ${info.target_cap}
+            </span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-500 uppercase tracking-wider block">核心戰略定位</span>
+            <span class="text-xs text-slate-300 mt-0.5 block truncate" title="${info.mission}">${info.mission}</span>
+          </div>
+        `;
+      }
+
+      // 1b. Render By-Car OD, Capacity, Stops, Direct/Loop & Driver Break Summary Panel
+      await renderCarOdSummaryPanel();
+
+      // 2. Fetch rows
+      const modeFilter = document.getElementById('filterMode').value;
+      const searchTxt = document.getElementById('scheduleSearch').value;
+      const rows = await fetchSchedules(selectedCar, currentShift, modeFilter, searchTxt);
+
+      // Title & count
+      const carTitle = selectedCar === 'ALL' ? '全車隊' : CARS_INFO[selectedCar].name;
+      const shiftStr = currentShift === 'day' ? '日班' : (currentShift === 'night' ? '夜班' : '24H 全日');
+      document.getElementById('scheduleTableTitle').innerText = `${carTitle} ${shiftStr} 逐站標準作業時刻表`;
+      document.getElementById('scheduleRowCount').innerText = `${rows.length} 站次`;
+
+      // Render table rows
+      const tbody = document.getElementById('scheduleTableBody');
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" class="py-8 text-center text-slate-500">查無符合條件的車班站次。</td></tr>`;
+        return;
+      }
+
+      let html = '';
+      rows.forEach((r, idx) => {
+        const modeBadge = getModeBadge(r.mode);
+        const fabColor = getFabColor(r.fab_code);
+        const shiftIcon = r.shift === 'day' ? '☀️' : '🌙';
+        const capVal = r.capacity_batches || 0;
+        let capBadge = `<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-500 font-mono text-xs">0 批</span>`;
+        if (capVal >= 40) {
+          capBadge = `<span class="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono font-bold text-xs">${capVal} 批</span>`;
+        } else if (capVal >= 24) {
+          capBadge = `<span class="px-2 py-0.5 rounded bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-mono font-bold text-xs">${capVal} 批</span>`;
+        } else if (capVal > 0) {
+          capBadge = `<span class="px-2 py-0.5 rounded bg-blue-500/20 border border-blue-500/40 text-blue-300 font-mono font-bold text-xs">${capVal} 批</span>`;
+        }
+
+        html += `
+          <tr class="hover:bg-slate-700/40 transition-colors">
+            <td class="py-3 px-3 text-center font-bold text-white">
+              <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-xs">${r.car_name}</span>
+            </td>
+            <td class="py-3 px-3 text-center font-mono font-bold text-blue-400">
+              #${r.stop_no}
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${fabColor}"></span>
+                <div>
+                  <span class="font-bold text-white block">${r.fab_code}</span>
+                  <span class="text-xs text-slate-400">${r.station_location || ''}</span>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-3 text-center whitespace-nowrap">
+              ${modeBadge}
+            </td>
+            <td class="py-3 px-3 text-center font-bold text-cyan-300 font-mono text-xs whitespace-nowrap">
+              ${r.od_flow}
+            </td>
+            <td class="py-3 px-3 text-center whitespace-nowrap">
+              ${capBadge}
+            </td>
+            <td class="py-3 px-4 text-center font-mono font-bold text-emerald-400 whitespace-nowrap">
+              <span class="mr-1">${shiftIcon}</span>${r.arr_time} - ${r.dep_time}
+            </td>
+            <td class="py-3 px-3 text-center font-mono text-xs">
+              <span class="text-slate-300">${r.dwell_mins}m</span>
+            </td>
+            <td class="py-3 px-3 text-center font-mono text-xs">
+              <span class="text-slate-400">${r.transit_mins}m</span>
+            </td>
+            <td class="py-3 px-4 text-xs text-slate-200">
+              ${formatCmdHtml(r.cargo_cmd)}
+            </td>
+            <td class="py-3 px-4 text-xs text-slate-300">
+              ${r.sop_details || '—'}
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function toggleCarOdDetailTable() {
+      const wrap = document.getElementById('carOdTableWrapper');
+      const txt = document.getElementById('btnToggleCarOdTableText');
+      if (!wrap) return;
+      if (wrap.classList.contains('hidden')) {
+        wrap.classList.remove('hidden');
+        if (txt) txt.innerText = '收合 OD 明細表';
+      } else {
+        wrap.classList.add('hidden');
+        if (txt) txt.innerText = '展開 OD 明細表';
+      }
+    }
+
+    async function fetchCarOdSummary(carId, shift) {
+      if (isLiveServer) {
+        try {
+          const res = await fetch(`/api/car_od_summary?car_id=${encodeURIComponent(carId)}&shift=${shift}`);
+          if (res.ok) return await res.json();
+        } catch (e) {
+          console.warn('Fallback to client calculation for car_od_summary', e);
+        }
+      }
+
+      if (!fallbackData) {
+        try {
+          const r = await fetch('db_export.json');
+          if (r.ok) fallbackData = await r.json();
+        } catch (err) {}
+      }
+      if (!fallbackData || !fallbackData.schedules) return null;
+
+      const keyFabs = ['FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S', '嘉晶篤行', '嘉晶創新'];
+      const normOdFab = (s, fb = '') => {
+        if (!s) return fb;
+        const clean = s.replace(/\*/g, '').replace(/🟦/g, '').trim();
+        if (clean.includes('8AB') || clean === 'AB') return 'FAB8AB';
+        if (clean.includes('8CD') || clean === 'CD') return 'FAB8CD';
+        if (clean.includes('8E') || clean === 'E') return 'FAB8E';
+        if (clean.includes('8F') || clean === 'F') return 'FAB8F';
+        if (clean.includes('8S') || clean === 'S') return 'FAB8S';
+        if (clean.includes('篤行')) return '嘉晶篤行';
+        if (clean.includes('創新')) return '嘉晶創新';
+        return fb;
+      };
+
+      let rows = fallbackData.schedules.filter(r => (carId === 'ALL' || r.car_id === carId) && (shift === 'all' || r.shift === shift));
+      rows.sort((a, b) => {
+        if (a.car_id !== b.car_id) return a.car_id.localeCompare(b.car_id);
+        if (a.shift !== b.shift) return a.shift === 'day' ? -1 : 1;
+        return a.stop_no - b.stop_no;
+      });
+
+      const demandLookup = {};
+      if (fallbackData.demand_matrix) {
+        fallbackData.demand_matrix.forEach(d => {
+          demandLookup[`${d.from_fab}__${d.to_fab}`] = d;
+        });
+      }
+
+      const breakRows = rows.filter(r => r.is_break === 1);
+      const opRows = rows.filter(r => r.is_break === 0);
+      const depRows = opRows.filter(r => (r.capacity_batches || 0) > 0);
+      const unloadRows = opRows.filter(r => (r.capacity_batches || 0) === 0);
+
+      const directAll = opRows.filter(r => r.mode.includes('專車'));
+      const directDep = depRows.filter(r => r.mode.includes('專車'));
+      const loopAll = opRows.filter(r => !r.mode.includes('專車'));
+      const loopDep = depRows.filter(r => !r.mode.includes('專車'));
+
+      const effDirectDep = depRows.filter(r => r.mode.includes('專車') || (r.od_flow && r.od_flow.includes('專車')) || (r.cargo_cmd && r.cargo_cmd.includes('專車')));
+      const effLoopDep = depRows.filter(r => !effDirectDep.includes(r));
+
+      const mealRows = breakRows.filter(r => r.fab_code === '休息用餐' || r.mode.includes('休息'));
+      const handoverRows = breakRows.filter(r => r.fab_code === '交接整備' || r.mode.includes('交接'));
+
+      const mealMins = mealRows.reduce((a, b) => a + (b.dwell_mins || 0), 0);
+      const handoverMins = handoverRows.reduce((a, b) => a + (b.dwell_mins || 0), 0);
+      const opDwellMins = opRows.reduce((a, b) => a + (b.dwell_mins || 0), 0);
+      const transitMins = opRows.reduce((a, b) => a + (b.transit_mins || 0), 0);
+
+      const directCap = directDep.reduce((a, b) => a + (b.capacity_batches || 0), 0);
+      const loopCap = loopDep.reduce((a, b) => a + (b.capacity_batches || 0), 0);
+      const totalCap = directCap + loopCap;
+
+      const odMap = {};
+      let odFlowRecords = 0;
+      depRows.forEach(r => {
+        const odRaw = r.od_flow || '';
+        const lines = odRaw.split('<br>').map(s => s.trim()).filter(ln => !ln.includes('在途') && ln.includes('➔'));
+        if (lines.length === 0) return;
+        const capPerLine = Math.floor((r.capacity_batches || 0) / lines.length);
+        lines.forEach(ln => {
+          const parts = ln.split('➔');
+          const orig = normOdFab(parts[0], r.fab_code);
+          const dests = parts[1].split('/').map(d => normOdFab(d)).filter(d => keyFabs.includes(d) && d !== orig);
+          if (dests.length === 0) return;
+          const capEach = Math.floor(capPerLine / dests.length);
+          dests.forEach(target => {
+            odFlowRecords++;
+            const k = `${orig}__${target}`;
+            if (!odMap[k]) {
+              odMap[k] = { from_fab: orig, to_fab: target, trips: 0, capacity: 0, modes: new Set(), stops_day: [] };
+            }
+            odMap[k].trips += 1;
+            odMap[k].capacity += capEach;
+            odMap[k].modes.add(r.mode);
+            if (r.shift === 'day' || shift !== 'all') {
+              const tag = carId === 'ALL'
+                ? `${r.car_name.replace('Car ', '')}#${r.stop_no} ${r.dep_time}(${capEach}批)`
+                : `#${r.stop_no} ${r.dep_time}(${r.mode}:${capEach}批)`;
+              odMap[k].stops_day.push(tag);
+            }
+          });
+        });
+      });
+
+      const scaleTo24h = shift !== 'all' ? 2 : 1;
+      const corridors = Object.values(odMap)
+        .sort((a, b) => b.capacity - a.capacity || a.from_fab.localeCompare(b.from_fab))
+        .map(v => {
+          const dInfo = demandLookup[`${v.from_fab}__${v.to_fab}`] || {};
+          const d24 = dInfo.demand_batches || 0;
+          const dShift = dInfo.demand_shift_batches || Math.floor(d24 / 2);
+          const dBench = shift === 'all' ? d24 : dShift;
+          return {
+            from_fab: v.from_fab,
+            to_fab: v.to_fab,
+            modes: Array.from(v.modes),
+            trips: v.trips,
+            capacity: v.capacity,
+            trips_12h: shift !== 'all' ? v.trips : Math.floor(v.trips / 2),
+            cap_12h: shift !== 'all' ? v.capacity : Math.floor(v.capacity / 2),
+            trips_24h: v.trips * scaleTo24h,
+            cap_24h: v.capacity * scaleTo24h,
+            car_share_pct: totalCap > 0 ? Math.round((v.capacity / totalCap) * 1000) / 10 : 0,
+            demand_bench: dBench,
+            demand_24h: d24,
+            demand_contribution_pct: dBench > 0 ? Math.round((v.capacity / dBench) * 1000) / 10 : 0,
+            stops_detail: v.stops_day
+          };
+        });
+
+      return {
+        car_id: carId,
+        shift,
+        total_stops: rows.length,
+        operating_stops: opRows.length,
+        departing_stops: depRows.length,
+        unload_only_stops: unloadRows.length,
+        unload_stops_detail: unloadRows.filter(r => shift !== 'all' || r.shift === 'day').map(r => `#${r.stop_no} ${r.fab_code} (${r.time_range})`),
+        break_stops: breakRows.length,
+        direct_mode_stops: directAll.length,
+        direct_departing_trips: directDep.length,
+        direct_capacity: directCap,
+        eff_direct_trips: effDirectDep.length,
+        eff_direct_capacity: effDirectDep.reduce((a, b) => a + (b.capacity_batches || 0), 0),
+        loop_mode_stops: loopAll.length,
+        loop_departing_trips: loopDep.length,
+        loop_capacity: loopCap,
+        eff_loop_trips: effLoopDep.length,
+        eff_loop_capacity: effLoopDep.reduce((a, b) => a + (b.capacity_batches || 0), 0),
+        total_capacity: totalCap,
+        od_flow_records: odFlowRecords,
+        meal_break_stops: mealRows.length,
+        meal_break_mins: mealMins,
+        meal_break_detail: mealRows.filter(r => shift !== 'all' || r.shift === 'day').map(r => `#${r.stop_no} ${r.time_range} (${r.dwell_mins}m)`),
+        handover_stops: handoverRows.length,
+        handover_mins: handoverMins,
+        handover_detail: handoverRows.filter(r => shift !== 'all' || r.shift === 'day').map(r => `#${r.stop_no} ${r.time_range} (${r.dwell_mins}m)`),
+        total_break_mins: mealMins + handoverMins,
+        operating_dwell_mins: opDwellMins,
+        transit_mins: transitMins,
+        corridors
+      };
+    }
+
+    async function renderCarOdSummaryPanel() {
+      const data = await fetchCarOdSummary(selectedCar, currentShift);
+      if (!data) return;
+
+      const carLabel = selectedCar === 'ALL' ? '全車隊 (6 輛車)' : CARS_INFO[selectedCar].name;
+      const is24h = currentShift === 'all';
+      const mult24 = is24h ? 1 : 2;
+      const div12 = is24h ? 2 : 1;
+
+      document.getElementById('carOdPanelTitle').innerText = `${carLabel} 車次營運結構、專/環車統計、司機休息時間與各段 OD & Capacity 結算`;
+      document.getElementById('carOdShiftBadge').innerText = currentShift === 'day'
+        ? '☀️ 日班 (12H) 基準｜附 24H 全日對照'
+        : (currentShift === 'night' ? '🌙 夜班 (12H) 基準｜附 24H 全日對照' : '🕒 24H 全日 (日+夜) 總計基準');
+
+      const s12_tot = Math.round(data.total_stops / div12);
+      const s24_tot = data.total_stops * mult24;
+      const s12_op = Math.round(data.operating_stops / div12);
+      const s24_op = data.operating_stops * mult24;
+      const s12_dep = Math.round(data.departing_stops / div12);
+      const s24_dep = data.departing_stops * mult24;
+      const s12_unl = Math.round(data.unload_only_stops / div12);
+      const s12_brk = Math.round(data.break_stops / div12);
+
+      const s12_dir_dep = Math.round(data.direct_departing_trips / div12);
+      const s12_dir_all = Math.round(data.direct_mode_stops / div12);
+      const s12_dir_cap = Math.round(data.direct_capacity / div12);
+      const s12_eff_dir = Math.round(data.eff_direct_trips / div12);
+      const s12_eff_dir_cap = Math.round(data.eff_direct_capacity / div12);
+
+      const s12_loop_dep = Math.round(data.loop_departing_trips / div12);
+      const s12_loop_all = Math.round(data.loop_mode_stops / div12);
+      const s12_loop_cap = Math.round(data.loop_capacity / div12);
+      const s12_eff_loop = Math.round(data.eff_loop_trips / div12);
+      const s12_eff_loop_cap = Math.round(data.eff_loop_capacity / div12);
+
+      const s12_cap = Math.round(data.total_capacity / div12);
+      const s24_cap = data.total_capacity * mult24;
+
+      const s12_meal_m = Math.round(data.meal_break_mins / div12);
+      const s12_hand_m = Math.round(data.handover_mins / div12);
+      const s12_brk_m = Math.round(data.total_break_mins / div12);
+      const s24_brk_m = data.total_break_mins * mult24;
+      const s12_dwell_m = Math.round(data.operating_dwell_mins / div12);
+      const s12_trans_m = Math.round(data.transit_mins / div12);
+
+      const hasEffDiff = s12_eff_dir !== s12_dir_dep;
+
+      document.getElementById('carOdKpiGrid').innerHTML = `
+        <!-- 1. 總站次 -->
+        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 flex flex-col justify-between">
+          <div>
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">1. 總站次 (Total Stops)</span>
+            <div class="mt-1.5 flex items-baseline gap-2">
+              <span class="text-2xl font-extrabold text-white font-mono">${is24h ? s24_tot : s12_tot} <small class="text-xs font-normal text-slate-400">站</small></span>
+              <span class="text-xs font-mono text-cyan-400">(${is24h ? `單班 ${s12_tot} 站` : `24H ${s24_tot} 站`})</span>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] text-slate-400">
+            含非營運休息/交接：<strong class="text-slate-200 font-mono">${s12_brk} 站/班</strong> (${s12_brk * 2} 站/24H)
+          </div>
+        </div>
+
+        <!-- 2. 營運站次 (扣除休息/交接) -->
+        <div class="bg-slate-900/90 border border-blue-500/30 rounded-xl p-3.5 flex flex-col justify-between">
+          <div>
+            <span class="text-[11px] font-bold text-blue-300 uppercase tracking-wider block">2. 營運站次 (扣休息/交接)</span>
+            <div class="mt-1.5 flex items-baseline gap-2">
+              <span class="text-2xl font-extrabold text-blue-400 font-mono">${is24h ? s24_op : s12_op} <small class="text-xs font-normal text-slate-400">站</small></span>
+              <span class="text-xs font-mono text-slate-400">(${is24h ? `單班 ${s12_op} 站` : `24H ${s24_op} 站`})</span>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] text-slate-300 leading-relaxed">
+            • 有效發車載運：<strong class="text-emerald-400 font-mono">${s12_dep} 趟/班</strong> (24H: ${s24_dep}趟)<br>
+            • 到站純卸清：<strong class="text-amber-300 font-mono">${s12_unl} 站/班</strong> ${data.unload_stops_detail.length ? `<span class="text-slate-400">(${data.unload_stops_detail[0].split(' ')[0]})</span>` : ''}
+          </div>
+        </div>
+
+        <!-- 3. 專車 (Direct) 次數與運量 -->
+        <div class="bg-slate-900/90 border border-red-500/30 rounded-xl p-3.5 flex flex-col justify-between">
+          <div>
+            <span class="text-[11px] font-bold text-red-300 uppercase tracking-wider block">3. 專車次數 & 運量</span>
+            <div class="mt-1.5 flex items-baseline gap-2">
+              <span class="text-xl font-extrabold text-red-400 font-mono">${is24h ? s12_dir_dep * 2 : s12_dir_dep} 趟 <small class="text-xs text-amber-300">(${is24h ? s12_dir_cap * 2 : s12_dir_cap}批)</small></span>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] text-slate-300 leading-relaxed">
+            • 表定專車站次：<strong class="font-mono text-white">${s12_dir_all} 站/班</strong> (發車 ${s12_dir_dep} 趟)<br>
+            ${hasEffDiff ? `• 含小環轉專車/預載：<strong class="text-amber-300 font-mono">${s12_eff_dir} 趟 / ${s12_eff_dir_cap} 批</strong>` : `• 全日 24H 專車：<strong class="text-amber-300 font-mono">${s12_dir_dep * 2} 趟 / ${s12_dir_cap * 2} 批</strong>`}
+          </div>
+        </div>
+
+        <!-- 4. 環車/小環 (Loop) 次數與運量 -->
+        <div class="bg-slate-900/90 border border-cyan-500/30 rounded-xl p-3.5 flex flex-col justify-between">
+          <div>
+            <span class="text-[11px] font-bold text-cyan-300 uppercase tracking-wider block">4. 環車/小環次數 & 運量</span>
+            <div class="mt-1.5 flex items-baseline gap-2">
+              <span class="text-xl font-extrabold text-cyan-400 font-mono">${is24h ? s12_loop_dep * 2 : s12_loop_dep} 趟 <small class="text-xs text-amber-300">(${is24h ? s12_loop_cap * 2 : s12_loop_cap}批)</small></span>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] text-slate-300 leading-relaxed">
+            • 表定環車/小環：<strong class="font-mono text-white">${s12_loop_all} 站/班</strong> (發車 ${s12_loop_dep} 趟)<br>
+            ${hasEffDiff ? `• 純小環中繼段：<strong class="text-cyan-300 font-mono">${s12_eff_loop} 站 / ${s12_eff_loop_cap} 批</strong>` : `• 全日 24H 環車：<strong class="text-cyan-300 font-mono">${s12_loop_dep * 2} 趟 / ${s12_loop_cap * 2} 批</strong>`}
+          </div>
+        </div>
+
+        <!-- 5. 總載運量 (Total Capacity) -->
+        <div class="bg-slate-900/90 border border-amber-500/40 rounded-xl p-3.5 flex flex-col justify-between">
+          <div>
+            <span class="text-[11px] font-bold text-amber-300 uppercase tracking-wider block">5. 總載運量 (Capacity)</span>
+            <div class="mt-1.5 flex items-baseline gap-2">
+              <span class="text-2xl font-extrabold text-amber-400 font-mono">${is24h ? s24_cap : s12_cap} <small class="text-xs font-normal text-slate-300">批</small></span>
+              <span class="text-xs font-mono text-emerald-400">(${is24h ? `單班 ${s12_cap}` : `24H ${s24_cap}`})</span>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] text-slate-300 leading-relaxed">
+            • 服務 OD 走廊：<strong class="text-white font-mono">${data.corridors.length} 條</strong><br>
+            • 跨廠 OD 流向筆數：<strong class="text-cyan-300 font-mono">${Math.round(data.od_flow_records / div12)} 筆/班</strong> (${data.od_flow_records * mult24} 筆/24H)
+          </div>
+        </div>
+
+        <!-- 6. 司機休息時間 & 作業行車時間 -->
+        <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-3.5 flex flex-col justify-between">
+          <div>
+            <span class="text-[11px] font-bold text-emerald-300 uppercase tracking-wider block">6. 司機休息 & 交接時間</span>
+            <div class="mt-1.5 flex items-baseline gap-2">
+              <span class="text-xl font-extrabold text-emerald-400 font-mono">${is24h ? s24_brk_m : s12_brk_m} <small class="text-xs font-normal text-slate-300">分鐘</small></span>
+              <span class="text-[11px] font-mono text-slate-400">(用餐${is24h ? s12_meal_m * 2 : s12_meal_m}m+交接${is24h ? s12_hand_m * 2 : s12_hand_m}m)</span>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-800 text-[11px] text-slate-300 leading-relaxed">
+            • 用餐：<span class="font-mono text-amber-300">${data.meal_break_detail.join(', ') || '—'}</span><br>
+            • 營運作業 <strong class="font-mono text-white">${s12_dwell_m}m</strong> ｜ 純開車 <strong class="font-mono text-cyan-300">${s12_trans_m}m</strong>/班
+          </div>
+        </div>
+      `;
+
+      // Render Per-Car OD Breakdown Table
+      document.getElementById('carOdTableSubtitle').innerText = `${carLabel} 各段 OD (起迄流向) 趟次與載運量 (Capacity) 彙總表`;
+      document.getElementById('carOdTableSummaryBadge').innerText = `共 ${data.corridors.length} 條 OD 走廊 ｜ 單班 ${s12_dep} 趟發車 (${s12_cap} 批) ｜ 24H ${s24_dep} 趟發車 (${s24_cap} 批)`;
+
+      const odTbody = document.getElementById('carOdSummaryTableBody');
+      if (!data.corridors || data.corridors.length === 0) {
+        odTbody.innerHTML = `<tr><td colspan="11" class="py-6 text-center text-slate-500">無 OD 載運資料</td></tr>`;
+        return;
+      }
+
+      let rowsHtml = '';
+      data.corridors.forEach((c, idx) => {
+        const contribPct = c.demand_24h > 0 ? Math.round((c.cap_24h / c.demand_24h) * 1000) / 10 : 0;
+        const contribBadge = c.demand_24h > 0
+          ? `<span class="px-2 py-0.5 rounded font-mono font-bold text-xs ${contribPct >= 100 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-blue-500/20 text-blue-300 border border-blue-500/40'}">${contribPct.toFixed(1)}%</span>`
+          : `<span class="text-slate-500 font-mono text-xs">環廠順道接駁</span>`;
+
+        rowsHtml += `
+          <tr class="hover:bg-slate-800/70 transition-colors">
+            <td class="py-2.5 px-3 text-center font-mono text-slate-500">${idx + 1}</td>
+            <td class="py-2.5 px-3 font-bold text-white whitespace-nowrap">
+              <span class="text-amber-300">${c.from_fab}</span>
+              <span class="text-cyan-400 mx-1">➔</span>
+              <span class="text-emerald-300">${c.to_fab}</span>
+            </td>
+            <td class="py-2.5 px-3 text-center whitespace-nowrap">
+              <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[11px] text-slate-300 font-semibold">${c.modes.join(' + ')}</span>
+            </td>
+            <td class="py-2.5 px-3 text-center font-mono text-slate-200">${c.trips_12h} 趟</td>
+            <td class="py-2.5 px-3 text-center font-mono font-bold text-amber-300">${c.cap_12h} 批</td>
+            <td class="py-2.5 px-3 text-center font-mono text-cyan-300">${c.trips_24h} 趟</td>
+            <td class="py-2.5 px-3 text-center font-mono font-extrabold text-emerald-400">${c.cap_24h} 批</td>
+            <td class="py-2.5 px-3 text-center font-mono text-slate-300">${c.car_share_pct.toFixed(1)}%</td>
+            <td class="py-2.5 px-3 text-center font-mono text-slate-300">${c.demand_24h > 0 ? `${c.demand_24h} 批` : '0 批'}</td>
+            <td class="py-2.5 px-3 text-center">${contribBadge}</td>
+            <td class="py-2.5 px-3 font-mono text-[11px] text-slate-300">${c.stops_detail.join(', ')}</td>
+          </tr>
+        `;
+      });
+
+      // Add Total Footer Row
+      rowsHtml += `
+        <tr class="bg-slate-950/90 border-t-2 border-indigo-500/40 font-bold text-white">
+          <td class="py-3 px-3 text-center font-mono text-indigo-400">合計</td>
+          <td class="py-3 px-3 text-indigo-300">共 ${data.corridors.length} 條跨廠 OD 走廊</td>
+          <td class="py-3 px-3 text-center text-xs text-slate-400">專車 ${s12_dir_dep} + 環車 ${s12_loop_dep} 趟/班</td>
+          <td class="py-3 px-3 text-center font-mono text-white">${s12_dep} 趟發車<br><span class="text-[10px] text-slate-400 font-normal">(${Math.round(data.od_flow_records / div12)} 筆流向)</span></td>
+          <td class="py-3 px-3 text-center font-mono text-amber-400 text-sm">${s12_cap} 批</td>
+          <td class="py-3 px-3 text-center font-mono text-cyan-300">${s24_dep} 趟發車<br><span class="text-[10px] text-slate-400 font-normal">(${data.od_flow_records * mult24} 筆流向)</span></td>
+          <td class="py-3 px-3 text-center font-mono text-emerald-400 text-sm">${s24_cap} 批</td>
+          <td class="py-3 px-3 text-center font-mono text-slate-300">100.0%</td>
+          <td class="py-3 px-3 text-center text-slate-500">—</td>
+          <td class="py-3 px-3 text-center text-slate-500">—</td>
+          <td class="py-3 px-3 text-xs text-slate-400 font-normal">營運 ${s12_op} 站/班（含純卸清 ${s12_unl} 站）｜休息交接 ${s12_brk} 站 (${s12_brk_m} 分鐘/班)</td>
+        </tr>
+      `;
+      odTbody.innerHTML = rowsHtml;
+    }
+
+    function getModeBadge(mode) {
+      if (mode.includes('專車')) {
+        return `<span class="badge-mode-special text-[11px] font-bold px-2.5 py-0.5 rounded-full">專車直達</span>`;
+      } else if (mode.includes('環廠')) {
+        return `<span class="badge-mode-loop text-[11px] font-bold px-2.5 py-0.5 rounded-full">全廠巡迴</span>`;
+      } else if (mode.includes('小環')) {
+        return `<span class="badge-mode-small text-[11px] font-bold px-2.5 py-0.5 rounded-full">${mode}</span>`;
+      } else if (mode.includes('外廠')) {
+        return `<span class="badge-mode-out text-[11px] font-bold px-2.5 py-0.5 rounded-full">外廠對開</span>`;
+      } else {
+        return `<span class="badge-mode-break text-[11px] font-semibold px-2 py-0.5 rounded-full">${mode}</span>`;
+      }
+    }
+
+    function getFabColor(code) {
+      const map = {
+        'FAB8AB': '#3B82F6',
+        'FAB8CD': '#10B981',
+        'FAB8E': '#8B5CF6',
+        'FAB8F': '#F59E0B',
+        'FAB8S': '#EF4444',
+        '嘉晶篤行': '#06B6D4',
+        '嘉晶創新': '#14B8A6'
+      };
+      return map[code] || '#94A3B8';
+    }
+
+    function formatCmdHtml(cmd) {
+      if (!cmd) return '—';
+      return cmd
+        .replace(/【(.*?)】/g, '<strong class="text-amber-300">【$1】</strong>')
+        .replace(/➔/g, '<span class="text-cyan-400">➔</span>');
+    }
+
+    // ==========================================
+    // 2. FAB ANALYSIS FUNCTIONS (Waiting Time)
+    // ==========================================
+    function selectFab(fabCode) {
+      selectedFab = fabCode;
+      document.querySelectorAll('.fab-btn').forEach(btn => {
+        if (btn.getAttribute('data-fab') === fabCode) {
+          btn.className = 'fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-amber-600 text-white border-amber-500 shadow-md';
+        } else {
+          btn.className = 'fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-amber-400';
+        }
+      });
+      renderFabAnalysis();
+    }
+
+    async function fetchFabAnalysis(fabCode, shift) {
+      if (isLiveServer) {
+        const res = await fetch(`/api/fab_analysis?fab=${encodeURIComponent(fabCode)}&shift=${shift}`);
+        return await res.json();
+      }
+
+      // Fallback
+      if (fallbackData && fallbackData.schedules) {
+        let visits = fallbackData.schedules.filter(r => r.fab_code === fabCode && r.is_break === 0);
+        if (shift !== 'all') visits = visits.filter(r => r.shift === shift);
+        
+        const getFabTimelineMin = (r) => {
+          if (shift === 'night') return (r.arr_min - 1175 + 1440) % 1440;
+          if (r.shift === 'day') return r.arr_min;
+          return r.arr_min >= 455 ? r.arr_min : r.arr_min + 1440;
+        };
+        visits.sort((a,b) => getFabTimelineMin(a) - getFabTimelineMin(b));
+
+        let headways = [];
+        for (let i = 1; i < visits.length; i++) {
+          let diff = getFabTimelineMin(visits[i]) - getFabTimelineMin(visits[i-1]);
+          if (diff >= 0) {
+            headways.push({
+              from_car: visits[i-1].car_name,
+              to_car: visits[i].car_name,
+              headway_min: diff,
+              time: visits[i].arr_time
+            });
+            visits[i].headway_from_prev = diff;
+          }
+        }
+        if (visits.length > 0) visits[0].headway_from_prev = 0;
+
+        let avg = headways.length > 0 ? (headways.reduce((a,b)=>a+b.headway_min,0) / headways.length) : 0;
+        let minH = headways.length > 0 ? Math.min(...headways.map(h=>h.headway_min)) : 0;
+        let maxH = headways.length > 0 ? Math.max(...headways.map(h=>h.headway_min)) : 0;
+        let totalCap = visits.reduce((a,b)=>a+(b.capacity_batches||0), 0);
+
+        let modeCount = {};
+        visits.forEach(v => {
+          let m = v.mode.includes('專車') ? '專車' : (v.mode.includes('環廠') || v.mode.includes('小環') ? '環廠' : '其他');
+          modeCount[m] = (modeCount[m] || 0) + 1;
+        });
+
+        let carsCount = {};
+        visits.forEach(v => {
+          carsCount[v.car_name] = (carsCount[v.car_name] || 0) + 1;
+        });
+
+        return {
+          fab_code: fabCode,
+          shift: shift,
+          total_visits: visits.length,
+          visits: visits,
+          headways: headways,
+          avg_headway_min: Math.round(avg * 10) / 10,
+          expected_wait_min: Math.round((avg / 2) * 10) / 10,
+          min_headway_min: minH,
+          max_headway_min: maxH,
+          total_capacity: totalCap,
+          mode_count: modeCount,
+          cars_count: carsCount,
+          destinations: [...new Set(visits.map(v=>v.dest_fab).filter(Boolean))]
+        };
+      }
+      return null;
+    }
+
+    async function renderFabAnalysis() {
+      const data = await fetchFabAnalysis(selectedFab, currentShift);
+      if (!data) return;
+
+      // 1. Update KPIs
+      document.getElementById('kpiAvgHeadway').innerText = data.avg_headway_min.toFixed(1);
+      document.getElementById('kpiMinHeadway').innerText = data.min_headway_min;
+      document.getElementById('kpiMaxHeadway').innerText = data.max_headway_min;
+      document.getElementById('kpiExpectedWait').innerText = data.expected_wait_min.toFixed(1);
+      document.getElementById('kpiTotalVisits').innerText = data.total_visits;
+      document.getElementById('kpiTotalCap').innerText = data.total_capacity;
+
+      // Mode breakdown pills
+      const modeContainer = document.getElementById('kpiModeBreakdown');
+      let modeHtml = '';
+      for (const [m, c] of Object.entries(data.mode_count || {})) {
+        modeHtml += `<span class="bg-slate-900 border border-slate-700 px-2 py-0.5 rounded">${m}: <strong>${c}</strong></span>`;
+      }
+      modeContainer.innerHTML = modeHtml;
+
+      // Serving fleet list
+      const servingCars = Object.keys(data.cars_count || {}).join(', ') || '無';
+      document.getElementById('kpiCarsServing').innerText = `服務車隊: ${servingCars}`;
+
+      // 2. Render 24-Hour Visual Arrival Timeline
+      renderVisualTimeline(data.visits);
+
+      // 3. Update Route Finder
+      updateRouteFinderDestOptions(data.destinations);
+
+      // 4. Render Table
+      document.getElementById('fabTableTitle').innerText = `${selectedFab} 班車抵達時刻與等候時間明細表`;
+      document.getElementById('fabArrivalCount').innerText = `${data.visits.length} 班次`;
+
+      const tbody = document.getElementById('fabArrivalTableBody');
+      if (data.visits.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-500">此時段查無班車抵達紀錄。</td></tr>`;
+        return;
+      }
+
+      let html = '';
+      data.visits.forEach((v, idx) => {
+        const modeBadge = getModeBadge(v.mode);
+        const hwText = idx === 0 
+          ? '<span class="text-slate-500">— (首班)</span>' 
+          : `<span class="text-amber-400 font-mono font-bold">+${v.headway_from_prev} 分鐘</span>`;
+
+        html += `
+          <tr class="hover:bg-slate-700/40 transition-colors">
+            <td class="py-3 px-3 text-center font-mono text-slate-400">
+              ${idx + 1}
+            </td>
+            <td class="py-3 px-4 font-mono font-bold text-center text-emerald-400">
+              ${v.arr_time}
+            </td>
+            <td class="py-3 px-4 font-mono font-bold text-center text-blue-400">
+              ${v.dep_time}
+            </td>
+            <td class="py-3 px-3 text-center">
+              <span class="px-2.5 py-0.5 rounded-lg bg-slate-900 border border-slate-700 font-bold text-white text-xs">${v.car_name}</span>
+            </td>
+            <td class="py-3 px-3 text-center">
+              ${hwText}
+            </td>
+            <td class="py-3 px-3 text-center">
+              ${modeBadge}
+            </td>
+            <td class="py-3 px-4 text-center font-bold text-cyan-300 font-mono text-xs">
+              <i class="fa-solid fa-arrow-right text-[10px] mr-1 text-slate-500"></i>${v.dest_fab || '—'}
+            </td>
+            <td class="py-3 px-3 text-center font-mono text-xs text-slate-300">
+              ${v.transit_mins}m
+            </td>
+            <td class="py-3 px-3 text-center font-mono font-bold text-emerald-400">
+              ${v.capacity_batches} 批
+            </td>
+            <td class="py-3 px-5 text-xs text-slate-200">
+              ${formatCmdHtml(v.cargo_cmd)}
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
+
+        let timelineViewMode = 'swimlane'; // 'swimlane' or 'compact'
+    let lastRenderedVisits = [];
+
+    // Timeline Car Visibility Filter (Default: Car U is false, others true)
+    let timelineCarFilters = {
+      'Car A': true,
+      'Car B': true,
+      'Car C': true,
+      'Car D': true,
+      'Car E': true,
+      'Car U': false  // default: U 車不顯示
+    };
+
+    function toggleTimelineCar(carName) {
+      timelineCarFilters[carName] = !timelineCarFilters[carName];
+      renderTimelineCarToggles();
+      renderVisualTimeline(lastRenderedVisits);
+    }
+
+    function setAllTimelineCars(val) {
+      Object.keys(timelineCarFilters).forEach(k => { timelineCarFilters[k] = val; });
+      renderTimelineCarToggles();
+      renderVisualTimeline(lastRenderedVisits);
+    }
+
+    function resetDefaultTimelineCars() {
+      timelineCarFilters = {
+        'Car A': true,
+        'Car B': true,
+        'Car C': true,
+        'Car D': true,
+        'Car E': true,
+        'Car U': false
+      };
+      renderTimelineCarToggles();
+      renderVisualTimeline(lastRenderedVisits);
+    }
+
+    function renderTimelineCarToggles() {
+      const container = document.getElementById('timelineCarToggleGroup');
+      if (!container) return;
+      const cars = [
+        { name: 'Car A', border: 'border-blue-400', bg: 'bg-blue-600', dot: 'bg-blue-400' },
+        { name: 'Car B', border: 'border-amber-400', bg: 'bg-amber-600', dot: 'bg-amber-400' },
+        { name: 'Car C', border: 'border-cyan-400', bg: 'bg-cyan-600', dot: 'bg-cyan-400' },
+        { name: 'Car D', border: 'border-emerald-400', bg: 'bg-emerald-600', dot: 'bg-emerald-400' },
+        { name: 'Car E', border: 'border-red-400', bg: 'bg-red-600', dot: 'bg-red-400' },
+        { name: 'Car U', border: 'border-purple-400', bg: 'bg-purple-600', dot: 'bg-purple-400' }
+      ];
+
+      container.innerHTML = cars.map(c => {
+        const isShown = timelineCarFilters[c.name] === true;
+        if (isShown) {
+          return `
+            <button onclick="toggleTimelineCar('${c.name}')" 
+              class="px-2 py-0.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${c.bg} text-white ${c.border} shadow-sm ring-1 ring-white/20 hover:brightness-110"
+              title="點擊隱藏 ${c.name}">
+              <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+              <span>✓ ${c.name}</span>
+            </button>
+          `;
+        } else {
+          return `
+            <button onclick="toggleTimelineCar('${c.name}')" 
+              class="px-2 py-0.5 rounded-md text-[11px] font-semibold border transition-all flex items-center gap-1 bg-slate-900/90 text-slate-500 border-slate-700/60 opacity-60 hover:opacity-100 hover:text-slate-300"
+              title="點擊顯示 ${c.name}">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+              <span>${c.name} <span class="text-[9px] opacity-75">(隱藏)</span></span>
+            </button>
+          `;
+        }
+      }).join('');
+    }
+
+    function timeToTimelinePct(totalMinutes) {
+      // 24H cycle starts at 07:35 (455 min from midnight)
+      const posMin = (totalMinutes - 455 + 1440) % 1440;
+      return (posMin / 1440) * 100;
+    }
+
+    function getTimelineTimeMetrics() {
+      const now = new Date();
+      const curH = now.getHours();
+      const curM = now.getMinutes();
+      const curTotalMin = curH * 60 + curM;
+
+      let pct = timeToTimelinePct(curTotalMin);
+      if (pct < 0.5) pct = 0.5;
+      if (pct > 99.5) pct = 99.5;
+
+      const timeStr = `${String(curH).padStart(2, '0')}:${String(curM).padStart(2, '0')}`;
+      return { pct, timeStr };
+    }
+
+    function buildCurrentTimeLineHtml() {
+      const { pct, timeStr } = getTimelineTimeMetrics();
+      return `
+        <!-- Current Time White Line (目前時間軸) -->
+        <div id="currentTimeIndicator" class="absolute top-0 bottom-6 pointer-events-none z-30 w-0 flex flex-col items-center overflow-visible" style="left: ${pct.toFixed(2)}%;">
+          <!-- Top Floating Time Badge -->
+          <div class="bg-white text-slate-950 font-mono font-black text-[10px] px-2.5 py-0.5 rounded-full shadow-[0_0_12px_rgba(255,255,255,1),0_0_20px_rgba(255,255,255,0.8)] flex items-center gap-1.5 -translate-y-2.5 whitespace-nowrap border-2 border-slate-900 ring-2 ring-white/60 select-none">
+            <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+            <span>目前時間 ${timeStr}</span>
+          </div>
+          <!-- Bright Solid White Line -->
+          <div class="w-[2px] flex-1 bg-white shadow-[0_0_8px_rgba(255,255,255,1),0_0_16px_rgba(255,255,255,0.7)]"></div>
+          <!-- Bottom Diamond Indicator -->
+          <div class="w-2.5 h-2.5 rotate-45 bg-white shadow-[0_0_8px_white] -translate-y-1"></div>
+        </div>
+      `;
+    }
+
+    function setTimelineMode(mode) {
+      timelineViewMode = mode;
+      const bSwim = document.getElementById('btnTimelineSwimlane');
+      const bComp = document.getElementById('btnTimelineCompact');
+      if (mode === 'swimlane') {
+        bSwim.className = 'px-2.5 py-1 rounded-md bg-indigo-600 text-white font-semibold transition';
+        bComp.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition';
+      } else {
+        bComp.className = 'px-2.5 py-1 rounded-md bg-indigo-600 text-white font-semibold transition';
+        bSwim.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition';
+      }
+      renderVisualTimeline(lastRenderedVisits);
+    }
+
+    function normalizeDestFab(v) {
+      const raw = (v.dest_fab || '').trim();
+      const od = (v.od_flow || '').trim();
+      if (raw.startsWith('8F')) return { key: 'FAB8F', short: '8F', label: '➔ FAB8F', badgeColor: 'text-amber-300 border-amber-500/40 bg-amber-500/10' };
+      if (raw.startsWith('8CD')) return { key: 'FAB8CD', short: 'CD', label: '➔ FAB8CD', badgeColor: 'text-emerald-300 border-emerald-500/40 bg-emerald-500/10' };
+      if (raw.startsWith('8AB')) return { key: 'FAB8AB', short: 'AB', label: '➔ FAB8AB', badgeColor: 'text-blue-300 border-blue-500/40 bg-blue-500/10' };
+      if (raw.startsWith('8E')) return { key: 'FAB8E', short: '8E', label: '➔ FAB8E', badgeColor: 'text-purple-300 border-purple-500/40 bg-purple-500/10' };
+      if (raw.startsWith('8S')) return { key: 'FAB8S', short: '8S', label: '➔ FAB8S', badgeColor: 'text-red-300 border-red-500/40 bg-red-500/10' };
+      if (raw.includes('篤行')) return { key: '嘉晶篤行', short: '篤行', label: '➔ 嘉晶篤行', badgeColor: 'text-cyan-300 border-cyan-500/40 bg-cyan-500/10' };
+      if (raw.includes('創新')) return { key: '嘉晶創新', short: '創新', label: '➔ 嘉晶創新', badgeColor: 'text-teal-300 border-teal-500/40 bg-teal-500/10' };
+      if (od.includes('清空') || od.includes('卸')) return { key: 'UNLOAD', short: '卸清', label: '終點全卸清空', badgeColor: 'text-slate-300 border-slate-600 bg-slate-800' };
+      return { key: 'OTHER', short: raw || '—', label: raw ? `➔ ${raw}` : '終點卸清', badgeColor: 'text-slate-300 border-slate-600 bg-slate-800' };
+    }
+
+    function getCarStyle(carName) {
+      const letter = carName.replace('Car ', '').trim();
+      if (letter === 'A') return { letter: 'A', bg: 'bg-blue-600', border: 'border-blue-300', text: 'text-white' };
+      if (letter === 'B') return { letter: 'B', bg: 'bg-amber-500', border: 'border-amber-200', text: 'text-slate-950' };
+      if (letter === 'C') return { letter: 'C', bg: 'bg-cyan-500', border: 'border-cyan-200', text: 'text-slate-950' };
+      if (letter === 'D') return { letter: 'D', bg: 'bg-emerald-500', border: 'border-emerald-200', text: 'text-slate-950' };
+      if (letter === 'E') return { letter: 'E', bg: 'bg-red-500', border: 'border-red-200', text: 'text-white' };
+      return { letter: 'U', bg: 'bg-purple-500', border: 'border-purple-200', text: 'text-white' };
+    }
+
+    function buildMarkerHtml(v, pct, topPx) {
+      const dInfo = normalizeDestFab(v);
+      const cStyle = getCarStyle(v.car_name);
+      const tooltipAlign = pct < 12 ? 'left-0 translate-x-0' :
+                           pct > 88 ? 'right-0 translate-x-0' :
+                           'left-1/2 -translate-x-1/2';
+      const cleanOd = (v.od_flow || '').replace(/<br>/g, ' / ');
+
+      return `
+        <div class="absolute transform -translate-x-1/2 cursor-pointer group z-10 hover:z-50" style="left: ${pct}%; top: ${topPx}px;">
+          <div class="px-1.5 py-0.5 rounded-md ${cStyle.bg} ${cStyle.text} border ${cStyle.border} font-mono font-extrabold text-[10px] leading-none flex items-center gap-0.5 shadow-md group-hover:scale-125 group-hover:ring-2 group-hover:ring-white transition-all whitespace-nowrap">
+            <span>${cStyle.letter}</span><span class="opacity-75 text-[8px]">➔</span><span>${dInfo.short}</span>
+          </div>
+          <div class="hidden group-hover:block absolute bottom-6 ${tooltipAlign} bg-slate-950/95 text-white text-xs px-3 py-2 rounded-xl border border-indigo-500/60 whitespace-nowrap z-50 shadow-2xl pointer-events-none">
+            <div class="font-bold text-amber-300 mb-0.5 flex items-center justify-between gap-3">
+              <span>${v.car_name} <span class="text-[10px] text-slate-400 font-normal">(${v.mode})</span></span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] border ${dInfo.badgeColor}">${dInfo.label}</span>
+            </div>
+            <div>進站: <span class="text-emerald-400 font-mono font-bold">${v.arr_time}</span> ｜ 離站: <span class="text-blue-400 font-mono font-bold">${v.dep_time}</span></div>
+            <div>完整流向: <span class="text-cyan-300 font-semibold">${cleanOd || dInfo.label}</span> (${v.capacity_batches}批)</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderVisualTimeline(visits) {
+      lastRenderedVisits = visits || [];
+      renderTimelineCarToggles();
+
+      const container = document.getElementById('timelineMarkers');
+      container.innerHTML = '';
+
+      // Filter by vehicle selections
+      const filteredVisits = (visits || []).filter(v => timelineCarFilters[v.car_name] !== false);
+
+      const TICKS = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00', '02:00', '04:00', '06:00'];
+      const ticksHtml = TICKS.map(t => {
+        const [th, tm] = t.split(':').map(Number);
+        const tPct = timeToTimelinePct(th * 60 + tm);
+        return `<span class="absolute transform -translate-x-1/2 text-[10px] text-slate-400 font-mono select-none" style="left: ${tPct.toFixed(2)}%;">${t}</span>`;
+      }).join('');
+
+      const gridLinesHtml = TICKS.map(t => {
+        const [th, tm] = t.split(':').map(Number);
+        const tPct = timeToTimelinePct(th * 60 + tm);
+        return `<div class="absolute top-0 bottom-6 border-l border-slate-800/60 pointer-events-none" style="left: ${tPct.toFixed(2)}%;"></div>`;
+      }).join('');
+
+      if (filteredVisits.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-xs text-slate-400 py-8 bg-slate-950/40 rounded-xl border border-slate-800 space-y-2">
+            <i class="fa-solid fa-filter-circle-xmark text-amber-400 text-lg block"></i>
+            <div>目前勾選的車輛無班次顯示（預設不顯示 Car U）。</div>
+            <div class="text-[11px] text-slate-500">請勾選上方欲顯示的車輛（如 Car A~E 或 Car U），或點擊「全選」。</div>
+          </div>
+        `;
+        return;
+      }
+
+      if (timelineViewMode === 'compact') {
+        const placedPcts = [];
+        let markersHtml = '';
+        filteredVisits.forEach(v => {
+          let pct = timeToTimelinePct(v.arr_min);
+          if (pct < 2) pct = 2;
+          if (pct > 98) pct = 98;
+
+          const closeCount = placedPcts.filter(p => Math.abs(p - pct) < 3.2).length;
+          placedPcts.push(pct);
+          const topOffsetPx = 4 + (closeCount % 3) * 20;
+          markersHtml += buildMarkerHtml(v, pct.toFixed(2), topOffsetPx);
+        });
+
+        container.innerHTML = `
+          <div class="relative w-full overflow-visible">
+            <!-- Background Grid -->
+            <div class="absolute inset-0 pointer-events-none">${gridLinesHtml}</div>
+
+            <!-- Current Time White Line (目前時間軸) -->
+            ${buildCurrentTimeLineHtml()}
+
+            <!-- Markers -->
+            <div class="relative w-full h-20 overflow-visible">${markersHtml}</div>
+
+            <!-- Time Ticks -->
+            <div class="relative h-6 pt-2 border-t border-slate-800 overflow-visible">${ticksHtml}</div>
+          </div>
+        `;
+        return;
+      }
+
+      // Swimlane mode: group by destination factory (➔ Dest Fab)
+      const destOrder = ['FAB8F', 'FAB8CD', 'FAB8AB', 'FAB8E', 'FAB8S', '嘉晶篤行', '嘉晶創新', 'UNLOAD', 'OTHER'];
+      const groups = {};
+      filteredVisits.forEach(v => {
+        const dInfo = normalizeDestFab(v);
+        if (!groups[dInfo.key]) {
+          groups[dInfo.key] = { info: dInfo, items: [] };
+        }
+        groups[dInfo.key].items.push(v);
+      });
+
+      const activeKeys = destOrder.filter(k => groups[k] && groups[k].items.length > 0);
+      let labelsHtml = '';
+      let tracksHtml = '';
+
+      activeKeys.forEach(k => {
+        const grp = groups[k];
+        const placedPcts = [];
+        let maxSubRow = 0;
+        const itemPositions = grp.items.map(v => {
+          let pct = timeToTimelinePct(v.arr_min);
+          if (pct < 2) pct = 2;
+          if (pct > 98) pct = 98;
+          const closeCount = placedPcts.filter(p => Math.abs(p - pct) < 3.2).length;
+          placedPcts.push(pct);
+          const subRow = closeCount % 2;
+          if (subRow > maxSubRow) maxSubRow = subRow;
+          return { v, pct, topPx: 6 + subRow * 20 };
+        });
+
+        const laneHeightPx = maxSubRow > 0 ? 50 : 32;
+        const markersHtml = itemPositions.map(pos => buildMarkerHtml(pos.v, pos.pct.toFixed(2), pos.topPx)).join('');
+
+        labelsHtml += `
+          <div class="flex items-center justify-between overflow-hidden px-1" style="height: ${laneHeightPx}px;">
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold border ${grp.info.badgeColor} truncate">${grp.info.label}</span>
+            <span class="text-[10px] font-mono text-slate-400 ml-1 shrink-0">${grp.items.length}班</span>
+          </div>
+        `;
+
+        tracksHtml += `
+          <div class="relative overflow-visible" style="height: ${laneHeightPx}px;">
+            ${markersHtml}
+          </div>
+        `;
+      });
+
+      container.innerHTML = `
+        <div class="flex overflow-visible relative">
+          <!-- Left Destination Labels -->
+          <div class="w-36 sm:w-44 shrink-0 flex flex-col divide-y divide-slate-800/80 border-r border-slate-800 pr-3 select-none">
+            <div class="divide-y divide-slate-800/80 overflow-visible">
+              ${labelsHtml}
+            </div>
+            <div class="h-6 pt-2 text-right text-[10px] text-slate-500 font-mono">時間軸 (24H)</div>
+          </div>
+
+          <!-- Right Timeline Grid & Tracks -->
+          <div class="relative flex-1 ml-2 overflow-visible">
+            <!-- Background Grid Lines -->
+            <div class="absolute inset-0 pointer-events-none">${gridLinesHtml}</div>
+
+            <!-- Current Time White Line (目前時間軸) -->
+            ${buildCurrentTimeLineHtml()}
+
+            <!-- Swimlane Tracks -->
+            <div class="divide-y divide-slate-800/80 overflow-visible">
+              ${tracksHtml}
+            </div>
+
+            <!-- Time Ticks -->
+            <div class="relative h-6 pt-2 border-t border-slate-800 overflow-visible">
+              ${ticksHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Auto-update Current Time White Line every 20 seconds
+    setInterval(() => {
+      const line = document.getElementById('currentTimeIndicator');
+      if (line) {
+        const { pct, timeStr } = getTimelineTimeMetrics();
+        line.style.left = `${pct.toFixed(2)}%`;
+        const span = line.querySelector('span:last-child');
+        if (span) span.innerText = `目前時間 ${timeStr}`;
+      }
+    }, 20000);
+
+    function updateRouteFinderDestOptions(destinations) {
+      const select = document.getElementById('routeDestPicker');
+      select.innerHTML = '';
+      if (!destinations || destinations.length === 0) {
+        select.innerHTML = '<option value="">(無直達目的地)</option>';
+        updateRouteFinder();
+        return;
+      }
+      destinations.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.innerText = `➔ ${d}`;
+        select.appendChild(opt);
+      });
+      updateRouteFinder();
+    }
+
+    async function updateRouteFinder() {
+      const dest = document.getElementById('routeDestPicker').value;
+      const resContainer = document.getElementById('routeResultsContainer');
+
+      if (!dest) {
+        resContainer.innerHTML = '<div class="col-span-3 text-center text-xs text-slate-500 py-4">請選擇目的地</div>';
+        return;
+      }
+
+      // Find visits from selectedFab where dest matches
+      const data = await fetchFabAnalysis(selectedFab, currentShift);
+      if (!data) return;
+
+      const matching = data.visits.filter(v => v.dest_fab && v.dest_fab.includes(dest));
+      if (matching.length === 0) {
+        resContainer.innerHTML = `<div class="col-span-3 text-center text-xs text-slate-400 py-3 bg-slate-900/60 rounded-xl border border-slate-800">當前時段暫無直達 ${dest} 的專車或環廠班次（可透過母港轉運）。</div>`;
+        return;
+      }
+
+      let html = '';
+      matching.slice(0, 3).forEach((m, idx) => {
+        html += `
+          <div class="bg-slate-900/90 border border-indigo-500/30 p-3.5 rounded-xl text-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-truck text-indigo-400"></i> ${m.car_name}
+              </span>
+              <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded font-mono">${m.mode}</span>
+            </div>
+            <div class="mt-2 text-slate-300">
+              <span>發車時間：<strong class="text-amber-400 font-mono">${m.dep_time}</strong></span>
+              <span class="ml-2">車程：<strong class="text-cyan-400 font-mono">${m.transit_mins} 分鐘</strong></span>
+            </div>
+            <div class="mt-2 text-[11px] text-slate-400 border-t border-slate-800 pt-1.5 truncate" title="${m.cargo_cmd}">
+              ${m.cargo_cmd}
+            </div>
+          </div>
+        `;
+      });
+      resContainer.innerHTML = html;
+    }
+
+    // ==========================================
+    // 3. MASTER SUMMARY & CHARTS (Requirement #3)
+    // ==========================================
+    async function fetchSummaryData(shift) {
+      if (isLiveServer) {
+        const res = await fetch(`/api/summary?shift=${shift}`);
+        return await res.json();
+      }
+
+      // Fallback
+      if (fallbackData && fallbackData.fabs && fallbackData.schedules) {
+        let fabs = fallbackData.fabs;
+        let summary = [];
+
+        fabs.forEach(f => {
+          let visits = fallbackData.schedules.filter(s => s.fab_code === f.code && s.is_break === 0);
+          if (shift !== 'all') visits = visits.filter(s => s.shift === shift);
+          visits.sort((a,b) => a.arr_min - b.arr_min);
+
+          let intervals = [];
+          for (let i = 1; i < visits.length; i++) {
+            let diff = visits[i].arr_min - visits[i-1].arr_min;
+            if (diff >= 0) intervals.push(diff);
+          }
+
+          let avgWait = intervals.length > 0 ? (intervals.reduce((a,b)=>a+b,0) / intervals.length) : 0;
+          let minWait = intervals.length > 0 ? Math.min(...intervals) : 0;
+          let maxWait = intervals.length > 0 ? Math.max(...intervals) : 0;
+          let totalCap = visits.reduce((a,b)=>a+(b.capacity_batches||0), 0);
+          let cars = [...new Set(visits.map(v=>v.car_name))].sort().join(', ');
+
+          // Cross-Fab OD connections
+          let consultCount = visits.length;
+          const defaultExcelSums = { 'FAB8AB': 908, 'FAB8CD': 1052, 'FAB8E': 865, 'FAB8F': 1662, 'FAB8S': 747, '嘉晶篤行': 30, '嘉晶創新': 30 };
+          const defaultOdSums = { 'FAB8AB': 450, 'FAB8CD': 530, 'FAB8E': 420, 'FAB8F': 830, 'FAB8S': 430, '嘉晶篤行': 30, '嘉晶創新': 30 };
+
+          summary.push({
+            fab_code: f.code,
+            fab_name: f.name,
+            display_name: f.display_name,
+            color: f.color,
+            visits_count: visits.length,
+            departure_count: visits.length,
+            consult_count: consultCount,
+            avg_wait_min: Math.round(avgWait * 10) / 10,
+            expected_wait_min: Math.round((avgWait / 2) * 10) / 10,
+            min_wait_min: minWait,
+            max_wait_min: maxWait,
+            total_capacity: totalCap,
+            demand_out_24h: f.demand_out_24h || defaultOdSums[f.code] || 0,
+            demand_in_24h: f.demand_in_24h || defaultOdSums[f.code] || 0,
+            demand_excel_sum: f.demand_excel_sum || defaultExcelSums[f.code] || 0,
+            cars_serving: cars
+          });
+        });
+
+        // Sort by visits_count descending
+        summary.sort((a,b) => b.visits_count - a.visits_count);
+        return summary;
+      }
+      return [];
+    }
+
+    async function renderSummaryReport() {
+      const summaryList = await fetchSummaryData(currentShift);
+      if (!summaryList || summaryList.length === 0) return;
+
+      const tbody = document.getElementById('masterSummaryTableBody');
+      const tfoot = document.getElementById('masterSummaryTableFoot');
+
+      let html = '';
+      let sumVisits = 0;
+      let sumDeps = 0;
+      let sumConsult = 0;
+      let sumCap = 0;
+
+      summaryList.forEach(s => {
+        sumVisits += s.visits_count;
+        sumDeps += s.departure_count;
+        sumConsult += s.consult_count;
+        sumCap += s.total_capacity;
+
+        html += `
+          <tr class="hover:bg-slate-700/40 transition-colors cursor-pointer" onclick="selectFabAndJump('${s.fab_code}')">
+            <td class="py-3.5 px-4">
+              <div class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${s.color}"></span>
+                <div>
+                  <strong class="text-white text-sm block">${s.fab_name}</strong>
+                  <span class="text-[11px] text-slate-400">${s.display_name}</span>
+                </div>
+              </div>
+            </td>
+            <td class="py-3.5 px-4 text-center font-mono font-extrabold text-amber-400 text-base">
+              ${s.visits_count} <span class="text-xs font-normal text-slate-400">次</span>
+            </td>
+            <td class="py-3.5 px-4 text-center font-mono font-bold text-blue-400">
+              ${s.departure_count} <span class="text-xs font-normal text-slate-400">趟</span>
+            </td>
+            <td class="py-3.5 px-4 text-center font-mono font-bold text-cyan-400">
+              ${s.consult_count} <span class="text-xs font-normal text-slate-400">班</span>
+            </td>
+            <td class="py-3.5 px-4 text-center font-mono">
+              <strong class="text-emerald-400 text-sm">${s.avg_wait_min}</strong> <span class="text-xs text-slate-400">分</span>
+              <span class="text-[10px] text-slate-500 block">(預期 ${s.expected_wait_min}分)</span>
+            </td>
+            <td class="py-3.5 px-4 text-center font-mono text-xs text-slate-300">
+              ${s.min_wait_min}m ~ ${s.max_wait_min}m
+            </td>
+            <td class="py-3.5 px-4 text-center font-mono">
+              <div class="font-extrabold text-white text-base">${s.total_capacity} <span class="text-xs font-normal text-emerald-400">批</span></div>
+              ${(() => {
+                const is24 = (currentShift === 'all');
+                const excelReq = is24 ? (s.demand_excel_sum || 0) : Math.round((s.demand_excel_sum || 0) / 2);
+                const odReq = is24 ? (s.demand_out_24h || 0) : Math.round((s.demand_out_24h || 0) / 2);
+                if (!excelReq) return '';
+                const pct = Math.round((s.total_capacity / excelReq) * 100);
+                const pctColor = pct >= 100 ? 'text-emerald-400' : (pct >= 85 ? 'text-amber-400' : 'text-rose-400');
+                return `<div class="text-[10px] text-slate-400 mt-0.5">需求Sum: <span class="text-amber-300">${excelReq}</span>批 (OD:${odReq}) | <span class="${pctColor} font-bold">${pct}%</span></div>`;
+              })()}
+            </td>
+            <td class="py-3.5 px-4 text-xs text-slate-300">
+              ${s.cars_serving || '—'}
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+
+      // Summary foot totals
+      tfoot.innerHTML = `
+        <tr class="py-3.5 px-4">
+          <td class="py-3.5 px-4 uppercase text-slate-400">全廠合計 / 總值</td>
+          <td class="py-3.5 px-4 text-center text-amber-400 font-mono text-base">${sumVisits} 次</td>
+          <td class="py-3.5 px-4 text-center text-blue-400 font-mono text-base">${sumDeps} 趟</td>
+          <td class="py-3.5 px-4 text-center text-cyan-400 font-mono text-base">${sumConsult} 班</td>
+          <td class="py-3.5 px-4 text-center text-slate-400 font-mono text-xs">—</td>
+          <td class="py-3.5 px-4 text-center text-slate-400 font-mono text-xs">—</td>
+          <td class="py-3.5 px-4 text-center text-emerald-400 font-mono text-base">${sumCap} 批</td>
+          <td class="py-3.5 px-4 text-xs text-slate-400 font-normal">全車隊 5 輛車全時運籌</td>
+        </tr>
+      `;
+
+      // Update Charts
+      updateSummaryCharts(summaryList);
+    }
+
+    function selectFabAndJump(fabCode) {
+      selectFab(fabCode);
+      switchTab('tab-fabs');
+    }
+
+    function updateSummaryCharts(data) {
+      if (!data || data.length === 0) return;
+
+      const labels = data.map(d => d.fab_name);
+      const visits = data.map(d => d.visits_count);
+      const waits = data.map(d => d.avg_wait_min);
+      const caps = data.map(d => d.total_capacity);
+      const colors = data.map(d => d.color);
+
+      // Chart 1: Bar & Line
+      const ctx1 = document.getElementById('chartVisitsWait').getContext('2d');
+      if (chartVisitsWaitInstance) chartVisitsWaitInstance.destroy();
+
+      chartVisitsWaitInstance = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              type: 'bar',
+              label: '被訪問次數 (次)',
+              data: visits,
+              backgroundColor: 'rgba(59, 130, 246, 0.75)',
+              borderColor: '#3B82F6',
+              borderWidth: 1,
+              borderRadius: 6,
+              yAxisID: 'y'
+            },
+            {
+              type: 'line',
+              label: '平均等候班距 (分鐘)',
+              data: waits,
+              borderColor: '#F59E0B',
+              backgroundColor: '#F59E0B',
+              borderWidth: 2.5,
+              tension: 0.3,
+              pointRadius: 4,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#94A3B8', font: { size: 11 } } }
+          },
+          scales: {
+            x: { ticks: { color: '#94A3B8' }, grid: { color: '#334155' } },
+            y: {
+              type: 'linear',
+              position: 'left',
+              ticks: { color: '#94A3B8' },
+              grid: { color: '#334155' },
+              title: { display: true, text: '次數', color: '#64748B' }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              ticks: { color: '#F59E0B' },
+              grid: { drawOnChartArea: false },
+              title: { display: true, text: '分鐘', color: '#F59E0B' }
+            }
+          }
+        }
+      });
+
+      // Chart 2: Capacity Doughnut
+      const ctx2 = document.getElementById('chartCapacity').getContext('2d');
+      if (chartCapacityInstance) chartCapacityInstance.destroy();
+
+      chartCapacityInstance = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: caps,
+            backgroundColor: colors,
+            borderColor: '#1E293B',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { color: '#94A3B8', font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: function(c) {
+                  return ` ${c.label}: ${c.raw} 批 (${((c.raw/caps.reduce((a,b)=>a+b,0))*100).toFixed(1)}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ==========================================
+    // OD FROM-TO MATRIX (Demand_from_to.xlsx Integrated)
+    // ==========================================
+    let odDemandScaleMode = 'auto'; // 'auto' (24H=100%, Day/Night=50%) or 'raw24' (always show 24H full numbers)
+
+    const DEFAULT_DEMAND_24H = {
+      'FAB8AB->FAB8E': 150, 'FAB8AB->FAB8F': 250, 'FAB8AB->FAB8S': 50,
+      'FAB8CD->FAB8E': 150, 'FAB8CD->FAB8F': 300, 'FAB8CD->FAB8S': 80,
+      'FAB8E->FAB8AB': 150, 'FAB8E->FAB8CD': 150, 'FAB8E->FAB8F': 20, 'FAB8E->FAB8S': 40, 'FAB8E->嘉晶篤行': 30, 'FAB8E->嘉晶創新': 30,
+      'FAB8F->FAB8AB': 250, 'FAB8F->FAB8CD': 300, 'FAB8F->FAB8E': 20, 'FAB8F->FAB8S': 260,
+      'FAB8S->FAB8AB': 50,  'FAB8S->FAB8CD': 80,  'FAB8S->FAB8E': 40, 'FAB8S->FAB8F': 260,
+      '嘉晶篤行->FAB8E': 30, '嘉晶創新->FAB8E': 30
+    };
+
+    const EXCEL_FAB_SUM_24H = {
+      'FAB8AB': 908, 'FAB8CD': 1052, 'FAB8E': 865, 'FAB8F': 1662, 'FAB8S': 747, '嘉晶篤行': 30, '嘉晶創新': 30
+    };
+
+    function setOdDemandScale(mode) {
+      odDemandScaleMode = mode;
+      const bAuto = document.getElementById('btnOdDemandAuto');
+      const bRaw = document.getElementById('btnOdDemandRaw24');
+      if (bAuto && bRaw) {
+        if (mode === 'auto') {
+          bAuto.className = 'px-2.5 py-1 rounded-md bg-cyan-600 text-white font-semibold transition';
+          bRaw.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition';
+        } else {
+          bRaw.className = 'px-2.5 py-1 rounded-md bg-amber-600 text-white font-semibold transition';
+          bAuto.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition';
+        }
+      }
+      renderODMatrix();
+    }
+
+    function normOdFabCode(sRaw, fallback = null) {
+      if (!sRaw) return fallback;
+      const s = sRaw.trim();
+      if (s.includes('8AB') || s === 'AB') return 'FAB8AB';
+      if (s.includes('8CD') || s === 'CD') return 'FAB8CD';
+      if (s.includes('8E') || s === 'E') return 'FAB8E';
+      if (s.includes('8F') || s === 'F') return 'FAB8F';
+      if (s.includes('8S') || s === 'S') return 'FAB8S';
+      if (s.includes('篤行')) return '嘉晶篤行';
+      if (s.includes('創新')) return '嘉晶創新';
+      return fallback;
+    }
+
+    async function fetchODMatrix(shift) {
+      if (isLiveServer) {
+        const res = await fetch(`/api/od_matrix?shift=${shift}`);
+        return await res.json();
+      }
+
+      // Offline calculation matching server.py logic
+      const fabs = ['FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S', '嘉晶篤行', '嘉晶創新'];
+      let demandLookup = { ...DEFAULT_DEMAND_24H };
+      if (fallbackData && fallbackData.demand_matrix && fallbackData.demand_matrix.length > 0) {
+        fallbackData.demand_matrix.forEach(d => {
+          demandLookup[`${d.from_fab}->${d.to_fab}`] = d.demand_batches;
+        });
+      }
+
+      let matrix = {};
+      fabs.forEach(f1 => {
+        matrix[f1] = {};
+        fabs.forEach(f2 => {
+          const d24 = demandLookup[`${f1}->${f2}`] || 0;
+          matrix[f1][f2] = {
+            trips: 0,
+            capacity: 0,
+            cars: new Set(),
+            dep_events: [],
+            demand_24h: d24,
+            demand_shift: Math.floor(d24 / 2)
+          };
+        });
+      });
+
+      const periodMins = (shift === 'all') ? 1440 : 720;
+
+      if (fallbackData && fallbackData.schedules) {
+        let rows = fallbackData.schedules.filter(r => r.is_break === 0);
+        if (shift !== 'all') rows = rows.filter(r => r.shift === shift);
+        rows.forEach(r => {
+          const dockFab = r.fab_code;
+          const odRaw = r.od_flow || '';
+          const cap = r.capacity_batches || 0;
+          const depMin = r.dep_min || 0;
+          const rShift = r.shift;
+          let tTimeline = depMin;
+          if (rShift === 'night' && depMin < 12 * 60) {
+            tTimeline = depMin + 1440;
+          }
+
+          const lines = odRaw.split('<br>').map(x => x.trim()).filter(x => !x.includes('在途') && x.includes('➔'));
+          if (!lines.length) return;
+          const capPerLine = Math.floor(cap / lines.length);
+          lines.forEach(ln => {
+            const parts = ln.split('➔');
+            const orig = normOdFabCode(parts[0], dockFab);
+            const dests = parts[1].split('/').map(d => normOdFabCode(d)).filter(d => fabs.includes(d) && d !== orig);
+            if (!dests.length || !matrix[orig]) return;
+            const capEach = Math.floor(capPerLine / dests.length);
+            dests.forEach(target => {
+              matrix[orig][target].trips += 1;
+              matrix[orig][target].capacity += capEach;
+              matrix[orig][target].cars.add(r.car_name);
+              matrix[orig][target].dep_events.push({
+                t: tTimeline,
+                dep_time: r.dep_time,
+                car: r.car_name,
+                cap: capEach,
+                shift: rShift
+              });
+            });
+          });
+        });
+      }
+
+      fabs.forEach(f1 => {
+        fabs.forEach(f2 => {
+          const cell = matrix[f1][f2];
+          cell.cars = Array.from(cell.cars).sort();
+          const events = cell.dep_events.sort((a, b) => a.t - b.t);
+          const tList = events.map(e => e.t);
+          let hws = [];
+          if (tList.length >= 2) {
+            for (let i = 1; i < tList.length; i++) {
+              hws.push(tList[i] - tList[i - 1]);
+            }
+            const wrapHw = (tList[0] + periodMins) - tList[tList.length - 1];
+            if (wrapHw >= 0) hws.push(wrapHw);
+          } else if (tList.length === 1) {
+            hws = [periodMins];
+          }
+          const avgHw = hws.length ? Math.round((hws.reduce((a, b) => a + b, 0) / hws.length) * 10) / 10 : 0;
+          const unifWait = avgHw > 0 ? Math.round((avgHw / 2) * 10) / 10 : 0;
+          const totalH = hws.reduce((a, b) => a + b, 0);
+          const exactWait = totalH > 0 ? Math.round((hws.reduce((a, h) => a + 0.5 * h * h, 0) / totalH) * 10) / 10 : 0;
+          cell.avg_headway_min = avgHw;
+          cell.expected_wait_min = unifWait;
+          cell.exact_wait_min = exactWait;
+          cell.min_headway_min = hws.length ? Math.min(...hws) : 0;
+          cell.max_headway_min = hws.length ? Math.max(...hws) : 0;
+          cell.dep_schedule = events
+            .filter(e => shift !== 'all' || e.shift === 'day')
+            .map(e => `${e.dep_time}(${e.car.replace('Car ', '')}:${e.cap})`);
+          delete cell.dep_events;
+        });
+      });
+
+      return {
+        matrix: matrix,
+        fabs: fabs
+      };
+    }
+
+    async function renderODMatrix() {
+      const data = await fetchODMatrix(currentShift);
+      if (!data || !data.fabs) return;
+
+      const table = document.getElementById('odMatrixTable');
+      const kpiStrip = document.getElementById('odDemandKpiStrip');
+      const detailBody = document.getElementById('odSegmentDetailTableBody');
+      const fabs = data.fabs;
+      const useShiftHalf = (odDemandScaleMode === 'auto' && currentShift !== 'all');
+      const scaleFactor = useShiftHalf ? 0.5 : 1.0;
+      const scaleLabel = useShiftHalf ? '單班 12H 基準 (÷2)' : '全日 24H 基準 (Excel原始值)';
+
+      // Compute Fab total scheduled capacity for the Excel Col J Sum comparison
+      let fabTotalCap = {};
+      fabs.forEach(f => { fabTotalCap[f] = 0; });
+      if (fallbackData && fallbackData.schedules) {
+        let rows = fallbackData.schedules.filter(r => r.is_break === 0);
+        if (currentShift !== 'all') rows = rows.filter(r => r.shift === currentShift);
+        rows.forEach(r => {
+          if (fabTotalCap[r.fab_code] !== undefined) {
+            fabTotalCap[r.fab_code] += (r.capacity_batches || 0);
+          }
+        });
+      }
+
+      let colTripsSum = {};
+      let colCapSum = {};
+      let colDemandSum = {};
+      fabs.forEach(f => { colTripsSum[f] = 0; colCapSum[f] = 0; colDemandSum[f] = 0; });
+
+      let grandTrips = 0;
+      let grandCap = 0;
+      let grandOdDemand = 0;
+      let grandExcelSum = 0;
+      let grandFabCap = 0;
+      let fulfilledRoutes = 0;
+      let totalDemandRoutes = 0;
+      let detailSegments = [];
+
+      const dispFab = (f) => {
+        if (f === '嘉晶篤行') return '嘉晶 (篤行)';
+        if (f === '嘉晶創新') return '嘉晶 (創新)';
+        return f;
+      };
+
+      let html = `
+        <thead class="bg-slate-950 text-slate-300">
+          <tr>
+            <th class="p-2.5 border border-slate-700 bg-slate-900 text-left min-w-[110px]">From \\ To</th>
+            ${fabs.map(f => `<th class="p-2 border border-slate-700 font-bold text-white">${dispFab(f)}</th>`).join('')}
+            <th class="p-2 border border-slate-700 bg-indigo-950/60 font-bold text-cyan-300">Sum<br><span class="text-[10px] font-normal text-slate-400">(發出 OD 合計)</span></th>
+            <th class="p-2 border border-slate-700 bg-amber-950/50 font-bold text-amber-300">Excel Sum<br><span class="text-[10px] font-normal text-slate-400">(廠區總量 J欄)</span></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800">
+      `;
+
+      fabs.forEach(f1 => {
+        let rowTrips = 0;
+        let rowCap = 0;
+        let rowDemand = 0;
+
+        const rowCellsHtml = fabs.map(f2 => {
+          if (f1 === f2) {
+            return `<td class="p-2 border border-slate-800 bg-slate-950/90 text-slate-600">—</td>`;
+          }
+          const cell = (data.matrix[f1] && data.matrix[f1][f2]) ? data.matrix[f1][f2] : { trips: 0, capacity: 0, cars: [] };
+          const trips = cell.trips || 0;
+          const cap = cell.capacity || 0;
+          const raw24 = (cell.demand_24h !== undefined) ? cell.demand_24h : (DEFAULT_DEMAND_24H[`${f1}->${f2}`] || 0);
+          const req = Math.round(raw24 * scaleFactor);
+          const avgHw = cell.avg_headway_min || 0;
+          const unifWait = cell.expected_wait_min || 0;
+          const exactWait = cell.exact_wait_min || 0;
+          const minHw = cell.min_headway_min || 0;
+          const maxHw = cell.max_headway_min || 0;
+
+          rowTrips += trips;
+          rowCap += cap;
+          rowDemand += req;
+
+          colTripsSum[f2] += trips;
+          colCapSum[f2] += cap;
+          colDemandSum[f2] += req;
+
+          grandTrips += trips;
+          grandCap += cap;
+          grandOdDemand += req;
+
+          if (req > 0 || trips > 0) {
+            detailSegments.push({
+              from: f1,
+              to: f2,
+              req: req,
+              raw24: raw24,
+              trips: trips,
+              cap: cap,
+              avgHw: avgHw,
+              unifWait: unifWait,
+              exactWait: exactWait,
+              minHw: minHw,
+              maxHw: maxHw,
+              cars: cell.cars || [],
+              depSchedule: cell.dep_schedule || []
+            });
+          }
+
+          if (req > 0) {
+            totalDemandRoutes += 1;
+            if (cap >= req) fulfilledRoutes += 1;
+          }
+
+          let bgStyle = 'bg-slate-900/40 text-slate-500';
+          let badgeHtml = '';
+          let waitHtml = '';
+
+          if (trips > 0) {
+            waitHtml = `<div class="mt-0.5 text-[10px] text-slate-300">班距 <span class="text-cyan-300 font-bold">${avgHw}m</span> | 等候 <span class="text-amber-300 font-bold">${unifWait}m</span> <span class="text-slate-400">(實${exactWait}m)</span></div>`;
+          }
+
+          if (req > 0) {
+            const pct = Math.round((cap / req) * 100);
+            const utilPct = cap > 0 ? Math.round((req / cap) * 1000) / 10 : 999.9;
+            if (pct >= 100) {
+              bgStyle = 'bg-emerald-950/45 border border-emerald-600/40 text-emerald-200';
+              badgeHtml = `
+                <div class="mt-1 inline-block px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
+                  需求 ${req}批 | 使用率 ${utilPct}% (滿足 ${pct}%)
+                </div>
+              `;
+            } else if (pct > 0) {
+              bgStyle = 'bg-amber-950/55 border border-amber-500/50 text-amber-200';
+              badgeHtml = `
+                <div class="mt-1 inline-block px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">
+                  需求 ${req}批 | 使用率 ${utilPct}% (滿足 ${pct}%)
+                </div>
+              `;
+            } else {
+              bgStyle = 'bg-rose-950/50 border border-rose-600/50 text-rose-300';
+              badgeHtml = `<div class="mt-1 inline-block px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] font-bold">需求 ${req}批 (環廠跨站順道)</div>`;
+            }
+          } else if (trips > 0) {
+            bgStyle = 'bg-blue-950/40 border border-blue-700/40 text-blue-300';
+            badgeHtml = `<div class="mt-1 text-[10px] text-slate-400">環廠中繼跳板 (需求0批)</div>`;
+          }
+
+          const carsTitle = (cell.cars && cell.cars.length) ? `服務車輛: ${cell.cars.join(', ')}` : '';
+
+          return `
+            <td class="p-2 border border-slate-800 ${bgStyle} transition-all" title="${carsTitle}">
+              <div class="text-xs font-bold">${trips > 0 ? `${trips} 班 / 載運 ${cap} 批` : '0 班'}</div>
+              ${badgeHtml}
+              ${waitHtml}
+            </td>
+          `;
+        }).join('');
+
+        const rowPct = rowDemand > 0 ? Math.round((rowCap / rowDemand) * 100) : 0;
+        const rowUtilPct = rowCap > 0 ? Math.round((rowDemand / rowCap) * 1000) / 10 : 0;
+        const rowPctColor = rowPct >= 100 ? 'text-emerald-400' : 'text-amber-400';
+
+        const excelSumRaw = EXCEL_FAB_SUM_24H[f1] || 0;
+        const excelSumReq = Math.round(excelSumRaw * scaleFactor);
+        const fCap = fabTotalCap[f1] || rowCap;
+        grandExcelSum += excelSumReq;
+        grandFabCap += fCap;
+        const excelPct = excelSumReq > 0 ? Math.round((fCap / excelSumReq) * 100) : 0;
+        const excelPctColor = excelPct >= 100 ? 'text-emerald-400' : 'text-amber-400';
+
+        html += `
+          <tr class="hover:bg-slate-800/30">
+            <td class="p-2 border border-slate-700 font-bold text-white bg-slate-900 text-left whitespace-nowrap">${dispFab(f1)}</td>
+            ${rowCellsHtml}
+            <td class="p-2 border border-slate-700 bg-indigo-950/30 font-bold text-cyan-200">
+              <div class="text-xs">${rowTrips} 班 / ${rowCap} 批</div>
+              <div class="text-[10px] text-slate-400">OD需求: <span class="text-white">${rowDemand}</span>批 (使用率 <span class="text-amber-300">${rowUtilPct}%</span> / 滿足 <span class="${rowPctColor}">${rowPct}%</span>)</div>
+            </td>
+            <td class="p-2 border border-slate-700 bg-amber-950/25 font-bold text-amber-200">
+              <div class="text-xs text-amber-300">${excelSumReq} 批</div>
+              <div class="text-[10px] text-slate-400">到站運能: ${fCap}批 (<span class="${excelPctColor}">${excelPct}%</span>)</div>
+            </td>
+          </tr>
+        `;
+      });
+
+      const grandOdPct = grandOdDemand > 0 ? Math.round((grandCap / grandOdDemand) * 100) : 0;
+      const grandOdUtilPct = grandCap > 0 ? Math.round((grandOdDemand / grandCap) * 1000) / 10 : 0;
+      const grandExcelPct = grandExcelSum > 0 ? Math.round((grandFabCap / grandExcelSum) * 100) : 0;
+
+      // Footer Sum row matching Row 10 of Demand_from_to.xlsx
+      html += `
+        <tr class="bg-slate-950 font-bold border-t-2 border-slate-600">
+          <td class="p-2.5 border border-slate-700 text-left text-cyan-300">Sum <span class="text-[10px] font-normal text-slate-400">(接收合計)</span></td>
+          ${fabs.map(f2 => {
+            const cTrips = colTripsSum[f2];
+            const cCap = colCapSum[f2];
+            const cReq = colDemandSum[f2];
+            const cPct = cReq > 0 ? Math.round((cCap / cReq) * 100) : 0;
+            const cUtil = cCap > 0 ? Math.round((cReq / cCap) * 1000) / 10 : 0;
+            const cColor = cPct >= 100 ? 'text-emerald-400' : 'text-amber-400';
+            return `
+              <td class="p-2 border border-slate-700 text-white">
+                <div class="text-xs text-cyan-300">${cTrips} 班 / ${cCap} 批</div>
+                <div class="text-[10px] text-slate-400">需求: <span class="text-amber-300">${cReq}</span>批 (使用率 ${cUtil}% / <span class="${cColor}">${cPct}%</span>)</div>
+              </td>
+            `;
+          }).join('')}
+          <td class="p-2 border border-slate-700 bg-indigo-950/70 text-cyan-300">
+            <div class="text-xs font-extrabold">${grandTrips} 班 / ${grandCap} 批</div>
+            <div class="text-[10px] text-emerald-300">OD總需求: ${grandOdDemand}批 (使用率 ${grandOdUtilPct}% / 滿足 ${grandOdPct}%)</div>
+          </td>
+          <td class="p-2 border border-slate-700 bg-amber-950/60 text-amber-300">
+            <div class="text-xs font-extrabold">${grandExcelSum} 批</div>
+            <div class="text-[10px] text-emerald-300">總運能: ${grandFabCap}批 (${grandExcelPct}%)</div>
+          </td>
+        </tr>
+      </tbody>`;
+
+      table.innerHTML = html;
+
+      // Render Detailed OD Segment Table
+      if (detailBody) {
+        // Sort: core demand corridors first, then bridge corridors
+        detailSegments.sort((a, b) => {
+          const aCore = a.raw24 > 0 ? 0 : 1;
+          const bCore = b.raw24 > 0 ? 0 : 1;
+          if (aCore !== bCore) return aCore - bCore;
+          return 0;
+        });
+
+        detailBody.innerHTML = detailSegments.map((seg, idx) => {
+          const isBridge = seg.raw24 === 0;
+          const utilVal = seg.cap > 0 ? Math.round((seg.req / seg.cap) * 1000) / 10 : (seg.req > 0 ? 999.9 : 0);
+          const fulfillVal = seg.req > 0 ? Math.round((seg.cap / seg.req) * 1000) / 10 : 0;
+
+          let utilBadge = '';
+          if (isBridge) {
+            utilBadge = `<span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">環廠中繼跳板</span>`;
+          } else if (seg.cap === 0) {
+            utilBadge = `<span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold">跨站順道載運</span>`;
+          } else if (utilVal > 100) {
+            utilBadge = `<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">${utilVal.toFixed(1)}% (超載)</span>`;
+          } else if (utilVal >= 80) {
+            utilBadge = `<span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold">${utilVal.toFixed(1)}% (高效)</span>`;
+          } else {
+            utilBadge = `<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">${utilVal.toFixed(1)}% (充裕)</span>`;
+          }
+
+          const fulfillHtml = isBridge
+            ? '<span class="text-slate-500">—</span>'
+            : (seg.cap >= seg.req
+                ? `<span class="text-emerald-400 font-bold">${fulfillVal.toFixed(1)}%</span>`
+                : `<span class="text-amber-400 font-bold">${fulfillVal.toFixed(1)}%</span>`);
+
+          const avgHwStr = seg.trips > 0 ? `${seg.avgHw.toFixed(1)} 分` : '<span class="text-slate-500">靠中繼</span>';
+          const unifWStr = seg.trips > 0 ? `${seg.unifWait.toFixed(1)} 分` : '<span class="text-slate-500">靠中繼</span>';
+          const exactWStr = seg.trips > 0 ? `<strong class="text-amber-300">${seg.exactWait.toFixed(1)} 分</strong>` : '<span class="text-slate-500">靠中繼</span>';
+          const minMaxStr = seg.trips > 0 ? `${seg.minHw} / ${seg.maxHw} 分` : '—';
+          const depStr = seg.depSchedule.length > 0
+            ? seg.depSchedule.join(', ')
+            : (seg.from === 'FAB8CD' && seg.to === 'FAB8S'
+                ? '由 Car D (07:55, 10:25) 8CD➔8F➔8S 環廠跨站順道載運'
+                : '由 Car A (11:55 8E➔8S➔創新) 環廠跨站順道載運');
+
+          return `
+            <tr class="hover:bg-slate-800/50 transition-colors ${isBridge ? 'bg-slate-950/40 text-slate-400' : ''}">
+              <td class="py-2 px-3 text-center text-slate-500">${idx + 1}</td>
+              <td class="py-2 px-3 font-bold text-white whitespace-nowrap">${seg.from} <span class="text-cyan-400">➔</span> ${seg.to}</td>
+              <td class="py-2 px-3 text-center text-amber-300 font-bold">${seg.req} 批</td>
+              <td class="py-2 px-3 text-center text-blue-300 font-bold">${seg.trips} 趟</td>
+              <td class="py-2 px-3 text-center text-cyan-300 font-bold">${seg.cap} 批</td>
+              <td class="py-2 px-3 text-center whitespace-nowrap">${utilBadge}</td>
+              <td class="py-2 px-3 text-center">${fulfillHtml}</td>
+              <td class="py-2 px-3 text-center text-slate-200">${avgHwStr}</td>
+              <td class="py-2 px-3 text-center text-emerald-300">${unifWStr}</td>
+              <td class="py-2 px-3 text-center">${exactWStr}</td>
+              <td class="py-2 px-3 text-center text-slate-400">${minMaxStr}</td>
+              <td class="py-2 px-3 text-[11px] text-slate-300">${depStr}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      if (kpiStrip) {
+        kpiStrip.innerHTML = `
+          <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] text-slate-400 block">跨廠 OD 基準需求 (${scaleLabel})</span>
+              <strong class="text-lg font-mono text-amber-400">${grandOdDemand.toLocaleString()} <span class="text-xs font-normal text-slate-300">批 (22 條走廊)</span></strong>
+            </div>
+            <i class="fa-solid fa-table-cells text-amber-500/40 text-2xl"></i>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] text-slate-400 block">目前時段跨廠 OD 載運供給量</span>
+              <strong class="text-lg font-mono text-cyan-400">${grandCap.toLocaleString()} <span class="text-xs font-normal text-slate-300">批 (${grandTrips} 班次)</span></strong>
+            </div>
+            <i class="fa-solid fa-truck-fast text-cyan-500/40 text-2xl"></i>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] text-slate-400 block">整體 OD 使用率 (ρ=D/C) / 滿足率 (C/D)</span>
+              <strong class="text-lg font-mono text-emerald-400">${grandOdUtilPct}% <span class="text-xs font-normal text-slate-300">/ 滿足 ${grandOdPct}%</span></strong>
+            </div>
+            <i class="fa-solid fa-circle-check text-emerald-500/40 text-2xl"></i>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] text-slate-400 block">Excel 廠區 Sum 總計 vs. 全廠總運能</span>
+              <strong class="text-lg font-mono text-purple-300">${grandExcelSum.toLocaleString()} <span class="text-xs font-normal text-slate-400">vs</span> ${grandFabCap.toLocaleString()} <span class="text-xs font-normal text-emerald-400">(${grandExcelPct}%)</span></strong>
+            </div>
+            <i class="fa-solid fa-industry text-purple-500/40 text-2xl"></i>
+          </div>
+        `;
+      }
+    }
+
+    // ==========================================
+    // 4. DATABASE & SQL CONSOLE
+    // ==========================================
+    function setQueryPreset(num) {
+      const sqlInput = document.getElementById('sqlInput');
+      if (num === 1) {
+        sqlInput.value = `SELECT car_name, shift_label, count(*) AS total_stops, sum(dwell_mins) AS total_dwell_mins, sum(capacity_batches) AS total_capacity\nFROM schedules\nGROUP BY car_name, shift\nORDER BY car_name, shift;`;
+      } else if (num === 2) {
+        sqlInput.value = `SELECT car_name, stop_no, fab_code, time_range, od_flow, capacity_batches, cargo_cmd\nFROM schedules\nWHERE mode LIKE '%專車%'\nORDER BY car_name, stop_no;`;
+      } else if (num === 3) {
+        sqlInput.value = `SELECT car_name, stop_no, arr_time, dep_time, mode, od_flow, cargo_cmd\nFROM schedules\nWHERE fab_code = 'FAB8F' AND is_break = 0\nORDER BY arr_min ASC;`;
+      } else if (num === 4) {
+        sqlInput.value = `SELECT car_name, stop_no, fab_code, time_range, od_flow, cargo_cmd\nFROM schedules\nWHERE fab_code LIKE '%嘉晶%'\nORDER BY arr_min ASC;`;
+      } else if (num === 5) {
+        sqlInput.value = `SELECT from_fab AS 起點廠區, to_fab AS 迄點廠區, demand_batches AS 全日24H需求批次, demand_shift_batches AS 單班12H需求批次\nFROM demand_matrix\nORDER BY demand_batches DESC, from_fab ASC;`;
+      }
+      executeSQL();
+    }
+
+    async function executeSQL() {
+      const sql = document.getElementById('sqlInput').value.trim();
+      const msgEl = document.getElementById('sqlExecutionMsg');
+      const headEl = document.getElementById('sqlResultHead');
+      const bodyEl = document.getElementById('sqlResultBody');
+
+      if (!sql) {
+        msgEl.innerText = '請先輸入 SQL 指令。';
+        return;
+      }
+
+      msgEl.innerText = '執行查詢中...';
+
+      if (isLiveServer) {
+        try {
+          const res = await fetch('/api/sql_query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sql })
+          });
+          const result = await res.json();
+          if (result.error) {
+            msgEl.innerHTML = `<span class="text-red-400">❌ 查詢失敗: ${result.error}</span>`;
+            return;
+          }
+
+          msgEl.innerHTML = `<span class="text-emerald-400">✔️ 查詢成功！共回傳 ${result.count} 筆記錄</span>`;
+
+          // Render Head
+          headEl.innerHTML = `<tr>${result.columns.map(c => `<th class="p-3 border-r border-slate-800">${c}</th>`).join('')}</tr>`;
+
+          // Render Body
+          if (result.rows.length === 0) {
+            bodyEl.innerHTML = `<tr><td colspan="${result.columns.length}" class="p-4 text-center text-slate-500">查無記錄 (0 筆)。</td></tr>`;
+          } else {
+            bodyEl.innerHTML = result.rows.map(r => `
+              <tr class="hover:bg-slate-800/60 transition">
+                ${r.map(val => `<td class="p-2.5 border-r border-slate-800/60 text-slate-300 whitespace-nowrap">${val !== null ? val : '<em class="text-slate-600">NULL</em>'}</td>`).join('')}
+              </tr>
+            `).join('');
+          }
+        } catch (err) {
+          msgEl.innerHTML = `<span class="text-red-400">網路或連線錯誤: ${err.message}</span>`;
+        }
+      } else {
+        msgEl.innerHTML = `<span class="text-amber-400">⚠️ 本機靜態預覽模式：請透過執行 python server.py 啟用即時 SQLite 執行器。</span>`;
+      }
+    }
+
+    async function reloadDatabase() {
+      if (!confirm('確定要從原始時刻表重新建置 SQLite 資料庫 (logistics.db) 嗎？')) return;
+      if (isLiveServer) {
+        try {
+          const res = await fetch('/api/reload_db', { method: 'POST' });
+          const json = await res.json();
+          if (json.success) {
+            alert('🎉 資料庫重構成功！');
+            renderCarSchedules();
+            renderFabAnalysis();
+            renderSummaryReport();
+            renderODMatrix();
+          } else {
+            alert('重構失敗: ' + json.error);
+          }
+        } catch (e) {
+          alert('請求失敗: ' + e.message);
+        }
+      } else {
+        alert('請在啟動 server.py 環境下使用重構功能。');
+      }
+    }
+
+    function downloadDbFile() {
+      window.location.href = 'logistics.db';
+    }
+
+    // ==========================================
+    // EXPORT UTILITIES (CSV)
+    // ==========================================
+    async function exportCurrentTableToCSV() {
+      const modeFilter = document.getElementById('filterMode').value;
+      const searchTxt = document.getElementById('scheduleSearch').value;
+      const rows = await fetchSchedules(selectedCar, currentShift, modeFilter, searchTxt);
+
+      if (rows.length === 0) {
+        alert('目前無可匯出的資料');
+        return;
+      }
+
+      let csv = '\uFEFF車次,站次,停靠廠區,位置,營運模式,物料起迄(OD),到站時刻,離站時刻,作業時間(分),行車時間(分),上下貨指令,SOP\n';
+      rows.forEach(r => {
+        csv += `"${r.car_name}","${r.stop_no}","${r.fab_code}","${r.station_location||''}","${r.mode}","${r.od_flow}","${r.arr_time}","${r.dep_time}","${r.dwell_mins}","${r.transit_mins}","${(r.cargo_cmd||'').replace(/"/g, '""')}","${(r.sop_details||'').replace(/"/g, '""')}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `fleet_schedule_${selectedCar}_${currentShift}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    async function exportSummaryToCSV() {
+      const summaryList = await fetchSummaryData(currentShift);
+      if (summaryList.length === 0) return;
+
+      let csv = '\uFEFF工廠代號,廠區全名,被訪問次數,出發次數,會診互聯次數,平均等候時間(分),預期等待(分),最短等待(分),最長等待(分),總運能(批),服務車隊\n';
+      summaryList.forEach(s => {
+        csv += `"${s.fab_code}","${s.display_name}","${s.visits_count}","${s.departure_count}","${s.consult_count}","${s.avg_wait_min}","${s.expected_wait_min}","${s.min_wait_min}","${s.max_wait_min}","${s.total_capacity}","${s.cars_serving}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `fab_logistics_summary_${currentShift}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  
+    // ==========================================
+    // 6. DRIVER & FLEET ROSTER JAVASCRIPT LOGIC
+    // ==========================================
+    let currentRosterDate = '2026-11-01';
+    let currentRosterShift = 'Day';
+
+    function setRosterDateToday() {
+      currentRosterDate = '2026-11-01';
+      document.getElementById('rosterMainDate').value = currentRosterDate;
+      const wDate = document.getElementById('rosterWidgetDate');
+      if (wDate) wDate.value = currentRosterDate;
+      renderDriverRosterView();
+      updateTab1DriverWidget();
+    }
+
+    function stepRosterDate(offset) {
+      const dt = new Date(currentRosterDate);
+      dt.setDate(dt.getDate() + offset);
+      const year = dt.getFullYear();
+      const month = String(dt.getMonth() + 1).padStart(2, '0');
+      const day = String(dt.getDate()).padStart(2, '0');
+      const newDateStr = `${year}-${month}-${day}`;
+      if (newDateStr >= '2026-11-01' && newDateStr <= '2026-11-30') {
+        currentRosterDate = newDateStr;
+        document.getElementById('rosterMainDate').value = currentRosterDate;
+        const wDate = document.getElementById('rosterWidgetDate');
+        if (wDate) wDate.value = currentRosterDate;
+        renderDriverRosterView();
+        updateTab1DriverWidget();
+      }
+    }
+
+    function setRosterShift(shift) {
+      currentRosterShift = shift;
+      const bDay = document.getElementById('btnRosterShiftDay');
+      const bNight = document.getElementById('btnRosterShiftNight');
+      const bAll = document.getElementById('btnRosterShiftAll');
+
+      [bDay, bNight, bAll].forEach(b => {
+        b.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-300 hover:text-white transition';
+      });
+
+      if (shift === 'Day') {
+        bDay.className = 'px-3 py-1.5 rounded-lg font-bold bg-amber-500 text-slate-950 transition shadow';
+      } else if (shift === 'Night') {
+        bNight.className = 'px-3 py-1.5 rounded-lg font-bold bg-purple-600 text-white transition shadow';
+      } else {
+        bAll.className = 'px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white transition shadow';
+      }
+      renderDriverRosterView();
+      updateTab1DriverWidget();
+    }
+
+    function onRosterDateChange(newDate) {
+      currentRosterDate = newDate;
+      const mainDate = document.getElementById('rosterMainDate');
+      if (mainDate) mainDate.value = newDate;
+      updateTab1DriverWidget();
+    }
+
+    async function fetchRosterData(date, shift, carId) {
+      if (isLiveServer) {
+        let url = '/api/roster?';
+        if (date) url += `date=${date}&`;
+        if (shift && shift !== 'all') url += `shift=${shift}&`;
+        if (carId && carId !== 'ALL') url += `car_id=${carId}&`;
+        try {
+          const res = await fetch(url);
+          return await res.json();
+        } catch (e) {
+          console.warn('API error, falling back to local data:', e);
+        }
+      }
+
+      if (fallbackData && fallbackData.driver_roster) {
+        let rows = fallbackData.driver_roster;
+        if (date) rows = rows.filter(r => r.date === date);
+        if (shift && shift !== 'all') rows = rows.filter(r => r.shift.toLowerCase() === shift.toLowerCase());
+        if (carId && carId !== 'ALL') rows = rows.filter(r => r.car_id === carId);
+        return rows;
+      }
+      return [];
+    }
+
+    async function updateTab1DriverWidget() {
+      const wDate = document.getElementById('rosterWidgetDate');
+      if (!wDate) return;
+      const dateVal = wDate.value || '2026-11-01';
+      const shiftVal = currentShift === 'night' ? 'Night' : 'Day';
+      const container = document.getElementById('rosterWidgetDriverInfo');
+      if (!container) return;
+
+      const rosterRows = await fetchRosterData(dateVal, shiftVal, selectedCar);
+      if (selectedCar === 'ALL') {
+        const onDutyCount = rosterRows.filter(r => r.status === '執勤').length;
+        const standbyCount = rosterRows.filter(r => r.status === '預備車').length;
+        container.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-white font-semibold">全車隊在班司機：</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold font-mono border border-emerald-500/30">${onDutyCount} 人執勤</span>
+            ${standbyCount > 0 ? `<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold font-mono border border-amber-500/30">${standbyCount} 車備勤</span>` : ''}
+            <span class="text-slate-400 font-mono text-[11px]">(${shiftVal === 'Day' ? '☀️ 日班' : '🌙 夜班'})</span>
+          </div>
+        `;
+      } else {
+        const item = rosterRows.find(r => r.car_id === selectedCar);
+        if (item) {
+          let badgeHtml = '';
+          if (item.status === '執勤') {
+            const isIJM = item.driver_type === 'UM';
+            badgeHtml = `
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400 font-medium">執勤司機：</span>
+                <span class="text-white font-bold text-sm flex items-center gap-1.5">
+                  <i class="fa-solid fa-user-tie ${isIJM ? 'text-emerald-400' : 'text-blue-400'}"></i> ${item.driver}
+                </span>
+                <span class="px-2 py-0.5 text-[10px] rounded font-bold ${isIJM ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'}">
+                  ${item.driver_type}
+                </span>
+                <span class="text-slate-400 font-mono ml-2">車牌: <strong class="text-amber-400 font-mono">${item.plate}</strong></span>
+              </div>
+            `;
+          } else if (item.status === '預備車') {
+            badgeHtml = `
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
+                  ⚠️ 假日預備車 (備勤中)
+                </span>
+                <span class="text-slate-400 font-mono">配屬車號: <strong class="text-amber-400">${item.plate}</strong></span>
+              </div>
+            `;
+          } else {
+            badgeHtml = `
+              <div class="flex items-center gap-2 text-slate-500">
+                <span class="px-2.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                  ⏸️ 本班次無排班 (停駛)
+                </span>
+              </div>
+            `;
+          }
+          container.innerHTML = badgeHtml;
+        } else {
+          container.innerHTML = `<span class="text-slate-500">查無此車當日排班資料</span>`;
+        }
+      }
+    }
+
+    async function renderDriverRosterView() {
+      const dateVal = document.getElementById('rosterMainDate').value || '2026-11-01';
+      const shiftVal = currentRosterShift;
+      
+      const weekdayNames = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+      const dt = new Date(dateVal);
+      const weekdayStr = weekdayNames[dt.getDay()];
+      document.getElementById('rosterDateLabel').innerText = `${dateVal} (${weekdayStr})`;
+      document.getElementById('rosterGridTitle').innerText = `${dateVal} (${weekdayStr}) ${shiftVal === 'Day' ? '☀️ 日班' : (shiftVal === 'Night' ? '🌙 夜班' : '全日')} 車隊執勤看板`;
+
+      // 1. Fetch Day Roster Cards
+      const items = await fetchRosterData(dateVal, shiftVal, 'ALL');
+      const grid = document.getElementById('rosterCardsGrid');
+
+      if (!items || items.length === 0) {
+        grid.innerHTML = `<div class="col-span-3 text-center py-8 text-slate-500">查無 ${dateVal} 排班資料</div>`;
+      } else {
+        const carOrder = ['Car_A', 'Car_B', 'Car_C', 'Car_D', 'Car_E', 'Car_U'];
+        let cardsHtml = '';
+        let activeCount = 0;
+
+        carOrder.forEach(carKey => {
+          const carShifts = items.filter(r => r.car_id === carKey);
+          if (carShifts.length === 0) return;
+
+          carShifts.forEach(item => {
+            const meta = CARS_INFO[carKey] || {};
+            const isDuty = item.status === '執勤';
+            const isStandby = item.status === '預備車';
+            if (isDuty) activeCount++;
+
+            let cardBg = 'bg-slate-800/90 border-slate-700';
+            let statusBadge = '';
+            if (isDuty) {
+              if (item.driver_type === 'UM') {
+                cardBg = 'bg-gradient-to-br from-slate-800 to-emerald-950/30 border-emerald-500/40 shadow-emerald-950/20';
+                statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">UM 車隊</span>';
+              } else {
+                cardBg = 'bg-gradient-to-br from-slate-800 to-blue-950/30 border-blue-500/40 shadow-blue-950/20';
+                statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">聯倉車隊</span>';
+              }
+            } else if (isStandby) {
+              cardBg = 'bg-slate-800/90 border-amber-500/40';
+              statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">⚠️ 假日備勤</span>';
+            } else {
+              cardBg = 'bg-slate-800/40 border-slate-800 opacity-60';
+              statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-500 border border-slate-700">無班次</span>';
+            }
+
+            cardsHtml += `
+              <div class="rounded-2xl border p-5 shadow-lg flex flex-col justify-between ${cardBg} transition-all hover:scale-[1.01]">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="text-base font-extrabold text-white">${meta.name || carKey}</span>
+                      <span class="text-xs px-2 py-0.5 rounded font-mono font-bold bg-slate-900 border border-slate-700 text-amber-400">${item.plate || meta.plate || '—'}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-xs font-mono font-bold ${item.shift === 'Day' ? 'text-amber-400' : 'text-purple-400'}">${item.shift === 'Day' ? '☀️ 日' : '🌙 夜'}</span>
+                      ${statusBadge}
+                    </div>
+                  </div>
+
+                  <div class="mt-4 flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold ${isDuty ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : (isStandby ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-600')}">
+                      <i class="fa-solid ${isDuty ? 'fa-user' : (isStandby ? 'fa-truck-clock' : 'fa-ban')}"></i>
+                    </div>
+                    <div>
+                      <span class="text-[10px] text-slate-400 block uppercase">執勤司機 (Driver)</span>
+                      <h4 class="text-lg font-bold text-white mt-0.5">${item.driver || (isStandby ? '預備車 (待命)' : '無班次')}</h4>
+                    </div>
+                  </div>
+
+                  <p class="text-[11px] text-slate-400 mt-3 line-clamp-1">${meta.mission || ''}</p>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                  <span><i class="fa-solid fa-location-dot text-red-400"></i> ${meta.hub || ''}</span>
+                  <span class="text-emerald-400"><i class="fa-solid fa-phone"></i> ${meta.phone || ''}</span>
+                </div>
+              </div>
+            `;
+          });
+        });
+        grid.innerHTML = cardsHtml;
+        document.getElementById('rosterShiftSummaryBadge').innerText = `執勤車輛：${activeCount} 輛`;
+      }
+
+      // 2. Render Driver Stats Table
+      renderDriverStatsTable();
+
+      // 3. Render Calendar Matrix
+      renderRosterMatrix();
+    }
+
+    async function renderDriverStatsTable() {
+      let stats = [];
+      if (isLiveServer) {
+        try {
+          const res = await fetch('/api/driver_stats');
+          stats = await res.json();
+        } catch(e) {
+          console.warn('API error for driver stats', e);
+        }
+      }
+      if ((!stats || stats.length === 0) && fallbackData && fallbackData.driver_stats) {
+        stats = fallbackData.driver_stats;
+      }
+      if (!stats || stats.length === 0) return;
+
+      const tbody = document.getElementById('driverStatsTableBody');
+      tbody.innerHTML = stats.map((s, idx) => {
+        const isIJM = s.type === 'UM';
+        const dayPct = Math.round((s.day / s.total) * 100);
+        const nightPct = 100 - dayPct;
+        return `
+          <tr class="hover:bg-slate-700/30 transition-colors">
+            <td class="py-3 px-4 text-slate-500 font-bold">${idx + 1}</td>
+            <td class="py-3 px-4 font-bold text-white text-sm flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs ${isIJM ? 'bg-emerald-950 text-emerald-400 border border-emerald-600' : 'bg-blue-950 text-blue-400 border border-blue-600'}">
+                ${s.driver.charAt(0)}
+              </span>
+              ${s.driver}
+            </td>
+            <td class="py-3 px-4">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isIJM ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'}">
+                ${s.type}
+              </span>
+            </td>
+            <td class="py-3 px-4 text-center font-extrabold text-amber-400 text-sm">${s.total} <span class="text-[10px] text-slate-500 font-normal">班</span></td>
+            <td class="py-3 px-4 text-center font-bold text-blue-400">${s.day}</td>
+            <td class="py-3 px-4 text-center font-bold text-purple-400">${s.night}</td>
+            <td class="py-3 px-4 w-44">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 h-2 rounded-full bg-slate-700 overflow-hidden flex">
+                  <div style="width: ${dayPct}%" class="bg-blue-500 h-full" title="日班 ${dayPct}%"></div>
+                  <div style="width: ${nightPct}%" class="bg-purple-500 h-full" title="夜班 ${nightPct}%"></div>
+                </div>
+                <span class="text-[10px] text-slate-400">${dayPct}% / ${nightPct}%</span>
+              </div>
+            </td>
+            <td class="py-3 px-4 text-slate-300 text-xs">${s.cars}</td>
+            <td class="py-3 px-4 text-right font-extrabold text-emerald-400 text-sm">${s.hours} <span class="text-[10px] text-slate-500 font-normal">hrs</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function renderRosterMatrix() {
+      let rows = [];
+      if (isLiveServer) {
+        try {
+          const res = await fetch('/api/roster');
+          rows = await res.json();
+        } catch(e) {}
+      }
+      if ((!rows || rows.length === 0) && fallbackData && fallbackData.driver_roster) {
+        rows = fallbackData.driver_roster;
+      }
+      if (!rows || rows.length === 0) return;
+
+      const table = document.getElementById('rosterMatrixTable');
+      const weekdayNames = ['日', '一', '二', '三', '四', '五', '六'];
+
+      // Header row
+      let html = `
+        <thead class="bg-slate-900 sticky top-0 z-20 text-[10px] uppercase font-mono border-b border-slate-700">
+          <tr>
+            <th class="py-2.5 px-3 sticky left-0 z-30 bg-slate-900 border-r border-slate-700 min-w-[70px]">車輛</th>
+            <th class="py-2.5 px-2 sticky left-[70px] z-30 bg-slate-900 border-r border-slate-700 min-w-[50px]">班別</th>
+      `;
+
+      for (let d = 1; d <= 30; d++) {
+        const dStr = String(d).padStart(2, '0');
+        const dt = new Date(`2026-11-${dStr}`);
+        const wName = weekdayNames[dt.getDay()];
+        const isWeekend = (dt.getDay() === 0 || dt.getDay() === 6);
+        html += `<th class="py-2 px-1 min-w-[65px] border-r border-slate-800 ${isWeekend ? 'bg-slate-800/80 text-amber-400' : 'text-slate-300'}">11/${dStr}<br><span class="text-[9px] font-normal">${wName}</span></th>`;
+      }
+      html += `</tr></thead><tbody class="divide-y divide-slate-800 font-mono text-[11px]">`;
+
+      const carKeys = ['Car_A', 'Car_B', 'Car_C', 'Car_D', 'Car_E', 'Car_U'];
+      carKeys.forEach(carKey => {
+        ['Day', 'Night'].forEach(shiftKey => {
+          const shiftZh = shiftKey === 'Day' ? '日班' : '夜班';
+          const shiftColor = shiftKey === 'Day' ? 'text-amber-400' : 'text-purple-400';
+          html += `
+            <tr class="hover:bg-slate-700/20 transition">
+              <td class="py-2 px-2 sticky left-0 z-10 bg-slate-850 font-bold text-white border-r border-slate-700">${carKey.replace('_', ' ')}</td>
+              <td class="py-2 px-1 sticky left-[70px] z-10 bg-slate-850 font-bold ${shiftColor} border-r border-slate-700">${shiftZh}</td>
+          `;
+
+          for (let d = 1; d <= 30; d++) {
+            const dateStr = `2026-11-${String(d).padStart(2, '0')}`;
+            const item = rows.find(r => r.date === dateStr && r.car_id === carKey && r.shift === shiftKey);
+            let cellContent = '—';
+            let cellStyle = 'text-slate-600 bg-slate-900/30';
+
+            if (item) {
+              if (item.status === '執勤') {
+                if (item.driver_type === 'UM') {
+                  cellContent = item.driver;
+                  cellStyle = 'bg-emerald-950/40 text-emerald-300 font-bold border border-emerald-500/20';
+                } else {
+                  cellContent = item.driver;
+                  cellStyle = 'bg-blue-950/40 text-blue-200 font-bold border border-blue-500/20';
+                }
+              } else if (item.status === '預備車') {
+                cellContent = '預備車';
+                cellStyle = 'bg-amber-950/30 text-amber-400 font-semibold border border-amber-500/20';
+              } else {
+                cellContent = '—';
+                cellStyle = 'text-slate-600 bg-slate-900/60';
+              }
+            }
+
+            html += `
+              <td class="p-1 border-r border-slate-800 text-[10px] ${cellStyle} whitespace-nowrap cursor-pointer hover:brightness-125" onclick="setRosterDateAndFocus('${dateStr}')" title="${dateStr} ${carKey} ${shiftZh}: ${cellContent}">
+                ${cellContent}
+              </td>
+            `;
+          }
+          html += `</tr>`;
+        });
+      });
+
+      html += `</tbody>`;
+      table.innerHTML = html;
+    }
+
+    function setRosterDateAndFocus(dateStr) {
+      currentRosterDate = dateStr;
+      document.getElementById('rosterMainDate').value = dateStr;
+      const wDate = document.getElementById('rosterWidgetDate');
+      if (wDate) wDate.value = dateStr;
+      renderDriverRosterView();
+      updateTab1DriverWidget();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+services:
+  logistics-web:
+    build: .
+    container_name: fab-logistics-web
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./logistics.db:/app/logistics.db
+    environment:
+      - PORT=5000
