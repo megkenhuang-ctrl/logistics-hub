@@ -65,6 +65,94 @@
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+  <!-- ========================================== -->
+  <!-- DEDICATED LOGIN PAGE (Default: adm / adm) -->
+  <!-- ========================================== -->
+  <div id="loginPage" class="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/95 backdrop-blur-xl p-4 select-none">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <!-- Glow ambient light -->
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Header & Icon -->
+      <div class="text-center mb-6 relative">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/40">
+          <i class="fa-solid fa-truck-fast text-white text-2xl"></i>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center justify-center gap-2">
+          <span>廠區物流戰情系統</span>
+          <span class="text-[11px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-full font-mono">登入</span>
+        </h2>
+        <p class="text-xs text-slate-400 mt-1">Fab Fleet Logistics Intelligence & Timetable Portal</p>
+      </div>
+
+      <!-- Quick Fill Default Account Tip -->
+      <div class="mb-5 bg-indigo-950/50 border border-indigo-500/40 rounded-xl p-3 flex items-center justify-between text-xs text-indigo-300 shadow-inner">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-key text-indigo-400 text-sm"></i>
+          <span>預設帳號：<strong class="font-mono text-white">adm</strong> ｜ 密碼：<strong class="font-mono text-white">adm</strong></span>
+        </div>
+        <button type="button" onclick="quickFillCredentials()" class="text-[11px] bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded-lg font-semibold transition-all shadow hover:shadow-indigo-500/50 flex items-center gap-1">
+          <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> 一鍵填入
+        </button>
+      </div>
+
+      <!-- Error Alert Message -->
+      <div id="loginErrorAlert" class="hidden mb-4 bg-red-950/70 border border-red-500/50 text-red-300 text-xs rounded-xl p-3 flex items-center gap-2.5 shadow-lg">
+        <i class="fa-solid fa-triangle-exclamation text-red-400 text-base shrink-0"></i>
+        <span id="loginErrorMsg">帳號或密碼錯誤！（預設帳號: adm / 密碼: adm）</span>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <i class="fa-solid fa-user text-slate-400 mr-1"></i> 使用者帳號 (User Name)
+          </label>
+          <div class="relative">
+            <input type="text" id="loginUsername" required autocomplete="username"
+                   placeholder="請輸入使用者帳號 (預設: adm)"
+                   class="w-full bg-slate-950/90 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-mono">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <i class="fa-solid fa-lock text-slate-400 mr-1"></i> 登入密碼 (Password)
+          </label>
+          <div class="relative">
+            <input type="password" id="loginPassword" required autocomplete="current-password"
+                   placeholder="請輸入密碼 (預設: adm)"
+                   class="w-full bg-slate-950/90 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all pr-10 font-mono">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors" title="顯示/隱藏密碼">
+              <i id="passwordEyeIcon" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs pt-1">
+          <label class="flex items-center gap-2 text-slate-400 cursor-pointer select-none">
+            <input type="checkbox" id="loginRememberMe" checked class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-blue-600 focus:ring-0 cursor-pointer">
+            <span>記住登入狀態 (Remember Me)</span>
+          </label>
+          <span class="text-slate-500 font-mono">Role: Administrator</span>
+        </div>
+
+        <button type="submit" id="btnLoginSubmit"
+                class="w-full mt-2 py-3 px-4 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-600/30 hover:shadow-blue-500/50 transition-all flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>登入系統 (Login)</span>
+        </button>
+      </form>
+
+      <!-- Footer Info -->
+      <div class="mt-6 text-center text-[11px] text-slate-500 pt-4 border-t border-slate-800 flex items-center justify-between">
+        <span>晶圓廠跨廠區物流營運排程</span>
+        <span class="text-slate-600 font-mono">Secure Access Gate</span>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Top Navbar -->
   <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 sticky top-0 z-50 px-4 lg:px-8 py-3.5 shadow-xl">
@@ -110,6 +198,19 @@
         <!-- Clock -->
         <div id="liveClock" class="hidden md:block font-mono text-xs text-slate-400 bg-slate-900/70 px-2.5 py-1.5 rounded-lg border border-slate-700">
           --:--:--
+        </div>
+
+        <!-- Logged-in User Profile & Logout -->
+        <div id="userProfileArea" class="flex items-center gap-2 bg-slate-900/90 border border-slate-700 px-2.5 py-1 rounded-lg text-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span class="text-slate-300 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-user-shield text-indigo-400"></i>
+            <span id="headerUserName" class="font-mono">adm</span>
+          </span>
+          <button onclick="handleLogout()" class="ml-1 text-[11px] text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 px-2 py-0.5 rounded border border-red-500/30 transition-all font-semibold flex items-center gap-1" title="登出系統">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>登出</span>
+          </button>
         </div>
       </div>
 
@@ -1291,8 +1392,147 @@
       }
     };
 
+    // ==========================================
+    // 0. AUTHENTICATION & LOGIN GATE (adm / adm)
+    // ==========================================
+    function checkAuthStatus() {
+      const storedUser = localStorage.getItem('logistics_auth_user') || sessionStorage.getItem('logistics_auth_user');
+      const loginPage = document.getElementById('loginPage');
+      const headerUserEl = document.getElementById('headerUserName');
+      
+      if (storedUser) {
+        if (loginPage) loginPage.classList.add('hidden');
+        if (headerUserEl) headerUserEl.innerText = storedUser;
+        return true;
+      } else {
+        if (loginPage) {
+          loginPage.classList.remove('hidden');
+          setTimeout(() => {
+            const u = document.getElementById('loginUsername');
+            if (u) u.focus();
+          }, 100);
+        }
+        return false;
+      }
+    }
+
+    function quickFillCredentials() {
+      const u = document.getElementById('loginUsername');
+      const p = document.getElementById('loginPassword');
+      if (u) u.value = 'adm';
+      if (p) p.value = 'adm';
+      const alertEl = document.getElementById('loginErrorAlert');
+      if (alertEl) alertEl.classList.add('hidden');
+      if (p) p.focus();
+    }
+
+    function togglePasswordVisibility() {
+      const pwdInput = document.getElementById('loginPassword');
+      const eyeIcon = document.getElementById('passwordEyeIcon');
+      if (!pwdInput) return;
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        if (eyeIcon) eyeIcon.className = 'fa-solid fa-eye-slash';
+      } else {
+        pwdInput.type = 'password';
+        if (eyeIcon) eyeIcon.className = 'fa-solid fa-eye';
+      }
+    }
+
+    async function handleLoginSubmit(e) {
+      if (e) e.preventDefault();
+      const uInput = document.getElementById('loginUsername');
+      const pInput = document.getElementById('loginPassword');
+      const remember = document.getElementById('loginRememberMe')?.checked;
+      const alertEl = document.getElementById('loginErrorAlert');
+      const msgEl = document.getElementById('loginErrorMsg');
+      const submitBtn = document.getElementById('btnLoginSubmit');
+
+      const username = uInput ? uInput.value.trim() : '';
+      const password = pInput ? pInput.value.trim() : '';
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>驗證中...</span>';
+      }
+
+      // Check via server API if available, or fallback to client-side auth
+      let isAuthenticated = false;
+      if (isLiveServer) {
+        try {
+          const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          const result = await res.json();
+          if (res.ok && result.success) {
+            isAuthenticated = true;
+          }
+        } catch (err) {
+          console.warn('API login check failed, using fallback check', err);
+        }
+      }
+
+      // Default credentials rule: adm / adm (also allow admin / admin)
+      if (!isAuthenticated) {
+        if ((username.toLowerCase() === 'adm' && password === 'adm') || 
+            (username.toLowerCase() === 'admin' && (password === 'admin' || password === 'adm'))) {
+          isAuthenticated = true;
+        }
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>登入系統 (Login)</span>';
+      }
+
+      if (isAuthenticated) {
+        if (remember) {
+          localStorage.setItem('logistics_auth_user', username);
+        } else {
+          sessionStorage.setItem('logistics_auth_user', username);
+        }
+        
+        if (alertEl) alertEl.classList.add('hidden');
+        const loginPage = document.getElementById('loginPage');
+        if (loginPage) {
+          loginPage.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+          setTimeout(() => loginPage.classList.add('hidden'), 300);
+        }
+        const headerUserEl = document.getElementById('headerUserName');
+        if (headerUserEl) headerUserEl.innerText = username;
+      } else {
+        if (alertEl) alertEl.classList.remove('hidden');
+        if (msgEl) msgEl.innerText = '帳號或密碼錯誤！（預設帳號: adm / 密碼: adm）';
+        if (pInput) {
+          pInput.value = '';
+          pInput.focus();
+        }
+      }
+    }
+
+    function handleLogout() {
+      if (confirm('確定要登出系統嗎？')) {
+        localStorage.removeItem('logistics_auth_user');
+        sessionStorage.removeItem('logistics_auth_user');
+        const loginPage = document.getElementById('loginPage');
+        if (loginPage) {
+          loginPage.classList.remove('hidden', 'opacity-0');
+        }
+        const uInput = document.getElementById('loginUsername');
+        const pInput = document.getElementById('loginPassword');
+        if (uInput) uInput.value = '';
+        if (pInput) pInput.value = '';
+        const alertEl = document.getElementById('loginErrorAlert');
+        if (alertEl) alertEl.classList.add('hidden');
+        if (uInput) uInput.focus();
+      }
+    }
+
     // --- Initialization ---
     window.addEventListener('DOMContentLoaded', async () => {
+      checkAuthStatus();
       startLiveClock();
       await checkServerConnection();
       renderCarSchedules();

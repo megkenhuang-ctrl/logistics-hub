@@ -655,6 +655,14 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 return self.send_json({'error': str(e)}, status=400)
 
+        elif path == '/api/login':
+            u = payload.get('username', '').strip()
+            p = payload.get('password', '').strip()
+            if (u == 'adm' and p == 'adm') or (u == 'admin' and p in ['adm', 'admin']):
+                return self.send_json({'success': True, 'user': u, 'role': 'admin'})
+            else:
+                return self.send_json({'success': False, 'error': '帳號或密碼錯誤 (預設帳密: adm/adm)'}, status=401)
+
         elif path == '/api/reload_db':
             try:
                 import init_db
