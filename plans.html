@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>廠區物流排程優化方案全覽 | Logistics Optimization Plans Comparison</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+    body { font-family: 'Noto Sans TC', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(71, 85, 105, 0.4);
+    }
+    .badge-plan1 {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .badge-plan2 {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .badge-baseline {
+      background: rgba(148, 163, 184, 0.15);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen selection:bg-emerald-500 selection:text-white">
+
+  <!-- Top Sticky Navigation -->
+  <header class="bg-slate-850/90 backdrop-blur-md border-b border-slate-700/80 sticky top-0 z-50 px-4 lg:px-8 py-3 shadow-xl">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white hover:scale-105 transition shadow-lg shadow-blue-500/20">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-black text-base lg:text-lg text-white tracking-wide">廠區物流排程優化方案全景報告</h1>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">方案一 vs. 方案二</span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">Logistics Schedule Diagnosis & Dual-Plan Architectural Evaluation</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <a href="spec.html" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 border border-slate-700 transition">
+          <i class="fa-solid fa-book text-amber-400"></i>
+          <span>系統規範手冊</span>
+        </a>
+        <a href="index.html" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs text-white font-semibold transition shadow-md shadow-blue-600/30">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>返回戰情總網</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sub Header Navigation Pills -->
+  <div class="bg-slate-800/60 border-b border-slate-700/50 sticky top-[57px] z-40 px-4 py-2 backdrop-blur">
+    <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto text-xs scrollbar-none">
+      <a href="#sec-overview" class="px-3 py-1 rounded-full bg-slate-700/80 hover:bg-slate-600 text-slate-200 shrink-0 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-layer-group text-blue-400"></i> 方案速覽總表
+      </a>
+      <a href="#sec-diagnosis" class="px-3 py-1 rounded-full bg-slate-700/80 hover:bg-slate-600 text-slate-200 shrink-0 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-triangle-exclamation text-rose-400"></i> 原班表痛點診斷
+      </a>
+      <a href="#sec-plan1" class="px-3 py-1 rounded-full bg-slate-700/80 hover:bg-slate-600 text-slate-200 shrink-0 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-rotate text-blue-400"></i> 方案一：裝載動態微調
+      </a>
+      <a href="#sec-plan2" class="px-3 py-1 rounded-full bg-slate-700/80 hover:bg-slate-600 text-slate-200 shrink-0 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-rocket text-emerald-400"></i> 方案二：雙層路網重構 (推薦)
+      </a>
+      <a href="#sec-matrix" class="px-3 py-1 rounded-full bg-slate-700/80 hover:bg-slate-600 text-slate-200 shrink-0 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-table-cells text-purple-400"></i> 22 條走廊供需滿足率
+      </a>
+      <a href="#sec-headway" class="px-3 py-1 rounded-full bg-slate-700/80 hover:bg-slate-600 text-slate-200 shrink-0 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-stopwatch text-amber-400"></i> 廠區班距與等候時間
+      </a>
+      <a href="#sec-recommendation" class="px-3 py-1 rounded-full bg-slate-700/80 hover:bg-slate-600 text-slate-200 shrink-0 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-compass text-teal-400"></i> 決策建議與執行路線
+      </a>
+    </div>
+  </div>
+
+  <main class="max-w-7xl mx-auto p-4 lg:p-8 space-y-12">
+
+    <!-- Hero Banner -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-800 via-slate-850 to-indigo-950/60 p-6 lg:p-10 border border-slate-700 shadow-2xl">
+      <div class="absolute -right-16 -bottom-16 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -top-16 w-80 h-80 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 max-w-4xl space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          <i class="fa-solid fa-shield-check"></i>
+          <span>100% 現場可行性約束：Car A～E 各車總站次 (198站)、營運站次 (178站)、作業工時完全鎖定</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
+          如何從 <span class="text-rose-400 line-through">臨界瓶頸與死鎖</span>，<br>
+          跨越至 <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">全日 6,960 批極限運能與全廠零拒載</span>？
+        </h2>
+        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+          本報告針對廠區 5 部常態貨車（Car A～E）進行深度運籌優化，比較<b>「原基準方案」</b>、<b>「優化方案一（裝載邏輯滾動解放）」</b>與<b>「優化方案二（雙層路網重構與 Car D 解鎖）」</b>之運能、走廊使用率、等候時間與實務可行性，提供生管與運籌主管最清晰之決策依據。
+        </p>
+      </div>
+
+      <!-- Quick KPI Strip -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 mt-8 pt-6 border-t border-slate-700/80">
+        <div class="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/60">
+          <div class="text-xs text-slate-400 mb-1">全日 24H 基準需求</div>
+          <div class="text-xl sm:text-2xl font-black text-white font-mono">2,720 <span class="text-xs font-normal text-slate-400">批</span></div>
+          <div class="text-[11px] text-slate-400 mt-1">22 條跨廠 OD 走廊</div>
+        </div>
+        <div class="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/60">
+          <div class="text-xs text-slate-400 mb-1">原方案 24H 供給運能</div>
+          <div class="text-xl sm:text-2xl font-black text-slate-300 font-mono">4,720 <span class="text-xs font-normal text-slate-400">批</span></div>
+          <div class="text-[11px] text-rose-400 mt-1 flex items-center gap-1"><i class="fa-solid fa-circle-exclamation"></i> 8S-8CD 100% 卡死</div>
+        </div>
+        <div class="bg-slate-900/50 rounded-2xl p-4 border border-blue-500/30 bg-blue-950/20">
+          <div class="text-xs text-blue-300 mb-1">方案一 24H 供給運能</div>
+          <div class="text-xl sm:text-2xl font-black text-blue-400 font-mono">6,232 <span class="text-xs font-normal text-slate-400">批</span></div>
+          <div class="text-[11px] text-blue-400 mt-1">成長 +32.0% (動線不變)</div>
+        </div>
+        <div class="bg-slate-900/50 rounded-2xl p-4 border border-emerald-500/40 bg-emerald-950/20">
+          <div class="text-xs text-emerald-300 mb-1">方案二 24H 供給運能 (推薦)</div>
+          <div class="text-xl sm:text-2xl font-black text-emerald-400 font-mono">6,960 <span class="text-xs font-normal text-slate-400">批</span></div>
+          <div class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1"><i class="fa-solid fa-arrow-trend-up"></i> 成長 +47.5% (全線零拒載)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: 三大方案總覽比較 (Executive 3-Way Summary) -->
+    <section id="sec-overview" class="space-y-6">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h3 class="text-xl font-bold text-white flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-lg bg-blue-600/30 text-blue-400 flex items-center justify-center font-mono text-sm border border-blue-500/30">01</span>
+            <span>三大方案核心架構與量化指標總覽</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">原基準方案 vs. 方案一 (裝載微調) vs. 方案二 (路網重構) 關鍵數據對齊</p>
+        </div>
+        <!-- Time toggle -->
+        <div class="inline-flex rounded-xl bg-slate-800 p-1 border border-slate-700 text-xs">
+          <button id="btn-view-24h" onclick="switchViewMode('24h')" class="px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white transition">24H 全日視角</button>
+          <button id="btn-view-12h" onclick="switchViewMode('12h')" class="px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition">12H 單班視角</button>
+        </div>
+      </div>
+
+      <!-- 3 Columns Architecture Comparison Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Card: Baseline -->
+        <div class="glass-card rounded-2xl p-6 border-slate-700 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-1 rounded-md text-xs font-bold badge-baseline">基準現況</span>
+            <span class="text-xs text-slate-400">原有舊班表</span>
+          </div>
+          <div>
+            <h4 class="text-lg font-bold text-white">原基準方案 (Baseline)</h4>
+            <p class="text-xs text-slate-400 mt-1">傳統靜態配額，按圖索驥跑單</p>
+          </div>
+          <div class="space-y-2.5 text-xs text-slate-300">
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">總載運量 (Capacity)</span>
+              <span class="font-bold text-white font-mono view-val" data-12h="2,360 批" data-24h="4,720 批">4,720 批</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">專車趟數 & 運量</span>
+              <span class="font-bold text-slate-200 font-mono view-val" data-12h="33 趟 / 1,320 批" data-24h="66 趟 / 2,640 批">66 趟 / 2,640 批</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">環車趟數 & 運量</span>
+              <span class="font-bold text-slate-200 font-mono view-val" data-12h="49 趟 / 1,040 批" data-24h="98 趟 / 2,080 批">98 趟 / 2,080 批</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">Car D 定位</span>
+              <span class="font-bold text-rose-400">全日純環廠 (0 專車)</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">8S ➔ 8CD 使用率</span>
+              <span class="font-bold text-rose-400 font-mono">100.0% (極限卡死)</span>
+            </div>
+            <div class="flex justify-between py-1.5">
+              <span class="text-slate-400">環車死鎖風險</span>
+              <span class="font-bold text-rose-400">極高 (超長 5 站長鏈)</span>
+            </div>
+          </div>
+          <div class="pt-2">
+            <div class="text-[11px] text-slate-400 bg-slate-900/60 p-3 rounded-xl border border-slate-800 leading-relaxed">
+              ⚠️ <b>診斷結論</b>：Car D 運能虛耗在低產能環廠；大宗走廊隨時可能因拒載而引發產線斷料。
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Plan 1 -->
+        <div class="glass-card rounded-2xl p-6 border-blue-500/40 relative space-y-4 bg-gradient-to-b from-blue-950/20 to-slate-800/40">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-1 rounded-md text-xs font-bold badge-plan1">第一階段</span>
+            <span class="text-xs text-blue-400">邏輯微調</span>
+          </div>
+          <div>
+            <h4 class="text-lg font-bold text-white">方案一：裝載邏輯滾動解放</h4>
+            <p class="text-xs text-slate-400 mt-1">動線完全不變，推廣 Car A 裝載模型</p>
+          </div>
+          <div class="space-y-2.5 text-xs text-slate-300">
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">總載運量 (Capacity)</span>
+              <span class="font-bold text-blue-400 font-mono view-val" data-12h="3,116 批 (+32%)" data-24h="6,232 批 (+32%)">6,232 批 (+32%)</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">專車趟數 & 運量</span>
+              <span class="font-bold text-slate-200 font-mono view-val" data-12h="37 趟 / 1,776 批" data-24h="74 趟 / 3,552 批">74 趟 / 3,552 批</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">環車趟數 & 運量</span>
+              <span class="font-bold text-slate-200 font-mono view-val" data-12h="45 趟 / 1,340 批" data-24h="90 趟 / 2,680 批">90 趟 / 2,680 批</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">Car D 定位</span>
+              <span class="font-bold text-amber-400">仍為純環廠 (0 專車)</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">8S ➔ 8CD 使用率</span>
+              <span class="font-bold text-amber-400 font-mono">約 83.3% (仍偏緊)</span>
+            </div>
+            <div class="flex justify-between py-1.5">
+              <span class="text-slate-400">環車死鎖風險</span>
+              <span class="font-bold text-amber-400">中等 (靠動態配額緩解)</span>
+            </div>
+          </div>
+          <div class="pt-2">
+            <div class="text-[11px] text-blue-300 bg-blue-950/40 p-3 rounded-xl border border-blue-900/50 leading-relaxed">
+              💡 <b>成效與限制</b>：司機完全不需改跑新路線，易於執行；但因 Car D 未轉型，8S 庫房大瓶頸仍無法根本根除。
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Plan 2 (Recommended) -->
+        <div class="glass-card rounded-2xl p-6 border-emerald-500/50 relative space-y-4 bg-gradient-to-b from-emerald-950/30 to-slate-800/60 shadow-xl shadow-emerald-950/40 ring-1 ring-emerald-500/30">
+          <div class="absolute -top-3 right-5 px-3 py-0.5 rounded-full text-[10px] font-black bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 shadow-md uppercase tracking-wider">
+            最佳推薦方案 ★
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-1 rounded-md text-xs font-bold badge-plan2">終極重構</span>
+            <span class="text-xs text-emerald-400">本方案 (完整落地)</span>
+          </div>
+          <div>
+            <h4 class="text-lg font-bold text-white">方案二：雙層路網重構 (本方案)</h4>
+            <p class="text-xs text-slate-400 mt-1">站次不變，時序重排，Car D 專車重生</p>
+          </div>
+          <div class="space-y-2.5 text-xs text-slate-300">
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">總載運量 (Capacity)</span>
+              <span class="font-extrabold text-emerald-400 font-mono text-sm view-val" data-12h="3,480 批 (+47.5%)" data-24h="6,960 批 (+47.5%)">6,960 批 (+47.5%)</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">專車趟數 & 運量</span>
+              <span class="font-bold text-white font-mono view-val" data-12h="51 趟 / 2,448 批" data-24h="102 趟 / 4,896 批">102 趟 / 4,896 批</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">環車趟數 & 運量</span>
+              <span class="font-bold text-white font-mono view-val" data-12h="31 趟 / 1,032 批" data-24h="62 趟 / 2,064 批">62 趟 / 2,064 批</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">Car D 定位</span>
+              <span class="font-bold text-emerald-400">🔥 解鎖 5 趟專車 (+123%)</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-slate-700/60">
+              <span class="text-slate-400">8S ➔ 8CD 使用率</span>
+              <span class="font-bold text-emerald-400 font-mono">27.8% (極寬裕安全)</span>
+            </div>
+            <div class="flex justify-between py-1.5">
+              <span class="text-slate-400">環車死鎖風險</span>
+              <span class="font-bold text-emerald-400">0% (短鏈點狀小環)</span>
+            </div>
+          </div>
+          <div class="pt-2">
+            <div class="text-[11px] text-emerald-300 bg-emerald-950/50 p-3 rounded-xl border border-emerald-900/60 leading-relaxed">
+              🚀 <b>破局價值</b>：專車趟數成長 +54.5%，專車運量激增 +85.5%，全走廊滿足率全部 ≥ 112%，達成動態零拒載！
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Comparison Chart -->
+      <div class="glass-card rounded-2xl p-6 border-slate-700 space-y-4">
+        <h4 class="text-sm font-bold text-white flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="fa-solid fa-chart-column text-emerald-400"></i>
+            <span>全車隊 5 部車運能與專車/環車結構三方對比</span>
+          </span>
+          <span class="text-xs font-normal text-slate-400">單位：批次 (Batches)</span>
+        </h4>
+        <div class="h-72 w-full">
+          <canvas id="chart-fleet-cap"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: 原班表問題深度診斷 -->
+    <section id="sec-diagnosis" class="space-y-6">
+      <div>
+        <h3 class="text-xl font-bold text-white flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-rose-600/30 text-rose-400 flex items-center justify-center font-mono text-sm border border-rose-500/30">02</span>
+          <span>原有班表核心問題深度診斷</span>
+        </h3>
+        <p class="text-xs text-slate-400 mt-1">基於物理動線與 22 條跨廠需求矩陣之現場痛點溯源</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-5 space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-lg">
+            <i class="fa-solid fa-link-slash"></i>
+          </div>
+          <h4 class="text-base font-bold text-white">1. 走廊使用率 100% 臨界死鎖</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            原方案中，<b>FAB8S ➔ FAB8CD</b> 需求為 80 批，排程全天僅 2 趟供給 80 批，<b>使用率剛好 100.0%</b>，零容錯空間！只要庫房有急件或延遲，即引發斷料。此外 <b>8F ➔ 8AB</b> 使用率達 97.7%，外廠走廊達 93.8%，系統處於脆弱邊緣。
+          </p>
+        </div>
+
+        <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-5 space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg">
+            <i class="fa-solid fa-truck-ramp-box"></i>
+          </div>
+          <h4 class="text-base font-bold text-white">2. Car D 鎖死為「純環廠」虛耗</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Car D 駐點於物料大港 FAB8CD，但在原班表中卻是「全日 0 趟專車」，全部跑 16 批配額的低效環廠，單班運能僅 256 批（24H 僅 512 批）。整車儲位常態處於半空駛狀態，無法分擔 8CD 與 8S 的大宗搬運。
+          </p>
+        </div>
+
+        <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-5 space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-lg">
+            <i class="fa-solid fa-hourglass-half"></i>
+          </div>
+          <h4 class="text-base font-bold text-white">3. 長達 2.5 小時的「物流真空期」</h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            原班次排程未做平準化，FAB8CD 最長班距高達 <b>155 分鐘</b>，FAB8S 庫房最長班距達 <b>125 分鐘</b>。出現「特定半小時內多車湧入碼頭擠電梯，隨後 2 小時無車到站」的嚴重脈衝塞車與真空交替。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: 方案一 vs. 方案二 深度技術解析 -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <!-- Plan 1 Detailed Block -->
+      <div id="sec-plan1" class="glass-card rounded-3xl p-6 lg:p-8 border-blue-500/30 space-y-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold font-mono">P1</span>
+            <h3 class="text-xl font-bold text-white">優化方案一：裝載邏輯滾動解放</h3>
+          </div>
+          <span class="text-xs text-blue-400 font-semibold px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">動線零變更</span>
+        </div>
+
+        <div class="space-y-4 text-xs text-slate-300 leading-relaxed">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-850 space-y-2">
+            <div class="font-bold text-white text-sm flex items-center gap-2">
+              <i class="fa-solid fa-gears text-blue-400"></i> 方案一實施機制
+            </div>
+            <ul class="list-disc list-inside space-y-1.5 text-slate-300">
+              <li><b>儲位極限動態放寬至 48 批</b>：考量特殊箱規疊載彈性，由 40 批放寬至 48 批。</li>
+              <li><b>全車隊導入 Rolling Load (滾動裝載)</b>：打破環廠每站固定 16 批配額，改為根據前站下車後殘餘在途量，動態允許上貨至 48 批上限。</li>
+              <li><b>午休跨休預載專車</b>：利用午休 60 分鐘停靠，離站前預載滿 48 批直送午後首站。</li>
+              <li><b>終端航段滿載解放 (Terminal Relaxation)</b>：環廠最後一站直奔終點全卸，解除配額。</li>
+            </ul>
+          </div>
+
+          <!-- Plan 1 Pros & Cons -->
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <div class="bg-emerald-950/20 border border-emerald-900/40 p-3 rounded-xl">
+              <div class="text-emerald-400 font-bold mb-1"><i class="fa-solid fa-check"></i> 核心優點</div>
+              <p class="text-[11px] text-slate-300">司機開車路徑、各站抵達時刻 100% 完全不用變更，上線推廣阻力最低。</p>
+            </div>
+            <div class="bg-rose-950/20 border border-rose-900/40 p-3 rounded-xl">
+              <div class="text-rose-400 font-bold mb-1"><i class="fa-solid fa-xmark"></i> 核心遺憾</div>
+              <p class="text-[11px] text-slate-300">Car D 依舊跑純環廠，8S➔8CD 依然只有 2 趟，大瓶頸與真空期未能解決。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan 2 Detailed Block -->
+      <div id="sec-plan2" class="glass-card rounded-3xl p-6 lg:p-8 border-emerald-500/40 space-y-6 bg-gradient-to-b from-emerald-950/20 to-slate-800/40">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold font-mono">P2</span>
+            <h3 class="text-xl font-bold text-white">優化方案二：雙層路網重構 (本方案)</h3>
+          </div>
+          <span class="text-xs text-emerald-400 font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">推薦落地方案</span>
+        </div>
+
+        <div class="space-y-4 text-xs text-slate-300 leading-relaxed">
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-850 space-y-2">
+            <div class="font-bold text-white text-sm flex items-center gap-2">
+              <i class="fa-solid fa-network-wired text-emerald-400"></i> 方案二突破性重構措施
+            </div>
+            <ul class="list-disc list-inside space-y-1.5 text-slate-300">
+              <li><b>總站次完全不變，重排時序與站點</b>：5 部車維持單班 99 站次、營運 89 站次，零超額排班。</li>
+              <li><b>🔥 Car D 角色涅槃重生</b>：打破純環廠限制，植入 5 趟直達專車（8S➔8E➔8CD、8S➔8CD），運能激增 <b>+123.4%</b>，直接攻克 8S➔8CD 世紀瓶頸！</li>
+              <li><b>超長環廠截斷為 2~3 站短鏈小環</b>：消滅 5 站超長巡迴，改為短鏈點狀小環，循環週期減半，車廂永遠留有空位，徹底消滅死鎖。</li>
+              <li><b>大宗動脈專車化 (佔比 70.3%)</b>：專車趟數由 33 趟增至 <b>51 趟</b>（24H <b>102 趟</b>），滿足大單集中需求。</li>
+            </ul>
+          </div>
+
+          <!-- Plan 2 Pros & Cons -->
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <div class="bg-emerald-950/30 border border-emerald-800/40 p-3 rounded-xl">
+              <div class="text-emerald-400 font-bold mb-1"><i class="fa-solid fa-star"></i> 核心優點</div>
+              <p class="text-[11px] text-slate-300">全日運能 6,960 批 (+47.5%)，全走廊滿足率 ≥ 112%，庫房真空期大幅縮短。</p>
+            </div>
+            <div class="bg-amber-950/20 border border-amber-900/40 p-3 rounded-xl">
+              <div class="text-amber-400 font-bold mb-1"><i class="fa-solid fa-triangle-exclamation"></i> 執行要求</div>
+              <p class="text-[11px] text-slate-300">司機需熟悉新站點順序（各站停靠點與耗時均符合現有標準，1~2 天即可適應）。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION 4: 22 條跨廠走廊供需熱力滿足率全對比 (The Master Table) -->
+    <section id="sec-matrix" class="glass-card rounded-3xl p-6 lg:p-8 border-slate-700 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-table-cells text-purple-400"></i>
+            <span>22 條跨廠 OD 走廊供需與滿足率三方對比矩陣 (24H 全日)</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">基準需求源自 Demand_from_to.xlsx ｜ 滿足率 = 供給運能 / 需求</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="text" id="filter-od" onkeyup="filterODTable()" placeholder="搜尋起迄廠區 (如 8CD, 8S...)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-slate-700/80">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-800/90 text-slate-300 font-semibold border-b border-slate-700">
+              <th class="p-3">OD 走廊 (From ➔ To)</th>
+              <th class="p-3 text-right">24H 需求</th>
+              <th class="p-3 text-center bg-slate-850/60">原方案 (趟/運能)</th>
+              <th class="p-3 text-center bg-slate-850/60">原滿足率</th>
+              <th class="p-3 text-center bg-blue-950/30 text-blue-300">方案一 (趟/運能)</th>
+              <th class="p-3 text-center bg-blue-950/30 text-blue-300">方案一滿足率</th>
+              <th class="p-3 text-center bg-emerald-950/40 text-emerald-300 font-bold">方案二 (趟/運能)</th>
+              <th class="p-3 text-center bg-emerald-950/40 text-emerald-300 font-bold">方案二滿足率</th>
+              <th class="p-3 text-center">方案二瓶頸改善評價</th>
+            </tr>
+          </thead>
+          <tbody id="od-table-body" class="divide-y divide-slate-800 text-slate-300 font-mono">
+            <!-- Will be dynamically populated via JS -->
+          </tbody>
+          <tfoot>
+            <tr class="bg-slate-850 font-bold text-white border-t-2 border-slate-700">
+              <td class="p-3 font-sans">全系統合計 (Total)</td>
+              <td class="p-3 text-right text-amber-400 font-mono">2,720 批</td>
+              <td class="p-3 text-center font-mono">168趟 / 4,624批</td>
+              <td class="p-3 text-center font-mono text-slate-300">170.0%</td>
+              <td class="p-3 text-center font-mono text-blue-300">182趟 / 5,860批</td>
+              <td class="p-3 text-center font-mono text-blue-300">215.4%</td>
+              <td class="p-3 text-center font-mono text-emerald-400 font-extrabold">198趟 / 6,960批</td>
+              <td class="p-3 text-center font-mono text-emerald-400 font-extrabold">255.9%</td>
+              <td class="p-3 text-center font-sans text-emerald-400">🔥 運能淨增 +2,336 批 (+50.5%)</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 5: 廠區等候時間與班距改善對比 (Headway & Wait Times) -->
+    <section id="sec-headway" class="glass-card rounded-3xl p-6 lg:p-8 border-slate-700 space-y-6">
+      <div>
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-stopwatch text-amber-400"></i>
+          <span>各廠區到站次數、平均班距與預期等候時間指標改善 (24H)</span>
+        </h3>
+        <p class="text-xs text-slate-400 mt-1">預期等候時間 $E[W] \approx \frac{E[H]}{2} \left(1 + \frac{\text{Var}[H]}{E[H]^2}\right)$ 考量班距離散變異</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- Fab 8F -->
+        <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-2xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-amber-400 text-sm">FAB8F (代工樞紐)</span>
+            <span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300">班次最高</span>
+          </div>
+          <div class="text-xs text-slate-300 space-y-1 pt-1">
+            <div class="flex justify-between"><span>全日到站</span><span class="font-mono text-white font-bold">44次 ➔ 46次</span></div>
+            <div class="flex justify-between"><span>平均班距</span><span class="font-mono text-emerald-400 font-bold">32.7m ➔ 31.3m</span></div>
+            <div class="flex justify-between"><span>預期等待</span><span class="font-mono text-white">25.0m ➔ 25.1m</span></div>
+            <div class="text-[11px] text-slate-400 pt-1">班距縮短至 31 分鐘，維持全廠最高服務密度。</div>
+          </div>
+        </div>
+
+        <!-- Fab 8S -->
+        <div class="bg-slate-800/60 border border-emerald-500/40 p-4 rounded-2xl space-y-2 bg-emerald-950/10">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-rose-400 text-sm">FAB8S (庫房基地)</span>
+            <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-bold">改善最大 ★</span>
+          </div>
+          <div class="text-xs text-slate-300 space-y-1 pt-1">
+            <div class="flex justify-between"><span>全日到站</span><span class="font-mono text-white font-bold">28次 ➔ 30次</span></div>
+            <div class="flex justify-between"><span>最長真空期</span><span class="font-mono text-emerald-400 font-bold">125m ➔ 100m (-25m)</span></div>
+            <div class="flex justify-between"><span>預期等待</span><span class="font-mono text-emerald-400 font-bold">35.0m ➔ 31.2m (-3.8m)</span></div>
+            <div class="text-[11px] text-emerald-400 pt-1">消除 25 分鐘真空期，庫房等待大幅縮短。</div>
+          </div>
+        </div>
+
+        <!-- Fab 8CD -->
+        <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-2xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-emerald-400 text-sm">FAB8CD (裝卸碼頭)</span>
+            <span class="px-2 py-0.5 rounded text-[10px] bg-slate-700 text-slate-300">碼頭集散</span>
+          </div>
+          <div class="text-xs text-slate-300 space-y-1 pt-1">
+            <div class="flex justify-between"><span>全日到站</span><span class="font-mono text-white font-bold">36次 ➔ 36次</span></div>
+            <div class="flex justify-between"><span>平均班距</span><span class="font-mono text-white font-bold">40.0 分鐘</span></div>
+            <div class="flex justify-between"><span>預期等待</span><span class="font-mono text-white">36.0m ➔ 36.2m</span></div>
+            <div class="text-[11px] text-slate-400 pt-1">到站趟次全數轉化為實質大裝卸產能。</div>
+          </div>
+        </div>
+
+        <!-- Fab 8E -->
+        <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-2xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-purple-400 text-sm">FAB8E (1F大廳)</span>
+            <span class="px-2 py-0.5 rounded text-[10px] bg-purple-500/20 text-purple-300">外廠門戶</span>
+          </div>
+          <div class="text-xs text-slate-300 space-y-1 pt-1">
+            <div class="flex justify-between"><span>全日到站</span><span class="font-mono text-white font-bold">34次 ➔ 34次</span></div>
+            <div class="flex justify-between"><span>平均班距</span><span class="font-mono text-white font-bold">42.4 分鐘</span></div>
+            <div class="flex justify-between"><span>預期等待</span><span class="font-mono text-white">31.4m ➔ 34.8m</span></div>
+            <div class="text-[11px] text-slate-400 pt-1">整合外廠專線與大廳換車核心。</div>
+          </div>
+        </div>
+
+        <!-- Fab 8AB -->
+        <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-2xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-blue-400 text-sm">FAB8AB (力行核心)</span>
+            <span class="px-2 py-0.5 rounded text-[10px] bg-blue-500/20 text-blue-300">平面換貨</span>
+          </div>
+          <div class="text-xs text-slate-300 space-y-1 pt-1">
+            <div class="flex justify-between"><span>全日到站</span><span class="font-mono text-white font-bold">30次 ➔ 26次</span></div>
+            <div class="flex justify-between"><span>平均班距</span><span class="font-mono text-white font-bold">48.0m ➔ 55.4m</span></div>
+            <div class="flex justify-between"><span>預期等待</span><span class="font-mono text-white">28.3m ➔ 36.7m</span></div>
+            <div class="text-[11px] text-slate-400 pt-1">精簡無效空駛停靠，運力聚焦於 8F 與 8S。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: 決策建議與執行路線圖 -->
+    <section id="sec-recommendation" class="glass-card rounded-3xl p-6 lg:p-8 border-slate-700 space-y-6">
+      <div>
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-compass text-teal-400"></i>
+          <span>運籌主管執行建議與推動路線圖</span>
+        </h3>
+        <p class="text-xs text-slate-400 mt-1">兼顧現場衝擊與效益最大化之二階段導入策略</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-slate-800/50 border border-blue-500/30 p-5 rounded-2xl space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-blue-500 text-white font-bold text-xs flex items-center justify-center font-mono">1</span>
+            <h4 class="text-sm font-bold text-white">短期快速防禦：上線「方案一」裝載規則 (1~3 天)</h4>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            若現場司機暫時無法接受班表站點變更，可先公告<b>「方案一」裝載新規</b>：放寬車載儲位至 48 批、執行午休預載、開通終端航段卸清滿載放寬。此舉無須更改行車時刻表，即可立即釋放約 <b>+32% 運能</b>，緩解急迫壓力。
+          </p>
+        </div>
+
+        <div class="bg-slate-800/50 border border-emerald-500/40 p-5 rounded-2xl space-y-3 bg-emerald-950/10">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center font-mono">2</span>
+            <h4 class="text-sm font-bold text-emerald-400">根本戰略落地：全面執行「方案二」雙層路網 (正式推薦)</h4>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            透過戰情網向司機宣導新班表（各車總站次與工時分秒未增）。<b>重點解鎖 Car D 的 5 趟專車</b>，將 8S-8CD 卡死點徹底消除。全車隊達成 <b>6,960 批/天</b> 卓越運能，從根本消滅全廠拒載與長時間真空期。
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500 bg-slate-950">
+    <div class="max-w-7xl mx-auto px-4">
+      <p>半導體廠區物流運籌系統 (Fab Fleet Timetable DB & Logistics Hub) ｜ 最佳化排程決策支援頁面</p>
+      <p class="text-[10px] text-slate-600 mt-1">資料源：logistics.db ｜ Demand_from_to.xlsx ｜ 系統時間：2026-11-03</p>
+    </div>
+  </footer>
+
+  <!-- Script for Interactivity & Chart.js -->
+  <script>
+    // 22 Valid Demand Corridors Data
+    const OD_DATA = [
+      { from: 'FAB8AB', to: 'FAB8E', req: 150, b_t: 10, b_c: 304, p1_t: 10, p1_c: 320, p2_t: 10, p2_c: 312, eval: '充足穩定' },
+      { from: 'FAB8AB', to: 'FAB8F', req: 250, b_t: 10, b_c: 288, p1_t: 12, p1_c: 384, p2_t: 14, p2_c: 488, eval: '解除緊張' },
+      { from: 'FAB8AB', to: 'FAB8S', req: 50,  b_t: 8,  b_c: 128, p1_t: 8,  p1_c: 144, p2_t: 8,  p2_c: 160, eval: '平穩充裕' },
+      { from: 'FAB8CD', to: 'FAB8E', req: 150, b_t: 8,  b_c: 272, p1_t: 10, p1_c: 352, p2_t: 16, p2_c: 568, eval: '大幅擴能' },
+      { from: 'FAB8CD', to: 'FAB8F', req: 300, b_t: 18, b_c: 544, p1_t: 18, p1_c: 624, p2_t: 18, p2_c: 736, eval: '主力動脈充沛' },
+      { from: 'FAB8CD', to: 'FAB8S', req: 80,  b_t: 8,  b_c: 96,  p1_t: 8,  p1_c: 128, p2_t: 10, p2_c: 192, eval: '使用率降至 41%' },
+      { from: 'FAB8E',  to: 'FAB8AB',req: 150, b_t: 8,  b_c: 224, p1_t: 10, p1_c: 320, p2_t: 12, p2_c: 464, eval: '對開翻倍' },
+      { from: 'FAB8E',  to: 'FAB8CD',req: 150, b_t: 14, b_c: 368, p1_t: 14, p1_c: 448, p2_t: 14, p2_c: 568, eval: '滿載釋放' },
+      { from: 'FAB8E',  to: 'FAB8F', req: 20,  b_t: 2,  b_c: 32,  p1_t: 2,  p1_c: 48,  p2_t: 4,  p2_c: 80,  eval: '靈活小件' },
+      { from: 'FAB8E',  to: 'FAB8S', req: 40,  b_t: 6,  b_c: 120, p1_t: 6,  p1_c: 144, p2_t: 6,  p2_c: 192, eval: '安全高餘裕' },
+      { from: 'FAB8E',  to: '嘉晶創新',req: 30, b_t: 2,  b_c: 40,  p1_t: 2,  p1_c: 40,  p2_t: 2,  p2_c: 40,  eval: '精準專線' },
+      { from: 'FAB8E',  to: '嘉晶篤行',req: 30, b_t: 2,  b_c: 32,  p1_t: 2,  p1_c: 48,  p2_t: 4,  p2_c: 80,  eval: '消除卡死' },
+      { from: 'FAB8F',  to: 'FAB8AB',req: 250, b_t: 8,  b_c: 256, p1_t: 8,  p1_c: 288, p2_t: 8,  p2_c: 336, eval: '消除 97% 緊繃' },
+      { from: 'FAB8F',  to: 'FAB8CD',req: 300, b_t: 16, b_c: 592, p1_t: 16, p1_c: 656, p2_t: 16, p2_c: 704, eval: '骨幹動脈頂尖' },
+      { from: 'FAB8F',  to: 'FAB8E', req: 20,  b_t: 2,  b_c: 32,  p1_t: 2,  p1_c: 48,  p2_t: 4,  p2_c: 96,  eval: '零散快速接駁' },
+      { from: 'FAB8F',  to: 'FAB8S', req: 260, b_t: 16, b_c: 464, p1_t: 16, p1_c: 544, p2_t: 18, p2_c: 688, eval: '庫房重物料增強' },
+      { from: 'FAB8S',  to: 'FAB8AB',req: 50,  b_t: 4,  b_c: 80,  p1_t: 4,  p1_c: 80,  p2_t: 2,  p2_c: 56,  eval: '精準滿足' },
+      { from: 'FAB8S',  to: 'FAB8CD',req: 80,  b_t: 2,  b_c: 80,  p1_t: 4,  p1_c: 144, p2_t: 6,  p2_c: 288, eval: '🔥 消滅 100% 瓶頸' },
+      { from: 'FAB8S',  to: 'FAB8E', req: 40,  b_t: 8,  b_c: 128, p1_t: 8,  p1_c: 160, p2_t: 8,  p2_c: 248, eval: '回程大餘裕' },
+      { from: 'FAB8S',  to: 'FAB8F', req: 260, b_t: 12, b_c: 480, p1_t: 12, p1_c: 528, p2_t: 12, p2_c: 544, eval: '回流穩定' },
+      { from: '嘉晶創新',to: 'FAB8E', req: 30,  b_t: 2,  b_c: 32,  p1_t: 2,  p1_c: 40,  p2_t: 2,  p2_c: 40,  eval: '回程提升' },
+      { from: '嘉晶篤行',to: 'FAB8E', req: 30,  b_t: 2,  b_c: 32,  p1_t: 2,  p1_c: 48,  p2_t: 4,  p2_c: 80,  eval: '回程翻倍' }
+    ];
+
+    function renderODTable(filterText = '') {
+      const tbody = document.getElementById('od-table-body');
+      tbody.innerHTML = '';
+      const query = filterText.toLowerCase().trim();
+
+      OD_DATA.forEach(row => {
+        const corridor = `${row.from} ➔ ${row.to}`;
+        if (query && !corridor.toLowerCase().includes(query)) return;
+
+        const b_ful = (row.b_c / row.req * 100).toFixed(1);
+        const p1_ful = (row.p1_c / row.req * 100).toFixed(1);
+        const p2_ful = (row.p2_c / row.req * 100).toFixed(1);
+
+        const b_badge = row.b_c <= row.req ? 'text-rose-400 font-bold' : (row.b_c < row.req * 1.3 ? 'text-amber-400' : 'text-slate-300');
+        const p2_badge = 'text-emerald-400 font-bold';
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/60 transition';
+        tr.innerHTML = `
+          <td class="p-3 font-sans font-medium text-white">${corridor}</td>
+          <td class="p-3 text-right font-mono text-amber-300">${row.req} 批</td>
+          <td class="p-3 text-center bg-slate-850/40 font-mono">${row.b_t}趟 / ${row.b_c}批</td>
+          <td class="p-3 text-center bg-slate-850/40 font-mono ${b_badge}">${b_ful}%</td>
+          <td class="p-3 text-center bg-blue-950/20 font-mono text-blue-300">${row.p1_t}趟 / ${row.p1_c}批</td>
+          <td class="p-3 text-center bg-blue-950/20 font-mono text-blue-300">${p1_ful}%</td>
+          <td class="p-3 text-center bg-emerald-950/30 font-mono text-emerald-300 font-bold">${row.p2_t}趟 / ${row.p2_c}批</td>
+          <td class="p-3 text-center bg-emerald-950/30 font-mono ${p2_badge}">${p2_ful}%</td>
+          <td class="p-3 text-center font-sans text-xs ${row.eval.includes('消滅') ? 'text-rose-400 font-bold' : 'text-slate-400'}">${row.eval}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterODTable() {
+      const q = document.getElementById('filter-od').value;
+      renderODTable(q);
+    }
+
+    // View Mode Toggle (12H / 24H)
+    let currentMode = '24h';
+    function switchViewMode(mode) {
+      currentMode = mode;
+      document.getElementById('btn-view-24h').className = mode === '24h' 
+        ? 'px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white transition' 
+        : 'px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition';
+      document.getElementById('btn-view-12h').className = mode === '12h' 
+        ? 'px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white transition' 
+        : 'px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition';
+
+      document.querySelectorAll('.view-val').forEach(el => {
+        el.textContent = mode === '12h' ? el.dataset['12h'] : el.dataset['24h'];
+      });
+      updateChart(mode);
+    }
+
+    // Chart.js Fleet Capacity Comparison
+    let fleetChart = null;
+    function initChart() {
+      const ctx = document.getElementById('chart-fleet-cap').getContext('2d');
+      fleetChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Car A', 'Car B', 'Car C', 'Car D', 'Car E', '全車隊總和'],
+          datasets: [
+            {
+              label: '原基準方案',
+              data: [944, 1200, 1088, 512, 976, 4720],
+              backgroundColor: 'rgba(148, 163, 184, 0.4)',
+              borderColor: 'rgba(148, 163, 184, 0.8)',
+              borderWidth: 1.5,
+              borderRadius: 6
+            },
+            {
+              label: '優化方案一 (裝載微調)',
+              data: [1280, 1520, 1392, 792, 1248, 6232],
+              backgroundColor: 'rgba(59, 130, 246, 0.5)',
+              borderColor: 'rgba(59, 130, 246, 0.9)',
+              borderWidth: 1.5,
+              borderRadius: 6
+            },
+            {
+              label: '優化方案二 (本方案/推薦)',
+              data: [1520, 1552, 1456, 1144, 1288, 6960],
+              backgroundColor: 'rgba(16, 185, 129, 0.7)',
+              borderColor: 'rgba(16, 185, 129, 1.0)',
+              borderWidth: 1.5,
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94a3b8', font: { family: 'Noto Sans TC', size: 12 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return ` ${context.dataset.label}: ${context.raw.toLocaleString()} 批`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#cbd5e1', font: { family: 'Noto Sans TC', size: 12 } },
+              grid: { color: 'rgba(51, 65, 85, 0.4)' }
+            },
+            y: {
+              ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 11 } },
+              grid: { color: 'rgba(51, 65, 85, 0.4)' }
+            }
+          }
+        }
+      });
+    }
+
+    function updateChart(mode) {
+      if (!fleetChart) return;
+      if (mode === '12h') {
+        fleetChart.data.datasets[0].data = [472, 600, 544, 256, 488, 2360];
+        fleetChart.data.datasets[1].data = [640, 760, 696, 396, 624, 3116];
+        fleetChart.data.datasets[2].data = [760, 776, 728, 572, 644, 3480];
+      } else {
+        fleetChart.data.datasets[0].data = [944, 1200, 1088, 512, 976, 4720];
+        fleetChart.data.datasets[1].data = [1280, 1520, 1392, 792, 1248, 6232];
+        fleetChart.data.datasets[2].data = [1520, 1552, 1456, 1144, 1288, 6960];
+      }
+      fleetChart.update();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderODTable();
+      initChart();
+    });
+  </script>
+</body>
+</html>

@@ -207,7 +207,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 code = f['code']
                 
                 # Filter schedules
-                sched_q = 'SELECT * FROM schedules WHERE fab_code = ? AND is_break = 0'
+                sched_q = "SELECT * FROM schedules WHERE fab_code = ? AND is_break = 0 AND car_id != 'Car_U'"
                 args = [code]
                 if shift != 'all':
                     sched_q += ' AND shift = ?'
@@ -230,7 +230,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 # Consult / Cross-Fab OD connections count
                 od_q = '''
                     SELECT count(*) FROM schedules
-                    WHERE (fab_code = ? OR origin_fab = ? OR dest_fab LIKE ?) AND is_break = 0
+                    WHERE (fab_code = ? OR origin_fab = ? OR dest_fab LIKE ?) AND is_break = 0 AND car_id != 'Car_U'
                 '''
                 od_args = [code, code, f'%{code}%']
                 if shift != 'all':

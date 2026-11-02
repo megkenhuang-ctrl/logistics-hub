@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>廠區物流時刻表資料庫戰情網 | Fab Fleet Logistics Hub</title>
+  <!-- Offline Embedded Data (Instant Load & Safe for file://) -->
+  <script src="db_data.js"></script>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
@@ -233,7 +235,11 @@
         <i class="fa-solid fa-database"></i>
         <span>5. 資料庫管理 & SQL 查詢台</span>
       </button>
-      <a href="spec.html" target="_blank" class="px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-750 transition-all border border-slate-700/60 ml-auto" title="在新分頁開啟獨立完整規格手冊">
+      <a href="plans.html" target="_blank" class="px-3 py-2 rounded-lg font-bold flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all border border-emerald-500/30 ml-auto" title="在新分頁開啟兩大優化方案深入評估">
+        <i class="fa-solid fa-code-compare text-emerald-400"></i>
+        <span>優化方案對比</span>
+      </a>
+      <a href="spec.html" target="_blank" class="px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-750 transition-all border border-slate-700/60" title="在新分頁開啟獨立完整規格手冊">
         <i class="fa-solid fa-arrow-up-right-from-square text-cyan-400"></i>
         <span>獨立手冊</span>
       </a>
@@ -646,7 +652,7 @@
             <i class="fa-solid fa-table-list text-blue-400"></i>
             <span>全廠區物聯綜合營運指標統計總綱 (Fab Master Summary Table)</span>
           </h2>
-          <p class="text-xs text-slate-400 mt-1">計算每個工廠之被訪問次數、會診次數 (OD跨廠互訪次數)、平均等候時間 (班距) 以及總運能供給。</p>
+          <p class="text-xs text-slate-400 mt-1">計算每個工廠之被訪問次數、會診次數 (OD跨廠互訪次數)、平均等候時間 (班距) 以及總運能供給。<span class="text-amber-400 font-semibold ml-1">（註：Car U 支援加班車不納入此總綱統計，僅統計常態 Car A~E 5輛車）</span></p>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="exportSummaryToCSV()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-4 py-2 rounded-lg font-semibold transition flex items-center gap-1.5 shadow">
@@ -1324,7 +1330,7 @@
     let selectedCar = 'Car_B';
     let selectedFab = 'FAB8F';
     let isLiveServer = false;
-    let fallbackData = null;
+    let fallbackData = (typeof window !== "undefined" && window.EMBEDDED_LOGISTICS_DATA) ? window.EMBEDDED_LOGISTICS_DATA : null;
 
     let chartVisitsWaitInstance = null;
     let chartCapacityInstance = null;
@@ -1336,7 +1342,7 @@
         title: 'Car A 車班表（外廠門戶與全廠巡迴旗艦）',
         hub: 'FAB8E 1F 大廳',
         phone: '8644824（0960-717239）',
-        target_cap: '472 批 (單班實質) / 360 批',
+        target_cap: '640 批 (單班實質)',
         mission: '專車直達（晨間）+ 嘉晶外廠專營 + 環廠巡迴'
       },
       'Car_B': {
@@ -1344,7 +1350,7 @@
         title: 'Car B 車班表（FAB8F 代工母港主動脈專車）',
         hub: 'FAB8F 代工出入口',
         phone: '8644828（0960-717178）',
-        target_cap: '600 批 (單班冠軍)',
+        target_cap: '760 批 (單班實質)',
         mission: '8F 十字路口超級重砲，高密度對開與午休跨休專車'
       },
       'Car_C': {
@@ -1352,7 +1358,7 @@
         title: 'Car C 車班表（FAB8AB 力行心臟與 8F 密集對開）',
         hub: 'FAB8AB 1F 大廳',
         phone: '8644830（0960-717258）',
-        target_cap: '544 批 (單班實質) / 520 批',
+        target_cap: '696 批 (單班實質)',
         mission: '力行 8AB 大廳主力與午後大環巡迴'
       },
       'Car_D': {
@@ -1360,7 +1366,7 @@
         title: 'Car D 車班表（FAB8CD 母港全日純環廠巡迴車）',
         hub: 'FAB8CD 裝卸碼頭上 3F',
         phone: '8681029（0965-702916）',
-        target_cap: '256 批 (單班實質) / 240 批',
+        target_cap: '396 批 (單班實質)',
         mission: '全廠巡迴（8CD➔8F➔8S➔8E➔8AB），主扛 8S 庫房'
       },
       'Car_E': {
@@ -1368,7 +1374,7 @@
         title: 'Car E 車班表（FAB8S 庫房母港專車與小環）',
         hub: 'FAB8S 1F 碼頭/8S5A',
         phone: '8681030（0965-702918）',
-        target_cap: '488 批 (單班實質) / 480 批',
+        target_cap: '592 批 (單班實質)',
         plate: 'KPC-6131',
         mission: '8S 庫房始發，日班試運行，密集庫房出入料'
       },
@@ -1377,7 +1383,7 @@
         title: 'Car U 車班表（聯電同仁支援加班車・專車+小環）',
         hub: 'FAB8S 1F 碼頭/8S5A',
         phone: '8638834（0975-612990）',
-        target_cap: '496 批 (單班)',
+        target_cap: '612 批 (單班實質)',
         plate: 'RGE-2107',
         mission: '聯電同仁支援加班車（專車+藍色框小環），窗口：洪婷 8638833'
       }
@@ -1534,29 +1540,45 @@
     }
 
     async function checkServerConnection() {
+      // 1. Immediately adopt embedded data if available
+      if (!fallbackData && typeof window !== 'undefined' && window.EMBEDDED_LOGISTICS_DATA) {
+        fallbackData = window.EMBEDDED_LOGISTICS_DATA;
+      }
+
+      // 2. Check live backend API
       try {
         const res = await fetch('/api/cars');
         if (res.ok) {
           isLiveServer = true;
-          document.getElementById('dbStatusBadge').innerText = 'logistics.db 已連線 (SQLite)';
-          document.getElementById('dbStatusBadge').parentElement.classList.replace('text-emerald-400', 'text-emerald-400');
+          const badge = document.getElementById('dbStatusBadge');
+          if (badge) {
+            badge.innerText = 'logistics.db 已連線 (SQLite)';
+            badge.parentElement.classList.replace('text-cyan-400', 'text-emerald-400');
+          }
           return;
         }
       } catch (e) {
-        console.warn('API server not detected, attempting db_export.json fallback...');
+        console.warn('API server not detected, attempting db_export.json / embedded data fallback...');
       }
 
-      // Offline / Static fallback
-      try {
-        const res = await fetch('db_export.json');
-        if (res.ok) {
-          fallbackData = await res.json();
-          document.getElementById('dbStatusBadge').innerText = '本機 JSON 快取模式 (236 筆)';
-          document.getElementById('dbStatusBadge').parentElement.classList.replace('text-emerald-400', 'text-cyan-400');
-          return;
+      // 3. If live server unavailable, try fetching db_export.json
+      if (!fallbackData) {
+        try {
+          const res = await fetch('db_export.json');
+          if (res.ok) {
+            fallbackData = await res.json();
+          }
+        } catch (err) {
+          console.warn('Failed to load db_export.json via fetch:', err);
         }
-      } catch (err) {
-        console.error('Failed to load fallback data', err);
+      }
+
+      // 4. Update UI status badge for offline / fallback mode
+      const badge = document.getElementById('dbStatusBadge');
+      if (badge) {
+        const count = (fallbackData && fallbackData.schedules) ? fallbackData.schedules.length : 236;
+        badge.innerText = `本機資料快取模式 (${count} 筆)`;
+        badge.parentElement.classList.replace('text-emerald-400', 'text-cyan-400');
       }
     }
 
@@ -1835,6 +1857,9 @@
         }
       }
 
+      if (!fallbackData && typeof window !== 'undefined' && window.EMBEDDED_LOGISTICS_DATA) {
+        fallbackData = window.EMBEDDED_LOGISTICS_DATA;
+      }
       if (!fallbackData) {
         try {
           const r = await fetch('db_export.json');
@@ -2790,7 +2815,7 @@
         let summary = [];
 
         fabs.forEach(f => {
-          let visits = fallbackData.schedules.filter(s => s.fab_code === f.code && s.is_break === 0);
+          let visits = fallbackData.schedules.filter(s => s.fab_code === f.code && s.is_break === 0 && s.car_id !== 'Car_U');
           if (shift !== 'all') visits = visits.filter(s => s.shift === shift);
           visits.sort((a,b) => a.arr_min - b.arr_min);
 
@@ -2806,8 +2831,14 @@
           let totalCap = visits.reduce((a,b)=>a+(b.capacity_batches||0), 0);
           let cars = [...new Set(visits.map(v=>v.car_name))].sort().join(', ');
 
-          // Cross-Fab OD connections
-          let consultCount = visits.length;
+          // Cross-Fab OD connections (Exclude Car_U)
+          let consultRows = fallbackData.schedules.filter(s => 
+            s.is_break === 0 && 
+            s.car_id !== 'Car_U' && 
+            (shift === 'all' || s.shift === shift) && 
+            (s.fab_code === f.code || s.origin_fab === f.code || (s.dest_fab && s.dest_fab.includes(f.code)))
+          );
+          let consultCount = consultRows.length;
           const defaultExcelSums = { 'FAB8AB': 908, 'FAB8CD': 1052, 'FAB8E': 865, 'FAB8F': 1662, 'FAB8S': 747, '嘉晶篤行': 30, '嘉晶創新': 30 };
           const defaultOdSums = { 'FAB8AB': 450, 'FAB8CD': 530, 'FAB8E': 420, 'FAB8F': 830, 'FAB8S': 430, '嘉晶篤行': 30, '嘉晶創新': 30 };
 
@@ -2914,7 +2945,7 @@
           <td class="py-3.5 px-4 text-center text-slate-400 font-mono text-xs">—</td>
           <td class="py-3.5 px-4 text-center text-slate-400 font-mono text-xs">—</td>
           <td class="py-3.5 px-4 text-center text-emerald-400 font-mono text-base">${sumCap} 批</td>
-          <td class="py-3.5 px-4 text-xs text-slate-400 font-normal">全車隊 5 輛車全時運籌</td>
+          <td class="py-3.5 px-4 text-xs text-slate-400 font-normal">常態車隊 5 輛車全時運籌（排除 U 車）</td>
         </tr>
       `;
 
