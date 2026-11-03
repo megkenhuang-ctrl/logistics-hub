@@ -77,13 +77,16 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == '/api/schedules':
             conn = get_db_connection()
+            tbl = params.get('table', ['schedules'])[0]
+            if tbl not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+                tbl = 'schedules'
             car_id = params.get('car_id', [None])[0]
             shift = params.get('shift', [None])[0]
             fab = params.get('fab', [None])[0]
             mode = params.get('mode', [None])[0]
             search = params.get('search', [None])[0]
 
-            query = 'SELECT * FROM schedules WHERE 1=1'
+            query = f'SELECT * FROM {tbl} WHERE 1=1'
             args = []
 
             if car_id and car_id != 'ALL':

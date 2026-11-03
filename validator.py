@@ -513,6 +513,24 @@ class ScheduleValidator:
 <body class="p-4 lg:p-8">
   <div class="max-w-6xl mx-auto space-y-8">
     
+    <!-- Top Navigation Bar -->
+    <div class="flex items-center justify-between gap-4 pb-2">
+      <div class="flex items-center gap-2">
+        <a href="plans.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>返回方案全景報告 (plans.html)</span>
+        </a>
+        <a href="index.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/40 text-xs text-blue-300 border border-blue-500/30 transition">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>戰情總網</span>
+        </a>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="audit_report_plan2.html" class="px-2.5 py-1 rounded-lg text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">方案二報告</a>
+        <a href="audit_report_plan3.html" class="px-2.5 py-1 rounded-lg text-xs bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 transition font-bold">方案三報告 (100% PASS)</a>
+      </div>
+    </div>
+
     <!-- Top Header -->
     <div class="glass-card rounded-3xl p-6 lg:p-8 border-slate-700 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
