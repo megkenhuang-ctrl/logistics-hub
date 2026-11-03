@@ -1,0 +1,546 @@
+{
+  "timestamp": "2026-11-03 20:57:01",
+  "db_path": "logistics.db",
+  "table_name": "schedules_plan3",
+  "summary": {
+    "verdict": "WARNING",
+    "verdict_badge": "🟡 稽核條件通過 (WARNING) - 硬約束 100% 合規，存在軟約束改善建議",
+    "hard_pass_count": 6,
+    "hard_total_count": 6,
+    "soft_pass_count": 1,
+    "soft_total_count": 2,
+    "hard_compliance_rate": 100.0,
+    "soft_satisfaction_score": 75.0,
+    "overall_score": 92.5,
+    "total_violations": 0,
+    "total_warnings": 20
+  },
+  "stats": {
+    "total_stops": 190,
+    "active_stops": 180,
+    "break_stops": 10,
+    "cars_count": 5,
+    "active_corridors_count": 22
+  },
+  "rules": {
+    "cap_48_standard": {
+      "id": "RULE-CAP-48",
+      "name": "車輛容量基準 (4 籠車 × 12 儲位 = 48 批)",
+      "category": "HARD",
+      "status": "PASS",
+      "violations_count": 0,
+      "violations": [],
+      "desc": "每部車廂至多容納 4 部籠車，每籠車 12 儲位，全車單趟載運極限為 48 批。"
+    },
+    "loop_loading_protocol": {
+      "id": "RULE-LOOP-24",
+      "name": "環廠在途滾動載量協議 (上貨≤24 / 保留24空位 / 末站滿車)",
+      "category": "HARD",
+      "status": "PASS",
+      "violations_count": 0,
+      "violations": [],
+      "desc": "環廠中途各站上貨總批數不可超過 24 批，必須維持至少 24 批空位，防止前站滿載導致後站拒載。"
+    },
+    "soft_1_dock_headway": {
+      "id": "RULE-SOFT-1",
+      "name": "軟約束 1：碼頭進站間隔 ≥ 10 分鐘 (泊位互斥防塞車)",
+      "category": "SOFT",
+      "status": "FAIL",
+      "score": 50.0,
+      "warnings_count": 20,
+      "warnings": [
+        {
+          "shift": "day",
+          "fab": "FAB8E",
+          "car_a": "Car D",
+          "arr_a": "14:20",
+          "car_b": "Car E",
+          "arr_b": "14:20",
+          "diff_mins": 0,
+          "msg": "FAB8E (day)：Car D (14:20) 與 Car E (14:20) 到站僅隔 0 分鐘 (< 10分)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8E",
+          "car_a": "Car E",
+          "arr_a": "14:20",
+          "car_b": "Car B",
+          "arr_b": "14:25",
+          "diff_mins": 5,
+          "msg": "FAB8E (day)：Car E (14:20) 與 Car B (14:25) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8E",
+          "car_a": "Car C",
+          "arr_a": "15:50",
+          "car_b": "Car A",
+          "arr_b": "15:55",
+          "diff_mins": 5,
+          "msg": "FAB8E (day)：Car C (15:50) 與 Car A (15:55) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8AB",
+          "car_a": "Car A",
+          "arr_a": "10:40",
+          "car_b": "Car C",
+          "arr_b": "10:45",
+          "diff_mins": 5,
+          "msg": "FAB8AB (day)：Car A (10:40) 與 Car C (10:45) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8AB",
+          "car_a": "Car B",
+          "arr_a": "16:25",
+          "car_b": "Car C",
+          "arr_b": "16:25",
+          "diff_mins": 0,
+          "msg": "FAB8AB (day)：Car B (16:25) 與 Car C (16:25) 到站僅隔 0 分鐘 (< 10分)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8S",
+          "car_a": "Car E",
+          "arr_a": "11:15",
+          "car_b": "Car C",
+          "arr_b": "11:20",
+          "diff_mins": 5,
+          "msg": "FAB8S (day)：Car E (11:15) 與 Car C (11:20) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8F",
+          "car_a": "Car A",
+          "arr_a": "15:25",
+          "car_b": "Car E",
+          "arr_b": "15:30",
+          "diff_mins": 5,
+          "msg": "FAB8F (day)：Car A (15:25) 與 Car E (15:30) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8F",
+          "car_a": "Car D",
+          "arr_a": "16:35",
+          "car_b": "Car E",
+          "arr_b": "16:40",
+          "diff_mins": 5,
+          "msg": "FAB8F (day)：Car D (16:35) 與 Car E (16:40) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8F",
+          "car_a": "Car B",
+          "arr_a": "16:55",
+          "car_b": "Car C",
+          "arr_b": "16:55",
+          "diff_mins": 0,
+          "msg": "FAB8F (day)：Car B (16:55) 與 Car C (16:55) 到站僅隔 0 分鐘 (< 10分)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8F",
+          "car_a": "Car B",
+          "arr_a": "17:55",
+          "car_b": "Car C",
+          "arr_b": "17:55",
+          "diff_mins": 0,
+          "msg": "FAB8F (day)：Car B (17:55) 與 Car C (17:55) 到站僅隔 0 分鐘 (< 10分)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8E",
+          "car_a": "Car D",
+          "arr_a": "02:20",
+          "car_b": "Car E",
+          "arr_b": "02:20",
+          "diff_mins": 0,
+          "msg": "FAB8E (night)：Car D (02:20) 與 Car E (02:20) 到站僅隔 0 分鐘 (< 10分)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8E",
+          "car_a": "Car E",
+          "arr_a": "02:20",
+          "car_b": "Car B",
+          "arr_b": "02:25",
+          "diff_mins": 5,
+          "msg": "FAB8E (night)：Car E (02:20) 與 Car B (02:25) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8E",
+          "car_a": "Car C",
+          "arr_a": "03:50",
+          "car_b": "Car A",
+          "arr_b": "03:55",
+          "diff_mins": 5,
+          "msg": "FAB8E (night)：Car C (03:50) 與 Car A (03:55) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8AB",
+          "car_a": "Car A",
+          "arr_a": "22:40",
+          "car_b": "Car C",
+          "arr_b": "22:45",
+          "diff_mins": 5,
+          "msg": "FAB8AB (night)：Car A (22:40) 與 Car C (22:45) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8AB",
+          "car_a": "Car B",
+          "arr_a": "04:25",
+          "car_b": "Car C",
+          "arr_b": "04:25",
+          "diff_mins": 0,
+          "msg": "FAB8AB (night)：Car B (04:25) 與 Car C (04:25) 到站僅隔 0 分鐘 (< 10分)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8S",
+          "car_a": "Car E",
+          "arr_a": "23:15",
+          "car_b": "Car C",
+          "arr_b": "23:20",
+          "diff_mins": 5,
+          "msg": "FAB8S (night)：Car E (23:15) 與 Car C (23:20) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8F",
+          "car_a": "Car A",
+          "arr_a": "03:25",
+          "car_b": "Car E",
+          "arr_b": "03:30",
+          "diff_mins": 5,
+          "msg": "FAB8F (night)：Car A (03:25) 與 Car E (03:30) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8F",
+          "car_a": "Car D",
+          "arr_a": "04:35",
+          "car_b": "Car E",
+          "arr_b": "04:40",
+          "diff_mins": 5,
+          "msg": "FAB8F (night)：Car D (04:35) 與 Car E (04:40) 到站僅隔 5 分鐘 (< 10分)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8F",
+          "car_a": "Car B",
+          "arr_a": "04:55",
+          "car_b": "Car C",
+          "arr_b": "04:55",
+          "diff_mins": 0,
+          "msg": "FAB8F (night)：Car B (04:55) 與 Car C (04:55) 到站僅隔 0 分鐘 (< 10分)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8F",
+          "car_a": "Car B",
+          "arr_a": "05:55",
+          "car_b": "Car C",
+          "arr_b": "05:55",
+          "diff_mins": 0,
+          "msg": "FAB8F (night)：Car B (05:55) 與 Car C (05:55) 到站僅隔 0 分鐘 (< 10分)"
+        }
+      ],
+      "desc": "碼頭空間有限，不同車輛相鄰進站時間應錯開至少 10 分鐘，避免排隊倒車壅塞。"
+    },
+    "soft_2_dest_diversity": {
+      "id": "RULE-SOFT-2",
+      "name": "軟約束 2：連續出發目的地多樣性 (促成多向空間分流)",
+      "category": "SOFT",
+      "status": "PASS",
+      "score": 100.0,
+      "warnings_count": 0,
+      "warnings": [],
+      "desc": "同一廠區連續發出的班次目的地應盡量多元，避免部分廠區物料遭長期冷落。"
+    },
+    "hard_3_od_coverage": {
+      "id": "RULE-HARD-OD-12H",
+      "name": "硬約束 3：OD 每 12H 至少訪問一次 (杜絕跨班斷料)",
+      "category": "HARD",
+      "status": "PASS",
+      "violations_count": 0,
+      "violations": [],
+      "desc": "22 條有需求的跨廠走廊，日班與夜班各自每 12 小時至少需有 1 班次以上服務，避免物料滯留跨班。"
+    },
+    "hard_4_od_utilization": {
+      "id": "RULE-HARD-UTIL-85",
+      "name": "硬約束 4：走廊利用率 ≤ 85.0% (保證 ≥15% 安全抗震裕度)",
+      "category": "HARD",
+      "status": "PASS",
+      "violations_count": 0,
+      "violations": [],
+      "od_table": [
+        {
+          "from": "FAB8AB",
+          "to": "FAB8E",
+          "demand": 150,
+          "day_trips": 4,
+          "night_trips": 4,
+          "total_trips": 8,
+          "capacity": 384,
+          "utilization": 39.1,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8AB",
+          "to": "FAB8F",
+          "demand": 250,
+          "day_trips": 7,
+          "night_trips": 7,
+          "total_trips": 14,
+          "capacity": 672,
+          "utilization": 37.2,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8AB",
+          "to": "FAB8S",
+          "demand": 50,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "capacity": 192,
+          "utilization": 26.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8CD",
+          "to": "FAB8E",
+          "demand": 150,
+          "day_trips": 4,
+          "night_trips": 4,
+          "total_trips": 8,
+          "capacity": 384,
+          "utilization": 39.1,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8CD",
+          "to": "FAB8F",
+          "demand": 300,
+          "day_trips": 7,
+          "night_trips": 7,
+          "total_trips": 14,
+          "capacity": 672,
+          "utilization": 44.6,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8CD",
+          "to": "FAB8S",
+          "demand": 80,
+          "day_trips": 3,
+          "night_trips": 3,
+          "total_trips": 6,
+          "capacity": 288,
+          "utilization": 27.8,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8E",
+          "to": "FAB8AB",
+          "demand": 150,
+          "day_trips": 4,
+          "night_trips": 4,
+          "total_trips": 8,
+          "capacity": 384,
+          "utilization": 39.1,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8E",
+          "to": "FAB8CD",
+          "demand": 150,
+          "day_trips": 4,
+          "night_trips": 4,
+          "total_trips": 8,
+          "capacity": 384,
+          "utilization": 39.1,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8E",
+          "to": "FAB8F",
+          "demand": 20,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "capacity": 192,
+          "utilization": 10.4,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8E",
+          "to": "FAB8S",
+          "demand": 40,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "capacity": 192,
+          "utilization": 20.8,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8E",
+          "to": "嘉晶篤行",
+          "demand": 30,
+          "day_trips": 1,
+          "night_trips": 1,
+          "total_trips": 2,
+          "capacity": 96,
+          "utilization": 31.2,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8E",
+          "to": "嘉晶創新",
+          "demand": 30,
+          "day_trips": 1,
+          "night_trips": 1,
+          "total_trips": 2,
+          "capacity": 96,
+          "utilization": 31.2,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8F",
+          "to": "FAB8AB",
+          "demand": 250,
+          "day_trips": 7,
+          "night_trips": 7,
+          "total_trips": 14,
+          "capacity": 672,
+          "utilization": 37.2,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8F",
+          "to": "FAB8CD",
+          "demand": 300,
+          "day_trips": 7,
+          "night_trips": 7,
+          "total_trips": 14,
+          "capacity": 672,
+          "utilization": 44.6,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8F",
+          "to": "FAB8E",
+          "demand": 20,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "capacity": 192,
+          "utilization": 10.4,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8F",
+          "to": "FAB8S",
+          "demand": 260,
+          "day_trips": 4,
+          "night_trips": 4,
+          "total_trips": 8,
+          "capacity": 384,
+          "utilization": 67.7,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8S",
+          "to": "FAB8AB",
+          "demand": 50,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "capacity": 192,
+          "utilization": 26.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8S",
+          "to": "FAB8CD",
+          "demand": 80,
+          "day_trips": 3,
+          "night_trips": 3,
+          "total_trips": 6,
+          "capacity": 288,
+          "utilization": 27.8,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8S",
+          "to": "FAB8E",
+          "demand": 40,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "capacity": 192,
+          "utilization": 20.8,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8S",
+          "to": "FAB8F",
+          "demand": 260,
+          "day_trips": 4,
+          "night_trips": 4,
+          "total_trips": 8,
+          "capacity": 384,
+          "utilization": 67.7,
+          "status": "PASS"
+        },
+        {
+          "from": "嘉晶篤行",
+          "to": "FAB8E",
+          "demand": 30,
+          "day_trips": 1,
+          "night_trips": 1,
+          "total_trips": 2,
+          "capacity": 96,
+          "utilization": 31.2,
+          "status": "PASS"
+        },
+        {
+          "from": "嘉晶創新",
+          "to": "FAB8E",
+          "demand": 30,
+          "day_trips": 1,
+          "night_trips": 1,
+          "total_trips": 2,
+          "capacity": 96,
+          "utilization": 31.2,
+          "status": "PASS"
+        }
+      ],
+      "desc": "每一段有需求的走廊利用率（需求÷運能）嚴格要求 ≤85.0%，保留至少 15% 以上安全緩衝，杜絕 100% 死鎖。"
+    },
+    "hard_5_driver_rest": {
+      "id": "RULE-HARD-REST",
+      "name": "硬約束 5：司機休息與交接合規 (午休/夜休 60 分鐘完整保障)",
+      "category": "HARD",
+      "status": "PASS",
+      "violations_count": 0,
+      "violations": [],
+      "desc": "日班午休 60 分鐘、夜班夜休 60 分鐘、交接緩衝 20 分鐘必須分秒足額，且停靠於母港設施區。"
+    },
+    "hard_6_physics_transit": {
+      "id": "RULE-HARD-PHYSICS",
+      "name": "硬約束 6：行車與作業時間不可壓縮 (物理剛性不可突破)",
+      "category": "HARD",
+      "status": "PASS",
+      "violations_count": 0,
+      "violations": [],
+      "desc": "鄰近 5 分鐘、跨區 10 分鐘、外廠 15 分鐘，碼頭裝卸時間不可為負值，嚴禁排定紙上虛假工時。"
+    }
+  }
+}

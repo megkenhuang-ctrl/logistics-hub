@@ -99,7 +99,7 @@
               <span>傳統單車巡迴的崩潰風險 (Single Truck Bottleneck)</span>
             </h3>
             <p class="text-xs text-slate-300">
-              原始構想若僅採用 1 部 40 儲位貨車在 A、E、F、S 廠區間依序巡迴（AE, AF, AS, EF, ES, FS），在面臨跨廠高頻急件時，將立即陷入嚴重的<strong>「排隊擁塞（Congestion）」</strong>與<strong>「滿車過站不入（Deadlock）」</strong>：前一站滿載 40 批後，後續站點完全無法上貨，造成等待時間暴增至 2~3 小時以上，產線發生致命停機待料。
+              原始構想若僅採用 1 部貨車（可容納 4 部籠車，每部籠車 12 儲位，全車滿載上限 48 批）在 A、E、F、S 廠區間依序巡迴（AE, AF, AS, EF, ES, FS），在面臨跨廠高頻急件時，將立即陷入嚴重的<strong>「排隊擁塞（Congestion）」</strong>與<strong>「滿車過站不入（Deadlock）」</strong>：前一站滿載 48 批後，後續站點完全無法上貨，造成等待時間暴增至 2~3 小時以上，產線發生致命停機待料。
             </p>
           </div>
 
@@ -226,7 +226,7 @@
                 <span>裝載儲位容量 (Capacity Slots)</span>
               </strong>
               <p class="text-slate-400 leading-normal">
-                每部貨車標準貨廂儲位為 <strong>40 個批次（Batches）</strong>。專車直達模式可滿載 40 批；環廠巡迴模式因中途需持續上卸，規定在途載量嚴格限制在 <strong>16 ~ 24 批</strong> 以內，保留剩餘空間。
+                每部貨車規格為 <strong>可容納 4 部籠車，每部籠車儲位 12 個，全車滿載上限為 48 批次（Batches）</strong>。專車直達模式可滿載 48 批；環廠巡迴模式因中途需持續上卸，規定每站上貨最大總數 24 批，平均分配至往下兩站，保留 24 批空位給下一站，最後一站方可裝滿 48 批回航。
               </p>
             </div>
 
@@ -248,6 +248,169 @@
               <p class="text-slate-400 leading-normal">
                 園區內部鄰近廠區（如 8F ➔ 8CD、8AB ➔ 8F）行車時間為 <strong>5 分鐘</strong>；跨園區走廊（如 8E ➔ 8CD、8S ➔ 8F）為 <strong>10 分鐘</strong>；外廠至嘉晶廠區行車時間為 <strong>15 分鐘</strong>。
               </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subsection 2.3: GPS Geolocation Matrix -->
+        <div class="pt-4 border-t border-slate-700/80">
+          <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+            <span class="text-amber-400">2.3</span> 廠區站點與外包廠精確地理空間座標（GPS Geolocation Matrix）
+          </h3>
+          <p class="text-xs text-slate-400 mb-3">
+            依據現場實際場勘建立之精確 WGS84 經緯度座標體系，做為路線距離計算、行車工時物理檢驗與 GIS 地圖視覺化之基準：
+          </p>
+          <div class="overflow-x-auto rounded-xl border border-slate-700/80">
+            <table class="w-full text-left text-xs border-collapse font-mono">
+              <thead class="bg-slate-900 text-slate-400">
+                <tr class="border-b border-slate-700">
+                  <th class="p-2.5 font-sans">節點名稱</th>
+                  <th class="p-2.5 font-sans">節點類型</th>
+                  <th class="p-2.5">緯度 (Latitude)</th>
+                  <th class="p-2.5">經度 (Longitude)</th>
+                  <th class="p-2.5 font-sans">裝卸場站位置</th>
+                  <th class="p-2.5 font-sans">行車時間特性</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 text-slate-300">
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-2.5 font-bold text-white font-sans">FAB8AB</td>
+                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-sans">力行核心</span></td>
+                  <td class="p-2.5 text-cyan-300">24.76950718</td>
+                  <td class="p-2.5 text-cyan-300">121.01944075</td>
+                  <td class="p-2.5 font-sans">1F 平面大廳</td>
+                  <td class="p-2.5 font-sans text-slate-400">緊鄰 8CD/8F，行車 5 分鐘</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-2.5 font-bold text-white font-sans">FAB8CD</td>
+                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-sans">裝卸碼頭</span></td>
+                  <td class="p-2.5 text-cyan-300">24.77127635</td>
+                  <td class="p-2.5 text-cyan-300">121.02086322</td>
+                  <td class="p-2.5 font-sans">裝卸碼頭上 3F (貨梯)</td>
+                  <td class="p-2.5 font-sans text-slate-400">緊鄰 8F/8AB，行車 5 分鐘</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-2.5 font-bold text-white font-sans">FAB8E</td>
+                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-sans">外廠門戶</span></td>
+                  <td class="p-2.5 text-cyan-300">24.76702327</td>
+                  <td class="p-2.5 text-cyan-300">121.02589480</td>
+                  <td class="p-2.5 font-sans">1F 大廳門戶</td>
+                  <td class="p-2.5 font-sans text-slate-400">園區東側，距 8CD 行車 10 分鐘</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-2.5 font-bold text-white font-sans">FAB8F</td>
+                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-sans">代工母港</span></td>
+                  <td class="p-2.5 text-cyan-300">24.77256556</td>
+                  <td class="p-2.5 text-cyan-300">121.01457603</td>
+                  <td class="p-2.5 font-sans">代工出入口專屬車位</td>
+                  <td class="p-2.5 font-sans text-slate-400">主動脈十字路口，行車 5~10 分鐘</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-2.5 font-bold text-white font-sans">FAB8S</td>
+                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-sans">庫房基地</span></td>
+                  <td class="p-2.5 text-cyan-300">24.77540796</td>
+                  <td class="p-2.5 text-cyan-300">120.99381118</td>
+                  <td class="p-2.5 font-sans">1F 碼頭 / 8S5A 庫房</td>
+                  <td class="p-2.5 font-sans text-amber-300">園區西側二路，跨區行車 10 分鐘</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-2.5 font-bold text-teal-300 font-sans">嘉晶創新</td>
+                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-sans">外包廠區</span></td>
+                  <td class="p-2.5 text-cyan-300">24.77369675</td>
+                  <td class="p-2.5 text-cyan-300">121.00097898</td>
+                  <td class="p-2.5 font-sans">外廠創新碼頭</td>
+                  <td class="p-2.5 font-sans text-rose-400">跨園區外廠道路，行車 15 分鐘</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-2.5 font-bold text-teal-300 font-sans">嘉晶篤行</td>
+                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-sans">外包廠區</span></td>
+                  <td class="p-2.5 text-cyan-300">24.77290827</td>
+                  <td class="p-2.5 text-cyan-300">121.02374197</td>
+                  <td class="p-2.5 font-sans">外廠篤行碼頭</td>
+                  <td class="p-2.5 font-sans text-rose-400">跨園區外廠道路，行車 15 分鐘</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Subsection 2.4: Constraints Matrix (Hard vs. Soft) -->
+        <div class="pt-4 border-t border-slate-700/80">
+          <h3 class="font-bold text-white text-base mb-3 flex items-center gap-2">
+            <span class="text-amber-400">2.4</span> 廠區與車班六大運籌限制條件矩陣 (Operational Constraints Classification)
+          </h3>
+          <p class="text-xs text-slate-400 mb-3">
+            依據現場作業規格（問題敘述與限制條件），將排程約束明確區分為<strong>「一定要滿足（硬約束 Hard Constraints）」</strong>與<strong>「儘量滿足（軟約束 Soft Constraints）」</strong>：
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <!-- Soft Constraints -->
+            <div class="bg-slate-900/90 p-4 rounded-xl border border-blue-500/30 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span class="font-bold text-blue-400 flex items-center gap-1.5 text-sm">
+                  <i class="fa-solid fa-sliders"></i> 軟約束（儘量滿足, Soft Constraints）
+                </span>
+                <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 text-[10px] font-mono font-bold">Penalty Term</span>
+              </div>
+              <div class="space-y-2.5">
+                <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800 space-y-1">
+                  <div class="font-semibold text-white flex items-center justify-between">
+                    <span>1. 碼頭到站時間間隔 ≥ 10 分鐘</span>
+                    <span class="text-blue-400 font-mono text-[10px]">儘量滿足</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px] leading-relaxed">
+                    碼頭空間有限，不允許車輛同時進站爭搶泊位。同廠進站時間需間隔 10 分鐘以上；在演算法目標中列為懲罰項，排程發生重疊時優先微調錯開。
+                  </p>
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800 space-y-1">
+                  <div class="font-semibold text-white flex items-center justify-between">
+                    <span>2. 出發目的地連續不重複</span>
+                    <span class="text-blue-400 font-mono text-[10px]">儘量滿足</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px] leading-relaxed">
+                    從廠區出發的車輛，其下一個目的地不要連續兩班都相同，促成多方向空間分流與走廊均勻覆蓋；專車線則透過與其他巡迴車交錯發車達成均衡。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hard Constraints -->
+            <div class="bg-slate-900/90 p-4 rounded-xl border border-emerald-500/30 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span class="font-bold text-emerald-400 flex items-center gap-1.5 text-sm">
+                  <i class="fa-solid fa-shield-check"></i> 硬約束（一定要滿足, Hard Constraints）
+                </span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold">Strict Feasibility</span>
+              </div>
+              <div class="space-y-2.5">
+                <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800 space-y-0.5">
+                  <div class="font-semibold text-white flex items-center justify-between">
+                    <span>3. OD 每 12H 至少訪問一次</span>
+                    <span class="text-emerald-400 font-mono text-[10px]">一定要滿足</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px]">22 條有需求的跨廠走廊，日班與夜班每 12 小時週期內至少必須有 1 次以上班次抵達，杜絕跨班斷料。</p>
+                </div>
+                <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800 space-y-0.5">
+                  <div class="font-semibold text-white flex items-center justify-between">
+                    <span>4. 每一段 OD 利用率 ≤ 85%</span>
+                    <span class="text-emerald-400 font-mono text-[10px]">一定要滿足</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px]">利用率 $\rho = \text{需求} \div \text{運能} \le 85\%$，保留 $\ge 15\%$ 安全抗震裕度，嚴格杜絕 100% 臨界死鎖。</p>
+                </div>
+                <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800 space-y-0.5">
+                  <div class="font-semibold text-white flex items-center justify-between">
+                    <span>5. 司機休息與交接合規</span>
+                    <span class="text-emerald-400 font-mono text-[10px]">一定要滿足</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px]">司機午餐、晚餐、跨班交接必須有固定且足夠的休息時間（60 分鐘 / 20 分鐘緩衝），且休息點設於專屬 Hub 母港。</p>
+                </div>
+                <div class="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800 space-y-0.5">
+                  <div class="font-semibold text-white flex items-center justify-between">
+                    <span>6. 行車與操作時間不可壓縮</span>
+                    <span class="text-emerald-400 font-mono text-[10px]">一定要滿足</span>
+                  </div>
+                  <p class="text-slate-400 text-[11px]">內部 5 分、跨區 10 分、外廠 15 分，碼頭作業時間具備不可突破之物理下限，嚴格禁止排定紙上虛假工時。</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -276,10 +439,10 @@
             <span class="font-bold text-sm text-red-400 flex items-center gap-1.5">
               <i class="fa-solid fa-bolt"></i> 專車直達服務 (Express Line)
             </span>
-            <span class="bg-red-500/20 text-red-300 px-2 py-0.5 rounded font-mono font-bold">滿載 40 批</span>
+            <span class="bg-red-500/20 text-red-300 px-2 py-0.5 rounded font-mono font-bold">滿載 48 批 (4籠車×12儲位)</span>
           </div>
           <p class="text-slate-300 leading-relaxed">
-            <strong>服務定義</strong>：兩點間（OD）點對點直達運輸，中途不停靠其他站點，享有全額 40 批載運配額。<br>
+            <strong>服務定義</strong>：兩點間（OD）點對點直達運輸，中途不停靠其他站點，享有全額 48 批（4 部籠車 × 12 儲位）載運配額。<br>
             <strong>適用場景</strong>：晨間開工急件（08:00 前）、8F 與 8CD 母港大進大出物料、8S 庫房每日大宗進廠。<br>
             <strong>代表班次</strong>：Car A (8E➔8CD)、Car B (8F➔8CD 對開)、Car E (8S➔8F 晨間專車)。
           </p>
@@ -295,7 +458,10 @@
           </div>
           <p class="text-slate-300 leading-relaxed">
             <strong>服務定義</strong>：沿標準環廠路徑（8CD ➔ 8F ➔ 8S ➔ 8E ➔ 8AB）順時鐘巡迴，每站均提供收貨與下貨服務。<br>
-            <strong>防呆機制</strong>：實施「動態在途限額」，司機在任何時點不得裝載超過 24 批，保留空位供下一站即時上下貨。<br>
+            <strong>環廠載貨滾動在途協議 (Loop In-Transit Protocol)</strong>：<br>
+            • <strong>上車站承載範圍</strong>：上車站（#3）可承載往下兩站貨品（#4、#5）。<br>
+            • <strong>上貨限額與保留空位</strong>：每站最大總上貨批數 24 批，平均分配至後續兩站（各 12 批），且保留下一站空位 24 批（Keep 下站空位 24 批）。<br>
+            • <strong>終點回航滿載</strong>：最後一站不受在途保留限制，可滿車裝載 48 批直返終點母港。<br>
             <strong>代表班次</strong>：Car D 全日純環廠專職循環、Car A 午後環廠巡迴。
           </p>
         </div>
@@ -477,17 +643,46 @@
             $$\text{Cap}(o, d) = \sum_{s \in \mathcal{S}_{o \to d}} \text{Cap}(s)$$
           </div>
           <p class="text-xs text-slate-400">
-            其中專車模式每趟 $\text{Cap}(s) = 40$ 批；環廠巡迴每趟按站點分配 $\text{Cap}(s) = 16 \sim 24$ 批。
+            其中專車直達每趟 $\text{Cap}(s) = 48$ 批（4 籠車 × 12 儲位）；環廠巡迴每站上貨上限 24 批且保留 24 批空位給下一站，最後一站可達 48 批。
           </p>
           <p class="text-xs text-slate-400 leading-relaxed mt-2">
-            將實際供給運能對照基準需求矩陣 $\text{Demand}(o, d)$（來自 <code class="text-cyan-300 font-mono">from_to.xlsx</code>），其<strong>需求滿足率倍數（Fulfillment Ratio）</strong>定義為：
+            將實際供給運能對照基準需求矩陣 $\text{Demand}(o, d)$（來自 <code class="text-cyan-300 font-mono">from_to.xlsx</code>），其<strong>需求滿足率（Fulfillment Ratio）</strong>定義為：
           </p>
           <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-amber-400 text-sm overflow-x-auto">
             $$\text{Fulfillment}(o, d) = \frac{\text{Cap}(o, d)}{\text{Demand}(o, d)} \times 100\%$$
           </div>
-          <p class="text-xs text-slate-400">
-            若 $\text{Fulfillment} \ge 100\%$，表示完全滿足基本運載要求；若超過 $500\%$（5 倍以上），則代表具備極佳的急件容受裕度與高韌性。
+          <p class="text-xs text-slate-400 leading-relaxed mt-2">
+            生管核心指標為其倒數<strong>「OD 使用率 / 利用率（Utilization Rate, $\rho$）」</strong>，並列為系統硬約束：
           </p>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-emerald-400 text-sm overflow-x-auto">
+            $$\text{Utilization}(o, d) = \frac{\text{Demand}(o, d)}{\text{Cap}(o, d)} \times 100\% \le 85.0\% \quad \Big(\text{留存 } \ge 15\% \text{ 抗震裕度}\Big)$$
+          </div>
+        </div>
+
+        <!-- Formula 5: Optimization Mathematical Model -->
+        <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-700 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+              <span class="text-cyan-400">4.5</span> 廠區排程優化目標函數與整數規劃模型 (MILP Formulation)
+            </h3>
+            <span class="text-xs font-mono text-indigo-400 bg-indigo-950/60 px-2.5 py-1 rounded border border-indigo-800">運籌演算法手冊</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            半導體廠區物流排程為<strong>具備時間窗與容量限制的多模式連續車輛路網排程問題（VRPTW-MD-Continuous）</strong>。本系統建立之標準數學規劃目標函數為最小化全廠預期等候時間，並納入軟約束懲罰項：
+          </p>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-cyan-300 text-sm overflow-x-auto">
+            $$\min \quad Z = \sum_{(o,d)} w_{od} \cdot E[W(o,d)] + \lambda_1 \sum_{f, i} \max\Big(0, 10 - (t_{f, i+1} - t_{f, i})\Big) + \lambda_2 \sum_{f, i} \mathbb{I}\big(\text{dest}_{f, i+1} = \text{dest}_{f, i}\big)$$
+          </div>
+          <div class="text-xs text-slate-400 space-y-1.5 pt-1">
+            <strong class="text-white block">嚴格滿足以下硬約束集合（Hard Constraints Set）：</strong>
+            <ul class="list-disc list-inside space-y-1 pl-2">
+              <li><strong>車廂與環廠在途載量約束</strong>：全車滿載 $\le 48$ 批（4 籠車 × 12 儲位）；環廠巡迴每站上貨上限 24 批且保留 24 批空位給下一站。</li>
+              <li><strong>OD 服務最低頻次約束</strong>：$\sum_{s \in \mathcal{S}_{o \to d, 12\text{H}}} 1 \ge 1, \quad \forall (o,d) \in \text{Active Demand Corridors}$（每 12H 至少訪問一次）。</li>
+              <li><strong>走廊利用率約束</strong>：$\text{Utilization}(o, d) \le 85.0\%, \quad \forall (o,d)$。</li>
+              <li><strong>司機人因工時約束</strong>：日班/夜班中間必須有連續 60 分鐘法定休整，交接班保留 20 分鐘緩衝。</li>
+              <li><strong>物理時空動線約束</strong>：站點間行車時間依 GPS 路網精算（5/10/15 分鐘），作業時間嚴格保證，不可被壓縮。</li>
+            </ul>
+          </div>
         </div>
 
       </div>

@@ -239,6 +239,14 @@
         <i class="fa-solid fa-code-compare text-emerald-400"></i>
         <span>優化方案對比</span>
       </a>
+
+      <a href="audit_report_plan3.html" target="_blank" class="px-3 py-2 rounded-lg font-bold flex items-center gap-1.5 text-xs text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 transition-all border border-purple-500/30" title="在獨立分頁開啟排程驗收稽核報告">
+
+        <i class="fa-solid fa-clipboard-check text-purple-400"></i>
+
+        <span>方案三驗收報告</span>
+
+      </a>
       <a href="spec.html" target="_blank" class="px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-750 transition-all border border-slate-700/60" title="在新分頁開啟獨立完整規格手冊">
         <i class="fa-solid fa-arrow-up-right-from-square text-cyan-400"></i>
         <span>獨立手冊</span>
@@ -859,7 +867,7 @@
           <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80 space-y-2">
             <strong class="text-amber-300 block font-semibold">1.1 單車巡迴之死局 (Single Truck Bottleneck)</strong>
             <p class="text-slate-400 leading-relaxed">
-              若依據原始簡化模型僅以 1 部貨車在 A、E、F、S 廠區間依序巡迴（AE, AF, AS, EF, ES, FS），在面臨急件與非對稱貨量時，貨車在前站滿載（40 批）後便無法在後續站點上貨，將導致物料滯留、班距拉長至 2 小時以上，引發產線斷料風險。
+              若依據原始簡化模型僅以 1 部貨車在 A、E、F、S 廠區間依序巡迴（AE, AF, AS, EF, ES, FS），在面臨急件與非對稱貨量時，貨車在前站滿載（48 批，4籠車×12儲位）後便無法在後續站點上貨，將導致物料滯留、班距拉長至 2 小時以上，引發產線斷料風險。
             </p>
           </div>
           <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80 space-y-2">
@@ -909,13 +917,49 @@
             <strong class="text-emerald-400 font-bold block text-sm">Car D (純環廠巡迴)</strong>
             <span class="text-slate-400 text-[11px] block mt-1">母站: 8CD 碼頭上3F</span>
             <span class="text-amber-400 font-mono text-[11px] block">運能: 240 批 (16趟)</span>
-            <p class="text-slate-400 text-[11px] mt-2">純環廠專職循環，嚴格限制在途載量 ≤16~24 批防塞。</p>
+            <p class="text-slate-400 text-[11px] mt-2">純環廠專職循環，落實「上貨≤24批且保留24空位」防塞。</p>
           </div>
           <div class="bg-slate-900/80 p-3.5 rounded-xl border border-purple-500/30">
             <strong class="text-purple-400 font-bold block text-sm">Car E (庫房母港)</strong>
             <span class="text-slate-400 text-[11px] block mt-1">母站: 8S 庫房8S5A</span>
             <span class="text-amber-400 font-mono text-[11px] block">運能: 480 批 (16趟)</span>
             <p class="text-slate-400 text-[11px] mt-2">8S 庫房始發，深度裝載晨送 8F，日夜班交接順暢。</p>
+          </div>
+        </div>
+
+        <!-- 2.3 GPS Coordinates & 2.4 Constraints -->
+        <div class="pt-3 border-t border-slate-700/80 space-y-3">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 text-xs">
+            <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-700">
+              <strong class="text-amber-300 font-semibold block mb-1.5 flex items-center gap-1.5">
+                <i class="fa-solid fa-map-location-dot text-amber-400"></i>
+                <span>廠區與外包廠 GPS 經緯度座標</span>
+              </strong>
+              <div class="grid grid-cols-2 gap-1.5 text-[11px] font-mono text-slate-300">
+                <div>• FAB8AB: 24.7695, 121.0194</div>
+                <div>• FAB8CD: 24.7713, 121.0209</div>
+                <div>• FAB8E: 24.7670, 121.0259</div>
+                <div>• FAB8F: 24.7726, 121.0146</div>
+                <div>• FAB8S: 24.7754, 120.9938</div>
+                <div class="text-teal-300">• 嘉晶創新: 24.7737, 121.0010</div>
+                <div class="text-teal-300 col-span-2">• 嘉晶篤行: 24.7729, 121.0237</div>
+              </div>
+            </div>
+
+            <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-700 space-y-1 text-[11px]">
+              <strong class="text-cyan-300 font-semibold block mb-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-scale-balanced text-cyan-400"></i>
+                <span>六大排程運籌限制分類 (Hard vs. Soft)</span>
+              </strong>
+              <div class="text-blue-300 font-semibold">【軟約束 (儘量滿足)】</div>
+              <div class="text-slate-400">1. 碼頭到站時間需間隔 ≥ 10 分鐘（碼頭空間有限，避開同泊位搶佔）。</div>
+              <div class="text-slate-400">2. 從廠區出發的車輛，其下一個目的地不要連續兩班都相同。</div>
+              <div class="text-emerald-300 font-semibold pt-1">【硬約束 (一定要滿足)】</div>
+              <div class="text-slate-400">3. 每一段有需求的 OD，每 12hrs 至少訪問 1 次。</div>
+              <div class="text-slate-400">4. 每一段有需求的 OD，利用率 ≤ 85%（保有 ≥15% 安全裕度）。</div>
+              <div class="text-slate-400">5. 司機午餐、晚餐、跨班交接必須有固定且充足休息時間。</div>
+              <div class="text-slate-400">6. 各站點行車時間（5/10/15分）、操作時間不可被壓縮。</div>
+            </div>
           </div>
         </div>
       </div>
@@ -932,11 +976,11 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
           <div class="bg-slate-900/80 p-4 rounded-xl border border-red-500/30 space-y-1.5">
             <strong class="text-red-400 block font-bold text-sm">🚀 專車直達服務 (Express Line)</strong>
-            <p class="text-slate-300">滿載 40 批，點對點直達，中途不拆盤、不停靠。專門承接晨間緊急投料與 8F 代工、8S 庫房大宗出料需求。</p>
+            <p class="text-slate-300">滿載 48 批 (4部籠車×12儲位)，點對點直達，中途不拆盤、不停靠。專門承接晨間緊急投料與 8F 代工、8S 庫房大宗出料需求。</p>
           </div>
           <div class="bg-slate-900/80 p-4 rounded-xl border border-blue-500/30 space-y-1.5">
             <strong class="text-blue-400 block font-bold text-sm">🔄 全廠環廠巡迴 (Outer Loop)</strong>
-            <p class="text-slate-300">沿 8CD➔8F➔8S➔8E➔8AB 順時鐘定班循環。實施「在途載量上限防呆（≤24批）」，保障各廠隨時皆有空位可上貨。</p>
+            <p class="text-slate-300">沿 8CD➔8F➔8S➔8E➔8AB 順時鐘定班循環。實施「在途滾動載量協議」：上車站(#3)可載送後兩站貨品(#4,#5)；每站最大上貨 24 批平均分配，且保留下站 24 空位；最後一站滿車 (48 批)。</p>
           </div>
           <div class="bg-slate-900/80 p-4 rounded-xl border border-amber-500/30 space-y-1.5">
             <strong class="text-amber-400 block font-bold text-sm">⚡ 小環廠快速循環 (Inner Loop)</strong>
@@ -1024,8 +1068,31 @@
             <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-purple-300 my-1">
               \( \text{Fulfillment}(o, d) = \frac{\text{Cap}(o, d)}{\text{Demand}(o, d)} \times 100\% \)
             </div>
+            <p class="text-slate-400 leading-relaxed mt-1">
+              硬約束利用率公式（利用率 $\le 85.0\%$）：
+            </p>
+            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 text-center font-mono text-emerald-400 my-1">
+              \( \text{Utilization}(o, d) = \frac{\text{Demand}(o, d)}{\text{Cap}(o, d)} \times 100\% \le 85.0\% \)
+            </div>
           </div>
 
+        </div>
+
+        <!-- Math 5: MILP Formulation -->
+        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <strong class="text-indigo-400 font-bold block text-sm">4.5 廠區排程優化目標函數與整數規劃模型 (MILP Formulation)</strong>
+            <span class="text-indigo-300 font-mono text-[10px] bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-800">演算法手冊</span>
+          </div>
+          <p class="text-slate-400 leading-relaxed">
+            綜合硬約束與軟約束之多目標連續車輛排程目標函數：
+          </p>
+          <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-cyan-300 my-1">
+            \( \min Z = \sum_{(o,d)} w_{od} E[W(o,d)] + \lambda_1 \sum \max(0, 10 - \Delta t_{\text{dock}}) + \lambda_2 \sum \mathbb{I}(\text{dest}_{i+1} = \text{dest}_i) \)
+          </div>
+          <div class="text-[11px] text-slate-400 space-y-0.5">
+            <div>• <strong>硬約束嚴格滿足</strong>：車輛上限 48 批（4籠車×12儲位）；環廠每站上貨≤24批且保留24空位；OD每12H訪問≥1；利用率≤85%；司機法定休整60分；物理工時不可壓縮。</div>
+          </div>
         </div>
       </div>
 

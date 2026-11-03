@@ -65,6 +65,16 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             conn.close()
             return self.send_json([dict(r) for r in rows])
 
+        elif path == '/api/audit':
+            try:
+                from validator import ScheduleValidator
+                tbl = params.get('table', ['schedules_plan3'])[0]
+                validator = ScheduleValidator(DB_PATH, table_name=tbl)
+                report = validator.audit()
+                return self.send_json(report)
+            except Exception as e:
+                return self.send_json({'error': str(e)}, status=500)
+
         elif path == '/api/schedules':
             conn = get_db_connection()
             car_id = params.get('car_id', [None])[0]
