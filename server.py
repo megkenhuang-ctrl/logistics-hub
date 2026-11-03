@@ -75,6 +75,15 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 return self.send_json({'error': str(e)}, status=500)
 
+        elif path == '/api/open_ppt':
+            try:
+                ppt_path = os.path.abspath('半導體廠區物流排程優化與數位稽核系統_專案簡報.pptx')
+                if os.name == 'nt' and hasattr(os, 'startfile') and os.path.exists(ppt_path):
+                    os.startfile(ppt_path)
+                return self.send_json({'status': 'opened', 'path': ppt_path})
+            except Exception as e:
+                return self.send_json({'error': str(e)}, status=500)
+
         elif path == '/api/schedules':
             conn = get_db_connection()
             tbl = params.get('table', ['schedules'])[0]

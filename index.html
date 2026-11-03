@@ -210,38 +210,34 @@
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="max-w-7xl mx-auto mt-3 pt-2 border-t border-slate-700/60 flex space-x-1 lg:space-x-2 overflow-x-auto text-sm">
-      <button onclick="switchTab('tab-cars')" id="nav-tab-cars" class="nav-tab active-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 bg-blue-600 text-white transition-all shadow-md">
-        <i class="fa-solid fa-bus"></i>
-        <span>1. 班車車班查詢</span>
+    <div class="max-w-7xl mx-auto mt-3 pt-2 border-t border-slate-700/60 flex space-x-1 lg:space-x-2 overflow-x-auto text-sm items-center">
+      <button onclick="switchTab('tab-cars')" id="nav-tab-cars" class="nav-tab active-tab px-3.5 py-2 rounded-lg font-semibold flex items-center gap-2 bg-blue-600 text-white transition-all shadow-md shrink-0">
+        <i class="fa-solid fa-clock"></i>
+        <span>1. 車班時間</span>
       </button>
-      <button onclick="switchTab('tab-fabs')" id="nav-tab-fabs" class="nav-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all">
+      <button onclick="switchTab('tab-fabs')" id="nav-tab-fabs" class="nav-tab px-3.5 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all shrink-0">
         <i class="fa-solid fa-industry"></i>
-        <span>2. Fab 廠區到站與等候查詢</span>
+        <span>2. 廠區到站時間</span>
       </button>
-      <button onclick="switchTab('tab-summary')" id="nav-tab-summary" class="nav-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all">
-        <i class="fa-solid fa-chart-pie"></i>
-        <span>3. 統計總結報表 (Summary)</span>
-      </button>
-      <button onclick="switchTab('tab-spec')" id="nav-tab-spec" class="nav-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all">
-        <i class="fa-solid fa-book-open text-cyan-400"></i>
-        <span>4. 系統規範與性能算法</span>
-      </button>
-      <button onclick="switchTab('tab-roster')" id="nav-tab-roster" class="nav-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all">
+      <button onclick="switchTab('tab-roster')" id="nav-tab-roster" class="nav-tab px-3.5 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all shrink-0">
         <i class="fa-solid fa-id-card-clip text-amber-400"></i>
-        <span>6. 司機與車輛排班 (Driver Roster)</span>
+        <span>3. 司機排班</span>
       </button>
-      <button onclick="switchTab('tab-db')" id="nav-tab-db" class="nav-tab px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all">
-        <i class="fa-solid fa-database"></i>
-        <span>5. 資料庫管理 & SQL 查詢台</span>
+      <button onclick="switchTab('tab-summary')" id="nav-tab-summary" class="nav-tab px-3.5 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all shrink-0">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>4. 統計報表</span>
       </button>
-      <a href="plans.html" target="_blank" class="px-3 py-2 rounded-lg font-bold flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all border border-emerald-500/30 ml-auto" title="在新分頁開啟兩大優化方案深入評估">
+      <a href="plans.html" target="_blank" class="px-3.5 py-2 rounded-lg font-bold flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all border border-emerald-500/30 shrink-0" title="在新分頁開啟三大排程優化方案全景報告">
         <i class="fa-solid fa-code-compare text-emerald-400"></i>
-        <span>優化方案對比</span>
+        <span>5. 優化方案</span>
       </a>
-      <a href="spec.html" target="_blank" class="px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 text-xs text-slate-400 hover:text-white hover:bg-slate-750 transition-all border border-slate-700/60" title="在新分頁開啟獨立完整規格手冊">
-        <i class="fa-solid fa-arrow-up-right-from-square text-cyan-400"></i>
-        <span>獨立手冊</span>
+      <button onclick="switchTab('tab-db')" id="nav-tab-db" class="nav-tab px-3.5 py-2 rounded-lg font-semibold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition-all shrink-0">
+        <i class="fa-solid fa-database"></i>
+        <span>6. 資料庫管理</span>
+      </button>
+      <a href="半導體廠區物流排程優化與數位稽核系統_專案簡報.pptx" download="半導體廠區物流排程優化與數位稽核系統_專案簡報.pptx" target="_blank" onclick="fetch('/api/open_ppt').catch(()=>{})" class="px-3.5 py-2 rounded-lg font-bold flex items-center gap-1.5 text-xs text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 transition-all border border-amber-500/30 ml-auto shrink-0" title="點擊開啟/下載專案簡報 PPT (半導體廠區物流排程優化與數位稽核系統_專案簡報.pptx)">
+        <i class="fa-solid fa-file-powerpoint text-amber-400"></i>
+        <span>7. 系統手冊</span>
       </a>
     </div>
   </header>
