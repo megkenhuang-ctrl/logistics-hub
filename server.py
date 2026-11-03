@@ -673,7 +673,13 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         self.send_json({'error': 'Not found'}, status=404)
 
-class DualStackServer(http.server.ThreadingHTTPServer):
+if hasattr(http.server, 'ThreadingHTTPServer'):
+    _BaseServer = http.server.ThreadingHTTPServer
+else:
+    class _BaseServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+        daemon_threads = True
+
+class DualStackServer(_BaseServer):
     address_family = getattr(socket, 'AF_INET6', socket.AF_INET)
     def server_bind(self):
         try:
@@ -690,8 +696,8 @@ def run_server():
     except Exception as e:
         # Fallback to standard IPv4
         print(f"DualStack fallback ({e}), binding IPv4...")
-        http.server.ThreadingHTTPServer.allow_reuse_address = True
-        httpd = http.server.ThreadingHTTPServer(('0.0.0.0', PORT), LogisticsAPIHandler)
+        _BaseServer.allow_reuse_address = True
+        httpd = _BaseServer(('0.0.0.0', PORT), LogisticsAPIHandler)
 
     with httpd:
         print(f"=== Logistics DB Web System running at: http://localhost:{PORT} (http://127.0.0.1:{PORT}) ===")
