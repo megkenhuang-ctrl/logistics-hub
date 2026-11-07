@@ -8,6 +8,7 @@ import re
 import sys
 import urllib.parse
 from datetime import datetime
+from validator import ScheduleValidator, parse_od_pairs
 
 # Safe UTF-8 console output on Windows
 if hasattr(sys.stdout, 'reconfigure'):
@@ -55,7 +56,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
         # API Endpoints
         if path == '/api/cars':
             conn = get_db_connection()
-            rows = conn.execute('SELECT * FROM cars ORDER BY id').fetchall()
+            rows = conn.execute("SELECT * FROM cars WHERE id != 'Car_U' ORDER BY id").fetchall()
             conn.close()
             return self.send_json([dict(r) for r in rows])
 
@@ -67,8 +68,9 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == '/api/audit':
             try:
-                from validator import ScheduleValidator
                 tbl = params.get('table', ['schedules_plan3'])[0]
+                if tbl not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+                    tbl = 'schedules_plan3'
                 validator = ScheduleValidator(DB_PATH, table_name=tbl)
                 report = validator.audit()
                 return self.send_json(report)
@@ -95,7 +97,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             mode = params.get('mode', [None])[0]
             search = params.get('search', [None])[0]
 
-            query = f'SELECT * FROM {tbl} WHERE 1=1'
+            query = f"SELECT * FROM {tbl} WHERE car_id != 'Car_U'"
             args = []
 
             if car_id and car_id != 'ALL':
@@ -137,10 +139,13 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == '/api/fab_analysis':
             conn = get_db_connection()
+            tbl = params.get('table', ['schedules'])[0]
+            if tbl not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+                tbl = 'schedules'
             fab_code = params.get('fab', ['FAB8F'])[0]
             shift = params.get('shift', ['day'])[0]
 
-            query = 'SELECT * FROM schedules WHERE is_break = 0'
+            query = f"SELECT * FROM {tbl} WHERE is_break = 0 AND car_id != 'Car_U'"
             args = []
             if fab_code != 'ALL':
                 query += ' AND fab_code = ?'
@@ -221,6 +226,9 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == '/api/summary':
             conn = get_db_connection()
+            tbl = params.get('table', ['schedules'])[0]
+            if tbl not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+                tbl = 'schedules'
             shift = params.get('shift', ['day'])[0]
             fabs = [dict(r) for r in conn.execute('SELECT * FROM fabs ORDER BY code').fetchall()]
 
@@ -229,7 +237,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 code = f['code']
                 
                 # Filter schedules
-                sched_q = "SELECT * FROM schedules WHERE fab_code = ? AND is_break = 0 AND car_id != 'Car_U'"
+                sched_q = f"SELECT * FROM {tbl} WHERE fab_code = ? AND is_break = 0 AND car_id != 'Car_U'"
                 args = [code]
                 if shift != 'all':
                     sched_q += ' AND shift = ?'
@@ -250,8 +258,8 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 max_hw = max(hw_list, default=0)
 
                 # Consult / Cross-Fab OD connections count
-                od_q = '''
-                    SELECT count(*) FROM schedules
+                od_q = f'''
+                    SELECT count(*) FROM {tbl}
                     WHERE (fab_code = ? OR origin_fab = ? OR dest_fab LIKE ?) AND is_break = 0 AND car_id != 'Car_U'
                 '''
                 od_args = [code, code, f'%{code}%']
@@ -271,14 +279,14 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                     'fab_name': f['name'],
                     'display_name': f['display_name'],
                     'color': f['color'],
-                    'visits_count': len(visits), # 被訪問次數
-                    'departure_count': len(visits), # 發車次數
-                    'consult_count': consult_cnt, # 會診/互聯次數
-                    'avg_wait_min': avg_hw, # 平均等候時間/班距
+                    'visits_count': len(visits),
+                    'departure_count': len(visits),
+                    'consult_count': consult_cnt,
+                    'avg_wait_min': avg_hw,
                     'expected_wait_min': round(avg_hw / 2, 1) if avg_hw > 0 else 0,
                     'min_wait_min': min_hw,
                     'max_wait_min': max_hw,
-                    'total_capacity': total_cap, # 總運能 (批)
+                    'total_capacity': total_cap,
                     'demand_out_24h': f.get('demand_out_24h', 0),
                     'demand_in_24h': f.get('demand_in_24h', 0),
                     'demand_excel_sum': f.get('demand_excel_sum', 0),
@@ -290,36 +298,24 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == '/api/od_matrix':
             conn = get_db_connection()
+            tbl = params.get('table', ['schedules'])[0]
+            if tbl not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+                tbl = 'schedules'
             shift = params.get('shift', ['day'])[0]
 
             # Standard fabs for OD
             key_fabs = ['FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S', '嘉晶篤行', '嘉晶創新']
             matrix = {f1: {f2: {'trips': 0, 'capacity': 0, 'cars': set(), 'dep_events': []} for f2 in key_fabs} for f1 in key_fabs}
 
-            q = 'SELECT * FROM schedules WHERE is_break = 0'
+            q = f"SELECT * FROM {tbl} WHERE is_break = 0 AND car_id != 'Car_U'"
             args = []
             if shift != 'all':
                 q += ' AND shift = ?'
                 args.append(shift)
 
-            def norm_od_fab(s_raw, fallback=None):
-                if not s_raw: return fallback
-                s = s_raw.strip()
-                if '8AB' in s or s == 'AB': return 'FAB8AB'
-                if '8CD' in s or s == 'CD': return 'FAB8CD'
-                if '8E' in s or s == 'E': return 'FAB8E'
-                if '8F' in s or s == 'F': return 'FAB8F'
-                if '8S' in s or s == 'S': return 'FAB8S'
-                if '篤行' in s: return '嘉晶篤行'
-                if '創新' in s: return '嘉晶創新'
-                return fallback
-
-            rows = conn.execute(q, args).fetchall()
+            rows = [dict(r) for r in conn.execute(q, args).fetchall()]
             for r in rows:
-                dock_fab = r['fab_code']
-                od_raw = r['od_flow'] or ''
                 car = r['car_name']
-                cap = r['capacity_batches']
                 dep_min = r['dep_min']
                 r_shift = r['shift']
                 t_timeline = dep_min
@@ -328,19 +324,8 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 elif shift == 'night' and dep_min < 12 * 60:
                     t_timeline = dep_min + 1440
 
-                lines = [ln.strip() for ln in od_raw.split('<br>') if '在途' not in ln and '➔' in ln]
-                if not lines:
-                    continue
-                cap_per_line = cap // len(lines)
-                for ln in lines:
-                    parts = ln.split('➔')
-                    orig = norm_od_fab(parts[0], dock_fab)
-                    dests = [norm_od_fab(d) for d in parts[1].split('/')]
-                    dests = [d for d in dests if d in key_fabs and d != orig]
-                    if not dests or orig not in matrix:
-                        continue
-                    cap_each = cap_per_line // len(dests)
-                    for target in dests:
+                for orig, target, cap_each in parse_od_pairs(r):
+                    if orig in matrix and target in matrix[orig] and orig != target:
                         matrix[orig][target]['trips'] += 1
                         matrix[orig][target]['capacity'] += cap_each
                         matrix[orig][target]['cars'].add(car)
@@ -411,24 +396,14 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == '/api/car_od_summary':
             conn = get_db_connection()
+            tbl = params.get('table', ['schedules'])[0]
+            if tbl not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+                tbl = 'schedules'
             car_id = params.get('car_id', ['Car_B'])[0]
             shift = params.get('shift', ['day'])[0]
             key_fabs = ['FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S', '嘉晶篤行', '嘉晶創新']
 
-            def norm_od_fab(s, fallback=''):
-                if not s:
-                    return fallback
-                clean = s.replace('*', '').replace('🟦', '').strip()
-                if '8AB' in clean or clean == 'AB': return 'FAB8AB'
-                if '8CD' in clean or clean == 'CD': return 'FAB8CD'
-                if '8E' in clean or clean == 'E': return 'FAB8E'
-                if '8F' in clean or clean == 'F': return 'FAB8F'
-                if '8S' in clean or clean == 'S': return 'FAB8S'
-                if '篤行' in clean: return '嘉晶篤行'
-                if '創新' in clean: return '嘉晶創新'
-                return fallback
-
-            q = 'SELECT * FROM schedules WHERE 1=1'
+            q = f"SELECT * FROM {tbl} WHERE car_id != 'Car_U'"
             args = []
             if car_id and car_id != 'ALL':
                 q += ' AND car_id = ?'
@@ -453,7 +428,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             loop_all = [r for r in op_rows if '專車' not in r['mode']]
             loop_dep = [r for r in dep_rows if '專車' not in r['mode']]
 
-            # Effective express trips (including loop terminal release / preload 40-batch express transitions)
+            # Effective express trips (including loop terminal release / preload 48-batch express transitions)
             eff_direct_dep = [r for r in dep_rows if ('專車' in r['mode'] or '專車' in (r['od_flow'] or '') or '專車' in (r['cargo_cmd'] or ''))]
             eff_loop_dep = [r for r in dep_rows if r not in eff_direct_dep]
 
@@ -472,20 +447,8 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             od_map = {}
             od_flow_records = 0
             for r in dep_rows:
-                od_raw = r['od_flow'] or ''
-                lines = [ln.strip() for ln in od_raw.split('<br>') if '在途' not in ln and '➔' in ln]
-                if not lines:
-                    continue
-                cap_per_line = r['capacity_batches'] // len(lines)
-                for ln in lines:
-                    parts = ln.split('➔')
-                    orig = norm_od_fab(parts[0], r['fab_code'])
-                    dests = [norm_od_fab(d) for d in parts[1].split('/')]
-                    dests = [d for d in dests if d in key_fabs and d != orig]
-                    if not dests:
-                        continue
-                    cap_each = cap_per_line // len(dests)
-                    for target in dests:
+                for orig, target, cap_each in parse_od_pairs(r):
+                    if orig in key_fabs and target in key_fabs and orig != target:
                         od_flow_records += 1
                         k = (orig, target)
                         if k not in od_map:
@@ -571,9 +534,11 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
         elif path == '/api/export_json':
             conn = get_db_connection()
             data = {
-                'cars': [dict(r) for r in conn.execute('SELECT * FROM cars').fetchall()],
+                'cars': [dict(r) for r in conn.execute("SELECT * FROM cars WHERE id != 'Car_U'").fetchall()],
                 'fabs': [dict(r) for r in conn.execute('SELECT * FROM fabs').fetchall()],
-                'schedules': [dict(r) for r in conn.execute('SELECT * FROM schedules').fetchall()],
+                'schedules': [dict(r) for r in conn.execute("SELECT * FROM schedules WHERE car_id != 'Car_U'").fetchall()],
+                'schedules_plan2': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan2 WHERE car_id != 'Car_U'").fetchall()],
+                'schedules_plan3': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan3 WHERE car_id != 'Car_U'").fetchall()],
                 'demand_matrix': [dict(r) for r in conn.execute('SELECT * FROM demand_matrix').fetchall()],
                 'driver_roster': [dict(r) for r in conn.execute('SELECT * FROM driver_roster').fetchall()],
                 'exported_at': datetime.now().isoformat()

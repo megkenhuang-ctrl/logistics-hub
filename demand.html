@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>跨廠運輸需求矩陣 | Fab Fleet Transport Demand Matrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              750: '#233044',
+              850: '#151f32',
+              950: '#070d17',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 lg:px-8 py-3.5 shadow-lg">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="返回戰情網總目錄">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-cyan-900/30">
+          <i class="fa-solid fa-boxes-stacked text-base"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-black text-white tracking-wide">跨廠運輸需求矩陣</h1>
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">From-To 搬運量</span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">Fab Fleet Logistics Transport Demand OD Matrix (整日 5,742 批基準)</p>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="flex items-center gap-2 sm:gap-3 text-xs">
+        <a href="index.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-house"></i> 戰情總網
+        </a>
+        <a href="plans.html" class="px-3 py-1.5 rounded-lg bg-emerald-950/50 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-code-compare text-emerald-400"></i> 排程優化方案
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Body -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    
+    <!-- Demand Dashboard Container -->
+    <div id="demand-view-container" class="space-y-6">
+
+      <!-- Header & Filter Bar -->
+      <div class="bg-gradient-to-r from-slate-850 via-slate-800 to-cyan-950/40 border border-slate-750 rounded-2xl p-6 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-boxes-stacked text-cyan-400"></i>
+              <span>跨廠運輸需求矩陣 (Transport Demand OD Matrix)</span>
+            </h2>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">官方整日搬運量基準</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1.5 leading-relaxed">
+            依據運籌與生管需求清冊數位化建置，展示全廠 <b>7 大廠區節點</b>、<b>22 條跨廠活躍走廊</b> 之整日晶圓與物料搬運需求（總計 <b>5,742 批/天</b>）。
+          </p>
+        </div>
+
+        <!-- Action & Toggle Buttons -->
+        <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+          <!-- Time View Toggle -->
+          <div class="inline-flex rounded-xl bg-slate-900/90 p-1 border border-slate-700 text-xs shadow-inner">
+            <button id="btn-demand-24h" onclick="switchDemandTimeView('24h')" class="px-3 py-1.5 rounded-lg font-bold bg-cyan-600 text-white shadow transition flex items-center gap-1.5">
+              <i class="fa-solid fa-moon"></i> 24H 整日搬運量
+            </button>
+            <button id="btn-demand-12h" onclick="switchDemandTimeView('12h')" class="px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+              <i class="fa-solid fa-sun"></i> 12H 單班需求量
+            </button>
+          </div>
+
+          <a href="https://docs.google.com/spreadsheets/d/1VujchvWL4E75W2_xx48gGvJzPcWwOuzJ/edit?usp=sharing&ouid=105026712656586958579&rtpof=true&sd=true" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/80 text-xs font-bold text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1.5 shadow-md">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Google 試算表原檔
+          </a>
+
+          <button onclick="exportDemandCSV()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-600 transition flex items-center gap-1.5 shadow-md">
+            <i class="fa-solid fa-file-csv text-blue-400"></i> 匯出 CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick KPI Strip (4 Cards) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- KPI 1 -->
+        <div class="bg-slate-850/90 border border-slate-750 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+          <div class="text-xs text-slate-400 font-semibold mb-1 flex items-center justify-between">
+            <span>全廠搬運總需求</span>
+            <i class="fa-solid fa-truck-moving text-cyan-400 text-base"></i>
+          </div>
+          <div id="kpi-demand-total" class="text-2xl sm:text-3xl font-black text-cyan-400 font-mono">5,742 <span class="text-xs font-normal text-slate-400">批/天</span></div>
+          <div id="kpi-demand-sub" class="text-[11px] text-slate-400 mt-1.5">單班平均：<b>2,871 批/班</b> ｜ 每小時約 239 批</div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
+        </div>
+
+        <!-- KPI 2 -->
+        <div class="bg-slate-850/90 border border-slate-750 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+          <div class="text-xs text-slate-400 font-semibold mb-1 flex items-center justify-between">
+            <span>活躍跨廠 OD 走廊</span>
+            <i class="fa-solid fa-route text-emerald-400 text-base"></i>
+          </div>
+          <div class="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">22 <span class="text-xs font-normal text-slate-400">條走廊</span></div>
+          <div class="text-[11px] text-slate-400 mt-1.5">涵蓋 7 大廠區 ｜ 100% 雙向對稱需求</div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+        </div>
+
+        <!-- KPI 3 -->
+        <div class="bg-slate-850/90 border border-slate-750 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+          <div class="text-xs text-slate-400 font-semibold mb-1 flex items-center justify-between">
+            <span>全廠第一大運輸動脈</span>
+            <i class="fa-solid fa-fire-flame-curved text-rose-400 text-base"></i>
+          </div>
+          <div id="kpi-demand-top-val" class="text-2xl sm:text-3xl font-black text-rose-400 font-mono">1,716 <span class="text-xs font-normal text-slate-400">批 (雙向)</span></div>
+          <div class="text-[11px] text-slate-300 mt-1.5"><b>FAB8F ⇄ FAB8S</b> ｜ 佔全廠總需求 <b>29.9%</b></div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-amber-500"></div>
+        </div>
+
+        <!-- KPI 4 -->
+        <div class="bg-slate-850/90 border border-slate-750 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+          <div class="text-xs text-slate-400 font-semibold mb-1 flex items-center justify-between">
+            <span>嘉晶外廠長途需求</span>
+            <i class="fa-solid fa-mountain-city text-amber-400 text-base"></i>
+          </div>
+          <div id="kpi-demand-outer-val" class="text-2xl sm:text-3xl font-black text-amber-400 font-mono">288 <span class="text-xs font-normal text-slate-400">批 (雙向)</span></div>
+          <div class="text-[11px] text-slate-400 mt-1.5">篤行 192 批 + 創新 96 批 ｜ 單趟 15m</div>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-500"></div>
+        </div>
+      </div>
+
+      <!-- Main Section 1: 7 x 7 From-To OD Heatmap Matrix -->
+      <div class="bg-slate-850/90 border border-slate-750 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-750">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-table-cells text-cyan-400"></i>
+              <span>From-To 廠區起訖搬運量矩陣 (OD Matrix Heatmap)</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">橫軸為目的地廠區 (To)，縱軸為出發地廠區 (From)。單元格數值越高顏色越亮。</p>
+          </div>
+          <!-- Legend -->
+          <div class="flex items-center gap-2 text-[11px] text-slate-300 flex-wrap">
+            <span class="text-slate-400">熱力分級：</span>
+            <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold">&gt; 500 批 (超大宗)</span>
+            <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold">300~500 批 (大宗)</span>
+            <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 font-semibold">50~300 批 (中運量)</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">&lt; 50 批 (零星)</span>
+          </div>
+        </div>
+
+        <!-- Heatmap Table wrapper -->
+        <div class="overflow-x-auto rounded-xl border border-slate-700">
+          <table id="demand-heatmap-table" class="w-full text-left text-xs whitespace-nowrap">
+            <!-- Injected by JavaScript -->
+          </table>
+        </div>
+      </div>
+
+      <!-- Main Section 2: 22 Corridors Ranking & Fab Throughput Balance -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left: 22 Active Corridors Ranking (7 cols) -->
+        <div class="lg:col-span-7 bg-slate-850/90 border border-slate-750 rounded-2xl p-6 shadow-xl space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-750">
+              <div>
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-ranking-star text-amber-400"></i>
+                  <span>22 條跨廠走廊搬運需求排行榜 (Pareto Ranking)</span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">按日需求量降序排列，提供走廊專車配額決策依據</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                Top 4 走廊佔 56.1%
+              </span>
+            </div>
+
+            <!-- Corridor List Table -->
+            <div class="overflow-y-auto max-h-[480px] rounded-xl border border-slate-700/80 pr-1">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-800/90 text-slate-300 font-bold sticky top-0 border-b border-slate-700 z-10">
+                  <tr>
+                    <th class="p-2.5 text-center w-10">#</th>
+                    <th class="p-2.5">起訖走廊 (OD Flow)</th>
+                    <th class="p-2.5 text-right font-mono" id="th-corridor-batches">24H 日需求</th>
+                    <th class="p-2.5 text-right font-mono">單班需求</th>
+                    <th class="p-2.5 text-right font-mono">佔比</th>
+                    <th class="p-2.5 text-center">走廊定位</th>
+                  </tr>
+                </thead>
+                <tbody id="demand-corridors-tbody" class="divide-y divide-slate-800 font-sans">
+                  <!-- Injected by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Fab Throughput & Inbound/Outbound Balance (5 cols) -->
+        <div class="lg:col-span-5 bg-slate-850/90 border border-slate-750 rounded-2xl p-6 shadow-xl space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-750">
+              <div>
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-arrows-split-up-and-left text-purple-400"></i>
+                  <span>7 大廠區進出流量吞吐平衡</span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">各廠區出發 (Outbound) 與抵達 (Inbound) 吞吐負載</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                100% 流量守恆
+              </span>
+            </div>
+
+            <!-- Fab Throughput List -->
+            <div id="demand-fabs-balance-list" class="space-y-2.5">
+              <!-- Injected by JavaScript -->
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-750 text-xs text-slate-400 leading-relaxed">
+            <div class="font-bold text-slate-200 mb-1 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-info text-cyan-400"></i> 搬運需求分析與排程意涵
+            </div>
+            <b>FAB8F</b> 為全廠樞紐，吞吐量達 3,748 批（佔全廠 32.6%），與 <b>FAB8S</b> 之間形成強烈的超大宗走廊；而嘉晶外廠屬於高耗時（單趟 15m）、小批量需求（佔 2.5%），排程上宜配置專屬定點接駁或與主動脈串接。
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Demand Data Engine & Script -->
+    <script>
+      const RAW_DEMAND_DATA = {"fabs": ["FAB8AB", "FAB8CD", "FAB8E", "FAB8F", "FAB8S", "嘉晶 (篤行)", "嘉晶 (創新)"], "matrix": {"FAB8AB": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 302, "FAB8F": 532, "FAB8S": 74, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8CD": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 373, "FAB8F": 439, "FAB8S": 61, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8E": {"FAB8AB": 302, "FAB8CD": 373, "FAB8E": 0, "FAB8F": 45, "FAB8S": 43, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "FAB8F": {"FAB8AB": 532, "FAB8CD": 439, "FAB8E": 45, "FAB8F": 0, "FAB8S": 858, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8S": {"FAB8AB": 74, "FAB8CD": 61, "FAB8E": 43, "FAB8F": 858, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "嘉晶 (篤行)": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 96, "FAB8F": 0, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "嘉晶 (創新)": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 48, "FAB8F": 0, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}}, "row_sums": {"FAB8AB": 908, "FAB8CD": 873, "FAB8E": 907, "FAB8F": 1874, "FAB8S": 1036, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "col_sums": {"FAB8AB": 908, "FAB8CD": 873, "FAB8E": 907, "FAB8F": 1874, "FAB8S": 1036, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "total_sum": 5742, "total_sum_12h": 2871, "corridors": [{"from": "FAB8F", "to": "FAB8S", "batches": 858}, {"from": "FAB8S", "to": "FAB8F", "batches": 858}, {"from": "FAB8AB", "to": "FAB8F", "batches": 532}, {"from": "FAB8F", "to": "FAB8AB", "batches": 532}, {"from": "FAB8CD", "to": "FAB8F", "batches": 439}, {"from": "FAB8F", "to": "FAB8CD", "batches": 439}, {"from": "FAB8CD", "to": "FAB8E", "batches": 373}, {"from": "FAB8E", "to": "FAB8CD", "batches": 373}, {"from": "FAB8AB", "to": "FAB8E", "batches": 302}, {"from": "FAB8E", "to": "FAB8AB", "batches": 302}, {"from": "FAB8E", "to": "嘉晶 (篤行)", "batches": 96}, {"from": "嘉晶 (篤行)", "to": "FAB8E", "batches": 96}, {"from": "FAB8AB", "to": "FAB8S", "batches": 74}, {"from": "FAB8S", "to": "FAB8AB", "batches": 74}, {"from": "FAB8CD", "to": "FAB8S", "batches": 61}, {"from": "FAB8S", "to": "FAB8CD", "batches": 61}, {"from": "FAB8E", "to": "嘉晶 (創新)", "batches": 48}, {"from": "嘉晶 (創新)", "to": "FAB8E", "batches": 48}, {"from": "FAB8E", "to": "FAB8F", "batches": 45}, {"from": "FAB8F", "to": "FAB8E", "batches": 45}, {"from": "FAB8E", "to": "FAB8S", "batches": 43}, {"from": "FAB8S", "to": "FAB8E", "batches": 43}], "active_corridors_count": 22, "source_file": "Demand_from_to.xlsx", "source_url": "https://docs.google.com/spreadsheets/d/1VujchvWL4E75W2_xx48gGvJzPcWwOuzJ/edit?usp=sharing&ouid=105026712656586958579&rtpof=true&sd=true"};
+      let currentDemandMode = '24h'; // '24h' | '12h'
+
+      function switchDemandTimeView(mode) {
+        currentDemandMode = mode;
+        const btn24 = document.getElementById('btn-demand-24h');
+        const btn12 = document.getElementById('btn-demand-12h');
+        if (mode === '24h') {
+          btn24.className = 'px-3 py-1.5 rounded-lg font-bold bg-cyan-600 text-white shadow transition flex items-center gap-1.5';
+          btn12.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5';
+        } else {
+          btn12.className = 'px-3 py-1.5 rounded-lg font-bold bg-cyan-600 text-white shadow transition flex items-center gap-1.5';
+          btn24.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5';
+        }
+        renderDemandView();
+      }
+
+      function getDemandVal(val24) {
+        return currentDemandMode === '24h' ? val24 : Math.round(val24 / 2);
+      }
+
+      function renderDemandView() {
+        const multiplier = currentDemandMode === '24h' ? 1 : 0.5;
+        const unit = currentDemandMode === '24h' ? '批/天' : '批/班';
+
+        // 1. Update KPIs
+        const tot = Math.round(RAW_DEMAND_DATA.total_sum * multiplier);
+        document.getElementById('kpi-demand-total').innerHTML = `${tot.toLocaleString()} <span class="text-xs font-normal text-slate-400">${unit}</span>`;
+        document.getElementById('kpi-demand-sub').innerHTML = currentDemandMode === '24h'
+          ? '單班平均：<b>2,871 批/班</b> ｜ 每小時約 239 批'
+          : '整日合計：<b>5,742 批/天</b> ｜ 每班 12 小時基準';
+
+        const topVal = Math.round(1716 * multiplier);
+        document.getElementById('kpi-demand-top-val').innerHTML = `${topVal.toLocaleString()} <span class="text-xs font-normal text-slate-400">${unit} (雙向)</span>`;
+
+        const outerVal = Math.round(288 * multiplier);
+        document.getElementById('kpi-demand-outer-val').innerHTML = `${outerVal.toLocaleString()} <span class="text-xs font-normal text-slate-400">${unit} (雙向)</span>`;
+
+        // 2. Render Heatmap Table
+        renderHeatmapTable(multiplier, unit);
+
+        // 3. Render Corridors Ranking
+        renderCorridorsTable(multiplier, unit);
+
+        // 4. Render Fabs Balance
+        renderFabsBalance(multiplier, unit);
+      }
+
+      function getHeatmapClass(val) {
+        if (val === 0 || !val) return 'text-slate-500 bg-slate-900/40';
+        if (val >= 500) return 'text-rose-300 bg-rose-500/25 font-black border border-rose-500/30';
+        if (val >= 300) return 'text-cyan-300 bg-cyan-500/20 font-bold border border-cyan-500/25';
+        if (val >= 100) return 'text-blue-300 bg-blue-500/15 font-semibold';
+        return 'text-slate-300 bg-slate-800/60 font-medium';
+      }
+
+      function renderHeatmapTable(multiplier, unit) {
+        const table = document.getElementById('demand-heatmap-table');
+        if (!table) return;
+
+        const fabs = RAW_DEMAND_DATA.fabs;
+        const matrix = RAW_DEMAND_DATA.matrix;
+        const row_sums = RAW_DEMAND_DATA.row_sums;
+        const col_sums = RAW_DEMAND_DATA.col_sums;
+        const total = Math.round(RAW_DEMAND_DATA.total_sum * multiplier);
+
+        let html = `
+          <thead class="bg-slate-800 text-slate-300 font-bold border-b border-slate-700">
+            <tr>
+              <th class="p-3 text-center bg-slate-850 border-r border-slate-700 text-slate-400 font-mono">From \ To</th>
+        `;
+
+        fabs.forEach(f => {
+          html += `<th class="p-3 text-center font-bold text-white border-r border-slate-700">${f}</th>`;
+        });
+
+        html += `
+              <th class="p-3 text-right bg-slate-800/90 font-mono text-cyan-300 font-black">Outbound 總計</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 font-sans">
+        `;
+
+        fabs.forEach(rf => {
+          const rTotal = Math.round(row_sums[rf] * multiplier);
+          html += `
+            <tr class="hover:bg-slate-800/50 transition">
+              <td class="p-3 font-bold text-white bg-slate-800/60 border-r border-slate-700">${rf}</td>
+          `;
+
+          fabs.forEach(cf => {
+            if (rf === cf) {
+              html += `<td class="p-3 text-center text-slate-600 bg-slate-900/80 border-r border-slate-800 font-mono">-</td>`;
+            } else {
+              const val24 = matrix[rf][cf];
+              const displayVal = Math.round(val24 * multiplier);
+              const heatClass = getHeatmapClass(val24);
+              html += `<td class="p-3 text-center font-mono border-r border-slate-800 ${heatClass}">${displayVal > 0 ? displayVal.toLocaleString() : '<span class="text-slate-600">0</span>'}</td>`;
+            }
+          });
+
+          html += `
+              <td class="p-3 text-right font-mono font-bold text-cyan-300 bg-slate-800/40">${rTotal.toLocaleString()}</td>
+            </tr>
+          `;
+        });
+
+        // Total Row
+        html += `
+          <tr class="bg-slate-800/90 font-bold border-t-2 border-slate-700">
+            <td class="p-3 font-black text-cyan-300 border-r border-slate-700">Inbound 總計</td>
+        `;
+
+        fabs.forEach(cf => {
+          const cTotal = Math.round(col_sums[cf] * multiplier);
+          html += `<td class="p-3 text-center font-mono font-bold text-cyan-300 border-r border-slate-750">${cTotal.toLocaleString()}</td>`;
+        });
+
+        html += `
+            <td class="p-3 text-right font-mono font-black text-emerald-400 text-sm">${total.toLocaleString()}</td>
+          </tr>
+        </tbody>
+        `;
+
+        table.innerHTML = html;
+      }
+
+      function renderCorridorsTable(multiplier, unit) {
+        const tbody = document.getElementById('demand-corridors-tbody');
+        if (!tbody) return;
+
+        const corridors = RAW_DEMAND_DATA.corridors;
+        const total = RAW_DEMAND_DATA.total_sum;
+
+        let html = '';
+        corridors.forEach((c, idx) => {
+          const b24 = c.batches;
+          const bCurrent = Math.round(b24 * multiplier);
+          const b12 = Math.round(b24 / 2);
+          const pct = ((b24 / total) * 100).toFixed(2);
+
+          let tierBadge = '';
+          if (b24 >= 500) {
+            tierBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/30">🔥 特大宗</span>';
+          } else if (b24 >= 300) {
+            tierBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">⚡ 大宗動脈</span>';
+          } else if (c.from.includes('嘉晶') || c.to.includes('嘉晶')) {
+            tierBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">🌐 外廠長途</span>';
+          } else {
+            tierBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-700 text-slate-300">🌿 區域走廊</span>';
+          }
+
+          html += `
+            <tr class="hover:bg-slate-800/60 transition">
+              <td class="p-2.5 text-center font-mono text-slate-500 text-xs">${idx + 1}</td>
+              <td class="p-2.5 font-bold text-white flex items-center gap-1.5">
+                <span class="text-cyan-300">${c.from}</span>
+                <i class="fa-solid fa-arrow-right text-[10px] text-slate-500"></i>
+                <span class="text-emerald-300">${c.to}</span>
+              </td>
+              <td class="p-2.5 text-right font-mono font-bold text-white">${bCurrent.toLocaleString()} <span class="text-[10px] text-slate-400">批</span></td>
+              <td class="p-2.5 text-right font-mono text-slate-300">${b12.toLocaleString()} <span class="text-[10px] text-slate-500">批</span></td>
+              <td class="p-2.5 text-right font-mono text-cyan-400 font-bold">${pct}%</td>
+              <td class="p-2.5 text-center">${tierBadge}</td>
+            </tr>
+          `;
+        });
+
+        tbody.innerHTML = html;
+      }
+
+      function renderFabsBalance(multiplier, unit) {
+        const container = document.getElementById('demand-fabs-balance-list');
+        if (!container) return;
+
+        const fabs = RAW_DEMAND_DATA.fabs;
+        const total = RAW_DEMAND_DATA.total_sum;
+
+        let html = '';
+        fabs.forEach(f => {
+          const out24 = RAW_DEMAND_DATA.row_sums[f];
+          const outCurrent = Math.round(out24 * multiplier);
+          const inCurrent = Math.round(RAW_DEMAND_DATA.col_sums[f] * multiplier);
+          const sumCurrent = outCurrent + inCurrent;
+          const sharePct = ((out24 / total) * 100).toFixed(1);
+
+          let barColor = 'from-cyan-500 to-blue-500';
+          if (out24 >= 1500) barColor = 'from-rose-500 to-amber-500';
+          else if (out24 >= 800) barColor = 'from-cyan-500 to-teal-500';
+          else if (f.includes('嘉晶')) barColor = 'from-amber-500 to-yellow-500';
+
+          html += `
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-750 hover:border-slate-700 transition">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="font-bold text-white flex items-center gap-1.5">
+                  <i class="fa-solid fa-building text-slate-400 text-xs"></i>
+                  <span>${f}</span>
+                </span>
+                <span class="font-mono text-slate-300">
+                  出發 <b class="text-cyan-300">${outCurrent.toLocaleString()}</b> / 抵達 <b class="text-emerald-300">${inCurrent.toLocaleString()}</b>
+                  <span class="text-slate-400 text-[10px] ml-1">(${sharePct}%)</span>
+                </span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div class="h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-500" style="width: ${sharePct * 3}%"></div>
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      }
+
+      function exportDemandCSV() {
+        const matrix = RAW_DEMAND_DATA.matrix;
+        const fabs = RAW_DEMAND_DATA.fabs;
+        let csv = 'From \ To,' + fabs.join(',') + ',Outbound Sum\n';
+
+        fabs.forEach(rf => {
+          let row = [rf];
+          fabs.forEach(cf => {
+            row.push(matrix[rf][cf] || 0);
+          });
+          row.push(RAW_DEMAND_DATA.row_sums[rf]);
+          csv += row.join(',') + '\n';
+        });
+
+        let totalRow = ['Inbound Sum'];
+        fabs.forEach(cf => {
+          totalRow.push(RAW_DEMAND_DATA.col_sums[cf]);
+        });
+        totalRow.push(RAW_DEMAND_DATA.total_sum);
+        csv += totalRow.join(',') + '\n';
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'Transport_Demand_OD_Matrix.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Initialize on load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => setTimeout(renderDemandView, 50));
+      } else {
+        setTimeout(renderDemandView, 50);
+      }
+    </script>
+    
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-850 py-6 text-center text-xs text-slate-500 bg-slate-950">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div>半導體廠區物流排程戰情平台 ｜ 資料來源：<a href="https://docs.google.com/spreadsheets/d/1VujchvWL4E75W2_xx48gGvJzPcWwOuzJ/edit?usp=sharing&ouid=105026712656586958579&rtpof=true&sd=true" target="_blank" class="text-cyan-400 hover:underline">Demand_from_to.xlsx</a></div>
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="hover:text-slate-400 transition">回到戰情網</a>
+        <span>•</span>
+        <a href="plans.html" class="hover:text-slate-400 transition">優化方案對照</a>
+        <span>•</span>
+        <a href="spec.html" class="hover:text-slate-400 transition">系統規格</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

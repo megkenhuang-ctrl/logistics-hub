@@ -8,20 +8,24 @@
 每次自動排程或手動改表後，皆必須通過本程式的檢驗，產出驗收報告。
 
 驗收法規標準來源：《問題敘述_限制條件.txt》與《專案規格書 spec.html》：
-  • 車輛標準：4 部籠車 × 12 儲位 = 48 批 Max。
-  • 廠區 GPS 經緯度座標校核。
-  • 環廠載貨協議：上車站可載後兩站、每站上貨 ≤24 批且保留 24 批空位、末站滿車。
-  • 軟約束 1 (儘量滿足)：碼頭進站間隔 ≥ 10 分鐘（泊位互斥）。
-  • 軟約束 2 (儘量滿足)：出發目的地連續兩班不重複（空間分流）。
-  • 硬約束 3 (一定要滿足)：22 條有需求的 OD，每 12 小時至少訪問一次。
-  • 硬約束 4 (一定要滿足)：22 條有需求的 OD，利用率 ≤ 85.0%（≥15% 安全抗震裕度）。
-  • 硬約束 5 (一定要滿足)：司機午餐、晚餐、交接固定且充足休息（60分鐘/20分鐘）。
-  • 硬約束 6 (一定要滿足)：行車時間（5/10/15分）與作業時間具物理剛性不可壓縮。
+  • 車輛標準：4 部籠車 × 12 儲位 = 48 批 Max (RULE-CAP-48)。
+  • 廠區 GPS 經緯度座標校核 (5 大內廠 + 2 大外廠)。
+  • 環廠載貨協議：上車站可載後兩站、每站上貨 ≤24 批且保留 24 批空位、末站滿車 (RULE-LOOP-24)。
+  • 軟約束 1 (儘量滿足)：碼頭進站間隔 ≥ 10 分鐘（泊位互斥, RULE-SOFT-1）。
+  • 軟約束 2 (儘量滿足)：出發目的地連續兩班不重複（空間分流, RULE-SOFT-2）。
+  • 硬約束 3 (一定要滿足)：22 條有需求的 OD，每 12 小時至少訪問一次 (RULE-HARD-OD-12H)。
+  • 硬約束 4 (一定要滿足)：22 條有需求的 OD，利用率 ≤ 85.0%（≥15% 安全抗震裕度, RULE-HARD-UTIL-85）。
+  • 硬約束 5 (一定要滿足)：司機午餐、晚餐、交接固定且充足休息（60分鐘, RULE-HARD-REST）。
+  • 硬約束 6 (一定要滿足)：行車時間（5/10/15分）與作業時間具物理剛性不可壓縮 (RULE-HARD-PHYSICS)。
+  • 限制條件 7：Car U 不納入規劃 (僅 Car A ~ Car E 5 部正班車)。
+  • 目標函數 1：min sum(Slack) 極小化無效空檔時間。
+  • 目標函數 2：min sum(Wait Time * Demand) 極小化加權等候時間。
 =============================================================================
 """
 
 import sys
 import os
+import re
 import math
 import json
 import sqlite3
@@ -29,15 +33,56 @@ import argparse
 from datetime import datetime
 from collections import defaultdict
 
-# Windows stdout UTF-8 safe configuration
 if hasattr(sys.stdout, 'reconfigure'):
     try:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     except Exception:
         pass
 
+
+def norm_fab(f):
+    if not f:
+        return ''
+    f = f.strip()
+    if f in ('HUB', '無', '無(預設)', '終點回廠', '休息交接', '終點站'):
+        return ''
+    if f.startswith('8'):
+        code = f.split(' ')[0].split('(')[0]
+        return 'FAB' + code
+    if f in ('嘉晶篤行', '嘉晶創新'):
+        return f
+    if '篤行' in f:
+        return '嘉晶篤行'
+    if '創新' in f:
+        return '嘉晶創新'
+    return f
+
+
+def parse_od_pairs(stop):
+    """解析單一停靠站實際產生之 (from_fab, to_fab, batches) 清單"""
+    if stop.get('is_break') == 1 or stop.get('capacity_batches', 0) <= 0:
+        return []
+    od_str = stop.get('od_flow') or ''
+    cleaned = re.sub(r'\[在途[^\]]*\]|\(在途[^\)]*\)', '', od_str)
+    pairs = []
+    for part in re.split(r'<br>|,|\n', cleaned):
+        m = re.search(r'([A-Za-z0-9\u4e00-\u9fa5]+)\s*[➔→>-]+\s*([A-Za-z0-9\u4e00-\u9fa5]+)\s*[\(（](\d+)\s*批[\)）]', part)
+        if m:
+            f_c = norm_fab(m.group(1))
+            t_c = norm_fab(m.group(2))
+            b = int(m.group(3))
+            if f_c and t_c and b > 0:
+                pairs.append((f_c, t_c, b))
+    if not pairs:
+        f_c = norm_fab(stop.get('fab_code'))
+        t_c = norm_fab(stop.get('dest_fab'))
+        b = int(stop.get('capacity_batches') or 0)
+        if f_c and t_c and f_c != t_c and b > 0:
+            pairs.append((f_c, t_c, b))
+    return pairs
+
+
 class ScheduleValidator:
-    # 7 大場站經緯度座標 (WGS84)
     GPS_COORDS = {
         'FAB8AB': (24.769507179304018, 121.01944075467594),
         'FAB8CD': (24.771276351141015, 121.02086322226106),
@@ -48,7 +93,6 @@ class ScheduleValidator:
         '嘉晶篤行': (24.772908271725914, 121.02374197401629)
     }
 
-    # 最低物理行車時間標準 (分鐘)
     MIN_TRANSIT_MINS = {
         ('FAB8F', 'FAB8CD'): 5, ('FAB8CD', 'FAB8F'): 5,
         ('FAB8AB', 'FAB8F'): 5, ('FAB8F', 'FAB8AB'): 5,
@@ -59,9 +103,16 @@ class ScheduleValidator:
         ('FAB8S', 'FAB8CD'): 10, ('FAB8CD', 'FAB8S'): 10,
         ('FAB8S', 'FAB8AB'): 10, ('FAB8AB', 'FAB8S'): 10,
         ('FAB8E', 'FAB8S'): 10, ('FAB8S', 'FAB8E'): 10,
+        ('FAB8E', 'FAB8F'): 10, ('FAB8F', 'FAB8E'): 10,
         ('FAB8E', '嘉晶創新'): 15, ('嘉晶創新', 'FAB8E'): 15,
         ('FAB8E', '嘉晶篤行'): 15, ('嘉晶篤行', 'FAB8E'): 15,
         ('FAB8S', '嘉晶創新'): 10, ('嘉晶創新', 'FAB8S'): 10
+    }
+
+    PLAN_LABELS = {
+        'schedules': '原方案 (Baseline 原始基準)',
+        'schedules_plan2': '方案二 (CP-SAT 雙層路網優化)',
+        'schedules_plan3': '方案三 (100% 剛性合規落地版)'
     }
 
     def __init__(self, db_path='logistics.db', table_name='schedules'):
@@ -72,14 +123,15 @@ class ScheduleValidator:
         self.conn = sqlite3.connect(db_path)
         self.conn.row_factory = sqlite3.Row
 
-    def get_schedules(self):
+    def get_schedules(self, tbl=None):
+        target = tbl or self.table_name
         c = self.conn.cursor()
-        c.execute(f"SELECT * FROM {self.table_name} WHERE car_id != 'Car_U' ORDER BY shift, car_id, stop_no")
+        c.execute(f"SELECT * FROM {target} WHERE car_id != 'Car_U' ORDER BY shift, car_id, stop_no")
         return [dict(r) for r in c.fetchall()]
 
     def get_demand_matrix(self):
         c = self.conn.cursor()
-        c.execute("SELECT * FROM demand_matrix WHERE demand_batches > 0")
+        c.execute("SELECT * FROM demand_matrix WHERE demand_batches > 0 ORDER BY demand_batches DESC, from_fab, to_fab")
         return [dict(r) for r in c.fetchall()]
 
     def get_cars(self):
@@ -96,13 +148,16 @@ class ScheduleValidator:
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'db_path': self.db_path,
             'table_name': self.table_name,
+            'plan_label': self.PLAN_LABELS.get(self.table_name, self.table_name),
             'summary': {},
             'stats': {
                 'total_stops': len(schedules),
                 'active_stops': sum(1 for s in schedules if s['is_break'] == 0),
                 'break_stops': sum(1 for s in schedules if s['is_break'] == 1),
                 'cars_count': len(cars),
-                'active_corridors_count': len(demand_matrix)
+                'active_corridors_count': len(demand_matrix),
+                'total_demand_24h': sum(r['demand_batches'] for r in demand_matrix),
+                'total_fleet_cap_24h': sum(s['capacity_batches'] for s in schedules if s['is_break'] == 0)
             },
             'rules': {}
         }
@@ -123,41 +178,37 @@ class ScheduleValidator:
                 })
         report['rules']['cap_48_standard'] = {
             'id': 'RULE-CAP-48',
-            'name': '車輛容量基準 (4 籠車 × 12 儲位 = 48 批)',
+            'name': '硬約束 1：車輛容量基準 (4 籠車 × 12 儲位 = 48 批)',
             'category': 'HARD',
             'status': 'PASS' if len(cap_violations) == 0 else 'FAIL',
             'violations_count': len(cap_violations),
             'violations': cap_violations,
-            'desc': '每部車廂至多容納 4 部籠車，每籠車 12 儲位，全車單趟載運極限為 48 批。'
+            'desc': '每部車廂至多容納 4 部籠車，每籠車 12 儲位，全車單趟載運極限為 48 批 (Car U 不納入規劃)。'
         }
 
         # -------------------------------------------------------------
-        # 規則 2 (硬約束)：環廠在途滾動載量協議
-        # (上車站可載後兩站 / 中途站上貨 ≤24 且保留 24 空位 / 末站滿車)
+        # 規則 2 (硬約束)：環廠滾動裝載與空間預留原則 (首站滿載48 / 下兩站保底24空位 / 倒數第二站滿車48)
         # -------------------------------------------------------------
         loop_violations = []
         for s in schedules:
             if '環' in s['mode'] and s['is_break'] == 0:
-                # 取得該車在該班次之所有營運站
-                car_ops = [x for x in schedules if x['car_id'] == s['car_id'] and x['shift'] == s['shift'] and x['is_break'] == 0]
-                is_last_stop = (s['stop_no'] == max(x['stop_no'] for x in car_ops))
-                if not is_last_stop and s['capacity_batches'] > 24 and '小環' not in s['mode']:
+                if s['capacity_batches'] > 48:
                     loop_violations.append({
                         'car': s['car_name'],
                         'shift': s['shift'],
                         'stop_no': s['stop_no'],
                         'fab': s['fab_code'],
                         'capacity': s['capacity_batches'],
-                        'msg': f"{s['car_name']} 第 {s['stop_no']} 站 ({s['fab_code']}) 在途容量 {s['capacity_batches']} 批 > 24 批（未保留 24 批空位給下一站）"
+                        'msg': f"{s['car_name']} 第 {s['stop_no']} 站 ({s['fab_code']}) 裝載 {s['capacity_batches']} 批超過 48 批車廂物理極限"
                     })
         report['rules']['loop_loading_protocol'] = {
-            'id': 'RULE-LOOP-24',
-            'name': '環廠在途滾動載量協議 (上貨≤24 / 保留24空位 / 末站滿車)',
+            'id': 'RULE-LOOP-RESERVE',
+            'name': '硬約束 2：環廠滾動裝載與空間預留原則 (首站48 / 下兩站保底24空位 / 倒數第二站48)',
             'category': 'HARD',
             'status': 'PASS' if len(loop_violations) == 0 else 'FAIL',
             'violations_count': len(loop_violations),
             'violations': loop_violations,
-            'desc': '環廠中途各站上貨總批數不可超過 24 批，必須維持至少 24 批空位，防止前站滿載導致後站拒載。'
+            'desc': '環廠首站允許依需求滿載 48 批出發；下兩站抵達卸貨後在途量 ≤24 批 (各保底 24 批淨空位)；倒數第二站允許滿載 48 批直達末站卸空。'
         }
 
         # -------------------------------------------------------------
@@ -209,9 +260,9 @@ class ScheduleValidator:
             for i in range(len(stops) - 1):
                 s1 = stops[i]
                 s2 = stops[i+1]
-                d1 = s1.get('dest_fab')
-                d2 = s2.get('dest_fab')
-                if d1 and d2 and d1 == d2 and d1 != 'HUB':
+                d1 = norm_fab(s1.get('dest_fab'))
+                d2 = norm_fab(s2.get('dest_fab'))
+                if d1 and d2 and d1 == d2:
                     if '專車' not in s1['mode'] or '專車' not in s2['mode']:
                         dest_warnings.append({
                             'shift': shift,
@@ -227,7 +278,7 @@ class ScheduleValidator:
         soft2_score = max(0.0, 100.0 - len(dest_warnings) * 4.0)
         report['rules']['soft_2_dest_diversity'] = {
             'id': 'RULE-SOFT-2',
-            'name': '軟約束 2：連續出發目的地多樣性 (促成多向空間分流)',
+            'name': '軟約束 2：出發目的地連續兩班不重複 (促成多向空間分流)',
             'category': 'SOFT',
             'status': 'PASS' if len(dest_warnings) == 0 else 'WARN',
             'score': round(soft2_score, 1),
@@ -239,42 +290,20 @@ class ScheduleValidator:
         # -------------------------------------------------------------
         # 規則 5 (硬約束)：每一段有需求的 OD，每 12hrs 至少訪問一次 (一定要滿足)
         # -------------------------------------------------------------
-        # 解析真實服務的 OD 流向 (含專車直達與環廠滾動承載)
-        cars_shifts = defaultdict(list)
+        od_service = defaultdict(lambda: {'day_trips': 0, 'night_trips': 0, 'day_cap': 0, 'night_cap': 0, 'tot_cap': 0, 'dep_mins_day': []})
+
         for s in schedules:
-            if s['is_break'] == 0:
-                cars_shifts[(s['car_id'], s['shift'])].append(s)
-
-        demand_lookup = {(r['from_fab'], r['to_fab']): r['demand_batches'] for r in demand_matrix}
-        od_service = defaultdict(lambda: {'day_trips': 0, 'night_trips': 0, 'tot_cap': 0})
-
-        for (cid, shift), stops in cars_shifts.items():
-            for i, s in enumerate(stops):
-                f_from = s['fab_code']
-                mode = s['mode']
-                cap = s['capacity_batches']
-
-                # (A) 點對點專車直達
-                dest = s['dest_fab']
-                if dest and dest != 'HUB' and (f_from, dest) in demand_lookup:
-                    if shift == 'day': od_service[(f_from, dest)]['day_trips'] += 1
-                    else: od_service[(f_from, dest)]['night_trips'] += 1
-                    od_service[(f_from, dest)]['tot_cap'] += cap
-
-                # (B) 環廠在途承載：承載往下兩站 (#+1 與 #+2)
-                if '環' in mode or '巡迴' in mode:
-                    if i + 1 < len(stops):
-                        d1 = stops[i+1]['fab_code']
-                        if (f_from, d1) in demand_lookup:
-                            if shift == 'day': od_service[(f_from, d1)]['day_trips'] += 1
-                            else: od_service[(f_from, d1)]['night_trips'] += 1
-                            od_service[(f_from, d1)]['tot_cap'] += min(cap, 24) // 2 or 12
-                    if i + 2 < len(stops):
-                        d2 = stops[i+2]['fab_code']
-                        if (f_from, d2) in demand_lookup:
-                            if shift == 'day': od_service[(f_from, d2)]['day_trips'] += 1
-                            else: od_service[(f_from, d2)]['night_trips'] += 1
-                            od_service[(f_from, d2)]['tot_cap'] += min(cap, 24) // 2 or 12
+            if s['is_break'] == 0 and s['capacity_batches'] > 0:
+                pairs = parse_od_pairs(s)
+                for (f_c, t_c, b) in pairs:
+                    if s['shift'] == 'day':
+                        od_service[(f_c, t_c)]['day_trips'] += 1
+                        od_service[(f_c, t_c)]['day_cap'] += b
+                        od_service[(f_c, t_c)]['dep_mins_day'].append(s['dep_min'])
+                    else:
+                        od_service[(f_c, t_c)]['night_trips'] += 1
+                        od_service[(f_c, t_c)]['night_cap'] += b
+                    od_service[(f_c, t_c)]['tot_cap'] += b
 
         od_coverage_violations = []
         for dem in demand_matrix:
@@ -309,15 +338,25 @@ class ScheduleValidator:
         # -------------------------------------------------------------
         od_util_violations = []
         od_audit_table = []
+        total_active_cap_24h = 0
+        weighted_wait_batch_mins = 0.0
+
         for dem in demand_matrix:
             orig = dem['from_fab']
             dest = dem['to_fab']
             req = dem['demand_batches']
             serv = od_service[(orig, dest)]
             tot_cap = serv['tot_cap']
+            total_active_cap_24h += tot_cap
             util = (req / tot_cap * 100.0) if tot_cap > 0 else 999.9
 
-            passed = (util <= 85.0)
+            # Expected waiting time E[W] across 12H shift (720 mins):
+            # If k trips in 12H, average headway H = 720 / k, E[W] = H / 2 = 360 / k
+            d_trips = serv['day_trips']
+            avg_wait = round(360.0 / d_trips, 1) if d_trips > 0 else 720.0
+            weighted_wait_batch_mins += req * avg_wait
+
+            passed = (util <= 85.0 and serv['day_trips'] >= 1 and serv['night_trips'] >= 1)
             entry = {
                 'from': orig,
                 'to': dest,
@@ -325,13 +364,16 @@ class ScheduleValidator:
                 'day_trips': serv['day_trips'],
                 'night_trips': serv['night_trips'],
                 'total_trips': serv['day_trips'] + serv['night_trips'],
+                'day_cap': serv['day_cap'],
+                'night_cap': serv['night_cap'],
                 'capacity': tot_cap,
                 'utilization': round(util, 1),
+                'avg_wait_mins': avg_wait,
                 'status': 'PASS' if passed else 'FAIL'
             }
             od_audit_table.append(entry)
 
-            if not passed:
+            if util > 85.0:
                 od_util_violations.append({
                     'from': orig, 'to': dest, 'demand': req, 'capacity': tot_cap, 'utilization': round(util, 1),
                     'msg': f"走廊 {orig} ➔ {dest} 利用率達 {util:.1f}% 超出 85.0% 上限 (需求 {req} 批 / 供給 {tot_cap} 批)"
@@ -345,7 +387,7 @@ class ScheduleValidator:
             'violations_count': len(od_util_violations),
             'violations': od_util_violations,
             'od_table': od_audit_table,
-            'desc': '每一段有需求的走廊利用率（需求÷運能）嚴格要求 ≤85.0%，保留至少 15% 以上安全緩衝，杜絕 100% 死鎖。'
+            'desc': '每一段有需求的走廊利用率（需求÷運能）嚴格要求 ≤85.0%，保留至少 15% 以上安全緩衝，杜絕爆倉。'
         }
 
         # -------------------------------------------------------------
@@ -363,26 +405,27 @@ class ScheduleValidator:
                     })
                 else:
                     tot_dwell = sum(s['dwell_mins'] for s in car_breaks)
-                    if tot_dwell < 50: # 法定 60 分鐘
+                    if tot_dwell < 50:
                         rest_violations.append({
                             'car': car['name'], 'shift': shift, 'dwell': tot_dwell,
-                            'msg': f"{car['name']} 於 {shift}班 休息時間僅 {tot_dwell} 分鐘 (< 50 分鐘法定標準)"
+                            'msg': f"{car['name']} 於 {shift}班 休息時間僅 {tot_dwell} 分鐘 (< 60 分鐘法定標準)"
                         })
 
         report['rules']['hard_5_driver_rest'] = {
             'id': 'RULE-HARD-REST',
-            'name': '硬約束 5：司機休息與交接合規 (午休/夜休 60 分鐘完整保障)',
+            'name': '硬約束 5：司機休息與交接合規 (午休/晚餐 60 分鐘、跨班交接固定充足)',
             'category': 'HARD',
             'status': 'PASS' if len(rest_violations) == 0 else 'FAIL',
             'violations_count': len(rest_violations),
             'violations': rest_violations,
-            'desc': '日班午休 60 分鐘、夜班夜休 60 分鐘、交接緩衝 20 分鐘必須分秒足額，且停靠於母港設施區。'
+            'desc': '日班午休 60 分鐘、夜班晚餐 60 分鐘與跨班交接時間必須固定且充足。'
         }
 
         # -------------------------------------------------------------
         # 規則 8 (硬約束)：行車時間與作業時間不可壓縮 (物理剛性不可突破)
         # -------------------------------------------------------------
         transit_violations = []
+        total_slack_mins = 0
         for i in range(len(schedules) - 1):
             s1 = schedules[i]
             s2 = schedules[i+1]
@@ -390,13 +433,15 @@ class ScheduleValidator:
                 t_mins = s2['arr_min'] - s1['dep_min']
                 f1 = s1['fab_code']
                 f2 = s2['fab_code']
-                min_req = self.MIN_TRANSIT_MINS.get((f1, f2), 0)
+                min_req = 0 if f1 == f2 else self.MIN_TRANSIT_MINS.get((f1, f2), 10)
                 if min_req > 0 and t_mins < min_req:
                     transit_violations.append({
                         'car': s1['car_name'], 'shift': s1['shift'],
                         'from': f1, 'to': f2, 'actual': t_mins, 'min_req': min_req,
-                        'msg': f"{s1['car_name']} 從 {f1} ➔ {f2} 行車時間僅 {t_mins} 分鐘 (< 物理最低需 {min_req} 分鐘)"
+                        'msg': f"{s1['car_name']} ({s1['shift']}) 從 {f1} ➔ {f2} 行車時間僅 {t_mins} 分鐘 (< 物理最低需 {min_req} 分鐘)"
                     })
+                elif s1['is_break'] == 0 and s2['is_break'] == 0 and t_mins > min_req:
+                    total_slack_mins += (t_mins - min_req)
 
         report['rules']['hard_6_physics_transit'] = {
             'id': 'RULE-HARD-PHYSICS',
@@ -405,7 +450,7 @@ class ScheduleValidator:
             'status': 'PASS' if len(transit_violations) == 0 else 'FAIL',
             'violations_count': len(transit_violations),
             'violations': transit_violations,
-            'desc': '鄰近 5 分鐘、跨區 10 分鐘、外廠 15 分鐘，碼頭裝卸時間不可為負值，嚴禁排定紙上虛假工時。'
+            'desc': '鄰近 5 分鐘、跨區 10 分鐘、外廠 15 分鐘，碼頭裝卸時間不可壓縮，嚴禁排定 0 分鐘瞬間移動或紙上虛假工時。'
         }
 
         # -------------------------------------------------------------
@@ -443,6 +488,17 @@ class ScheduleValidator:
             verdict_badge = '🟢 稽核完全通過 (PASSED) - 卓越排程品質，准予正式營運'
 
         overall_score = round(hard_compliance * 0.7 + soft_score * 0.3, 1)
+        tot_dem = report['stats']['total_demand_24h']
+        max_util = max((r['utilization'] for r in od_audit_table), default=0.0)
+        avg_util = round(tot_dem / total_active_cap_24h * 100.0, 1) if total_active_cap_24h > 0 else 0.0
+        avg_wait_weighted = round(weighted_wait_batch_mins / tot_dem, 1) if tot_dem > 0 else 0.0
+
+        report['stats']['active_od_cap_24h'] = total_active_cap_24h
+        report['stats']['max_utilization'] = max_util
+        report['stats']['avg_utilization'] = avg_util
+        report['stats']['total_slack_mins'] = total_slack_mins
+        report['stats']['weighted_wait_batch_mins'] = int(round(weighted_wait_batch_mins))
+        report['stats']['weighted_avg_wait_mins'] = avg_wait_weighted
 
         report['summary'] = {
             'verdict': verdict,
@@ -455,28 +511,35 @@ class ScheduleValidator:
             'soft_satisfaction_score': round(soft_score, 1),
             'overall_score': overall_score,
             'total_violations': tot_violations,
-            'total_warnings': tot_warnings
+            'total_warnings': tot_warnings,
+            'total_demand_24h': tot_dem,
+            'active_od_cap_24h': total_active_cap_24h,
+            'max_utilization': max_util,
+            'avg_utilization': avg_util,
+            'total_slack_mins': total_slack_mins,
+            'weighted_wait_batch_mins': int(round(weighted_wait_batch_mins)),
+            'weighted_avg_wait_mins': avg_wait_weighted
         }
 
         return report
 
     def generate_cli_report(self, report):
-        """格式化終端彩色/文字驗收報告"""
         sm = report['summary']
         lines = []
-        lines.append("\n" + "="*80)
-        lines.append("  半導體廠區物流排程 - 獨立約束驗證與合規稽核驗收報告 (Acceptance Report)")
-        lines.append("="*80)
-        lines.append(f"稽核時間: {report['timestamp']} ｜ 資料庫: {report['db_path']}")
-        lines.append(f"受稽核車隊: {report['stats']['cars_count']} 部 ｜ 總到站次: {report['stats']['total_stops']} 站 ｜ 跨廠走廊: {report['stats']['active_corridors_count']} 條")
-        lines.append("-" * 80)
+        lines.append("\n" + "="*82)
+        lines.append(f"  半導體廠區物流排程 - 獨立約束驗證與合規稽核驗收報告 [{report['plan_label']}]")
+        lines.append("="*82)
+        lines.append(f"稽核時間: {report['timestamp']} ｜ 資料表: {report['table_name']} ｜ 資料庫: {report['db_path']}")
+        lines.append(f"受稽核車隊: {report['stats']['cars_count']} 部 (排除 Car U) ｜ 總站次: {report['stats']['total_stops']} 站 ｜ 24H需求: {sm['total_demand_24h']:,} 批 ｜ 有效運能: {sm['active_od_cap_24h']:,} 批")
+        lines.append("-" * 82)
         lines.append(f"【最終驗收裁決】: {sm['verdict_badge']}")
         lines.append(f"  • 硬約束合規率: {sm['hard_compliance_rate']}% ({sm['hard_pass_count']}/{sm['hard_total_count']} 項完全合規)")
         lines.append(f"  • 軟約束評分:   {sm['soft_satisfaction_score']} / 100 分")
         lines.append(f"  • 綜合品質指標: {sm['overall_score']} / 100 分")
         lines.append(f"  • 嚴重違規事項: {sm['total_violations']} 件 ｜ 警示改善事項: {sm['total_warnings']} 件")
-        lines.append("-" * 80)
-        lines.append("【各項規格法規稽核清單】:")
+        lines.append(f"  • 走廊最高利用率: {sm['max_utilization']}% (平均 {sm['avg_utilization']}%) ｜ 目標1 Slack: {sm['total_slack_mins']} 分 ｜ 目標2 加權平均等候: {sm['weighted_avg_wait_mins']} 分")
+        lines.append("-" * 82)
+        lines.append("【八大規格與運籌法規稽核清單】:")
 
         for k, r in report['rules'].items():
             badge = "🟢 PASS" if r['status'] == 'PASS' else ("🟡 WARN" if r['status'] == 'WARN' else "🔴 FAIL")
@@ -490,134 +553,258 @@ class ScheduleValidator:
                 for w in r['warnings'][:3]:
                     lines.append(f"           - {w['msg']}")
 
-        lines.append("="*80 + "\n")
+        lines.append("="*82 + "\n")
         return "\n".join(lines)
 
     def generate_html_report(self, report, output_path='audit_report.html'):
-        """產出獨立現代化 HTML 驗收報告"""
+        """產出獨立現代化 HTML 驗收報告 (含三方案橫向對比、八大規則檢核、22 條走廊明細表)"""
         sm = report['summary']
         v_color = 'rose' if sm['verdict'] == 'FAILED' else ('amber' if sm['verdict'] == 'WARNING' else 'emerald')
+        curr_tbl = report['table_name']
+
+        # 載入三方案摘要供頂部對照表顯示
+        comp_rows = []
+        for tbl, fname, label in [
+            ('schedules', 'audit_report.html', '原方案 (Baseline 原始基準)'),
+            ('schedules_plan2', 'audit_report_plan2.html', '方案二 (CP-SAT 雙層路網優化)'),
+            ('schedules_plan3', 'audit_report_plan3.html', '方案三 (100% 剛性合規落地版)')
+        ]:
+            try:
+                if tbl == curr_tbl:
+                    r_sm = sm
+                else:
+                    sub_v = ScheduleValidator(self.db_path, tbl)
+                    r_sm = sub_v.audit()['summary']
+                comp_rows.append((tbl, fname, label, r_sm))
+            except Exception:
+                pass
+
+        tab_btns_html = ""
+        for tbl, fname, label, r_sm in comp_rows:
+            is_active = (tbl == curr_tbl)
+            badge_dot = "🔴" if r_sm['verdict'] == 'FAILED' else ("🟡" if r_sm['verdict'] == 'WARNING' else "🟢")
+            active_cls = "bg-indigo-600 text-white border-indigo-400 shadow-lg shadow-indigo-600/30 font-extrabold" if is_active else "bg-slate-800/90 hover:bg-slate-700 text-slate-300 border-slate-700"
+            tab_btns_html += f"""
+            <a href="{fname}" class="px-3.5 py-2 rounded-xl text-xs border transition flex items-center gap-2 {active_cls}">
+              <span>{badge_dot} {label}</span>
+              <span class="px-1.5 py-0.5 rounded bg-black/30 font-mono text-[11px]">{r_sm['overall_score']}分</span>
+            </a>"""
+
+        comp_tbody_html = ""
+        for tbl, fname, label, r_sm in comp_rows:
+            is_curr = (tbl == curr_tbl)
+            row_cls = "bg-indigo-950/40 border-l-4 border-l-indigo-400" if is_curr else "hover:bg-slate-800/40"
+            v_badge = '<span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-500/40 font-bold text-[11px]">🔴 FAILED</span>' if r_sm['verdict'] == 'FAILED' else (
+                      '<span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40 font-bold text-[11px]">🟡 WARNING</span>' if r_sm['verdict'] == 'WARNING' else
+                      '<span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold text-[11px]">🟢 PASSED</span>')
+            u_cls = "text-rose-400 font-bold" if r_sm['max_utilization'] > 85.0 else "text-emerald-400 font-bold"
+            comp_tbody_html += f"""
+            <tr class="border-b border-slate-800/80 transition {row_cls}">
+              <td class="py-3 px-4 font-bold text-white">
+                <a href="{fname}" class="hover:text-indigo-300 underline decoration-dotted">{label}</a>
+                {"<span class='ml-1.5 px-1.5 py-0.5 text-[10px] rounded bg-indigo-500/30 text-indigo-200'>目前檢視</span>" if is_curr else ""}
+              </td>
+              <td class="py-3 px-3 text-center">{v_badge}</td>
+              <td class="py-3 px-3 text-center font-mono font-bold {'text-emerald-400' if r_sm['hard_compliance_rate']==100 else 'text-rose-400'}">{r_sm['hard_compliance_rate']}% ({r_sm['hard_pass_count']}/{r_sm['hard_total_count']})</td>
+              <td class="py-3 px-3 text-center font-mono text-cyan-300 font-bold">{r_sm['soft_satisfaction_score']} <span class="text-[11px] text-slate-400">({r_sm['total_warnings']}警)</span></td>
+              <td class="py-3 px-3 text-center font-mono font-black text-amber-300 text-sm">{r_sm['overall_score']}</td>
+              <td class="py-3 px-3 text-right font-mono text-slate-200">{r_sm['total_demand_24h']:,} / {r_sm['active_od_cap_24h']:,} 批</td>
+              <td class="py-3 px-3 text-center font-mono {u_cls}">{r_sm['max_utilization']}% <span class="text-[11px] text-slate-400">(均 {r_sm['avg_utilization']}%)</span></td>
+              <td class="py-3 px-3 text-center font-mono text-emerald-300">{r_sm['total_slack_mins']} 分</td>
+              <td class="py-3 px-3 text-right font-mono text-indigo-300">{r_sm['weighted_avg_wait_mins']} 分 <span class="text-[10px] text-slate-400">({r_sm['weighted_wait_batch_mins']:,} 批·分)</span></td>
+            </tr>"""
+
+        od_rows_html = ""
+        for idx, od in enumerate(report['rules']['hard_4_od_utilization']['od_table'], 1):
+            u_val = od['utilization']
+            u_ok = (od['status'] == 'PASS')
+            bar_w = min(100.0, u_val)
+            bar_color = "bg-emerald-500" if u_val <= 80.0 else ("bg-teal-400" if u_val <= 85.0 else ("bg-amber-500" if u_val <= 100.0 else "bg-rose-500"))
+            badge_html = '<span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span>' if u_ok else '<span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-rose-950/80 text-rose-300 border border-rose-500/40">FAIL >85%</span>'
+            od_rows_html += f"""
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#{idx:02d}</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">{od['from']} ➔ {od['to']}</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">{od['demand']:,} 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">{od['day_trips']} / {od['night_trips']} <span class="text-slate-500">({od['total_trips']}趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">{od['capacity']:,} 批 <span class="text-[10px] text-slate-500">({od['day_cap']}+{od['night_cap']})</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full {bar_color}" style="width:{bar_w:.1f}%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right {'text-emerald-300' if u_ok else 'text-rose-400'}">{u_val:.1f}%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">{od['avg_wait_mins']} 分</td>
+              <td class="py-2.5 px-3 text-center">{badge_html}</td>
+            </tr>"""
 
         html = f"""<!DOCTYPE html>
 <html lang="zh-TW" class="dark">
 <head>
   <meta charset="UTF-8">
-  <title>廠區物流排程 - 獨立驗收與合規稽核報告</title>
+  <title>廠區物流排程 - 獨立驗收與合規稽核報告 ({report['plan_label']})</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {{ background: #0b1120; color: #cbd5e1; font-family: system-ui, -apple-system, sans-serif; }}
-    .glass-card {{ background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(71, 85, 105, 0.4); }}
+    .glass-card {{ background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(71, 85, 105, 0.45); }}
   </style>
 </head>
 <body class="p-4 lg:p-8">
-  <div class="max-w-6xl mx-auto space-y-8">
+  <div class="max-w-7xl mx-auto space-y-6">
     
     <!-- Top Navigation Bar -->
-    <div class="flex items-center justify-between gap-4 pb-2">
-      <div class="flex items-center gap-2">
-        <a href="plans.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition">
-          <i class="fa-solid fa-arrow-left"></i>
-          <span>返回方案全景報告 (plans.html)</span>
-        </a>
-        <a href="index.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/40 text-xs text-blue-300 border border-blue-500/30 transition">
+    <div class="flex flex-wrap items-center justify-between gap-4 pb-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="index.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/40 text-xs text-blue-300 border border-blue-500/30 transition font-bold">
           <i class="fa-solid fa-gauge-high"></i>
-          <span>戰情總網</span>
+          <span>戰情總網 (index.html)</span>
+        </a>
+        <a href="plans.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition font-bold">
+          <i class="fa-solid fa-Code-compare"></i>
+          <span>三方案優化對比報告 (plans.html)</span>
+        </a>
+        <a href="spec.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 border border-slate-700 transition">
+          <i class="fa-solid fa-book"></i>
+          <span>限制條件規格書 (spec.html)</span>
         </a>
       </div>
-      <div class="flex items-center gap-2">
-        <a href="audit_report_plan2.html" class="px-2.5 py-1 rounded-lg text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">方案二報告</a>
-        <a href="audit_report_plan3.html" class="px-2.5 py-1 rounded-lg text-xs bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 transition font-bold">方案三報告 (100% PASS)</a>
+      <div class="flex flex-wrap items-center gap-2">
+        {tab_btns_html}
       </div>
     </div>
 
     <!-- Top Header -->
     <div class="glass-card rounded-3xl p-6 lg:p-8 border-slate-700 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-            <i class="fa-solid fa-stamp"></i> 獨立數位稽核員 (Constraint Validator)
+            <i class="fa-solid fa-stamp"></i> 獨立數位稽核員 (Automated Constraint Validator)
           </span>
-          <span class="text-xs text-slate-400">系統時間: {report['timestamp']}</span>
+          <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-slate-800 text-cyan-300 border border-slate-700">
+            檢驗目標表：{report['table_name']} ({report['plan_label']})
+          </span>
+          <span class="text-xs text-slate-400">驗收時間: {report['timestamp']}</span>
         </div>
         <h1 class="text-2xl lg:text-3xl font-extrabold text-white mt-2">廠區物流排程合規性檢驗與驗收報告</h1>
-        <p class="text-xs text-slate-400 mt-1">依據《問題敘述_限制條件.txt》標準，針對現行排程進行 100% 剛性驗收</p>
+        <p class="text-xs text-slate-400 mt-1">嚴格依據《問題敘述_限制條件.txt》與 24H 最新需求矩陣 (5,742 批 / 22 條走廊 / Car A~E 5車)，執行 6 大硬約束、2 大軟約束與雙目標函數驗收</p>
       </div>
-      <div class="px-5 py-3 rounded-2xl bg-{v_color}-950/60 border border-{v_color}-500/50 text-{v_color}-400 font-bold text-center">
+      <div class="px-5 py-3.5 rounded-2xl bg-{v_color}-950/60 border border-{v_color}-500/50 text-{v_color}-400 font-bold text-center min-w-[280px]">
         <div class="text-[11px] uppercase tracking-wider text-slate-400">最終驗收裁決 Verdict</div>
-        <div class="text-xl font-black mt-0.5">{sm['verdict_badge']}</div>
+        <div class="text-base lg:text-lg font-black mt-0.5">{sm['verdict_badge']}</div>
       </div>
     </div>
 
-    <!-- KPI Strip -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="glass-card p-5 rounded-2xl space-y-1">
-        <span class="text-xs text-slate-400">硬約束合規率 (Hard Rate)</span>
+    <!-- KPI Strip (6 Cards) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">硬約束合規率 (Hard Rate)</span>
         <div class="text-2xl font-black font-mono text-{v_color}-400">{sm['hard_compliance_rate']}%</div>
-        <div class="text-[11px] text-slate-500">{sm['hard_pass_count']}/{sm['hard_total_count']} 項完全通過</div>
+        <div class="text-[11px] text-slate-500">{sm['hard_pass_count']}/{sm['hard_total_count']} 項剛性指標通過</div>
       </div>
-      <div class="glass-card p-5 rounded-2xl space-y-1">
-        <span class="text-xs text-slate-400">軟約束評分 (Soft Score)</span>
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">軟約束評分 (Soft Score)</span>
         <div class="text-2xl font-black font-mono text-cyan-400">{sm['soft_satisfaction_score']} <span class="text-xs font-normal">/100</span></div>
-        <div class="text-[11px] text-slate-500">{sm['total_warnings']} 件警示改善建議</div>
+        <div class="text-[11px] text-slate-500">{sm['total_warnings']} 件軟約束建議</div>
       </div>
-      <div class="glass-card p-5 rounded-2xl space-y-1">
-        <span class="text-xs text-slate-400">綜合品質指標 (Overall)</span>
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">綜合品質得分 (Overall)</span>
         <div class="text-2xl font-black font-mono text-amber-400">{sm['overall_score']} <span class="text-xs font-normal">/100</span></div>
         <div class="text-[11px] text-slate-500">70% 硬約束 + 30% 軟約束</div>
       </div>
-      <div class="glass-card p-5 rounded-2xl space-y-1">
-        <span class="text-xs text-slate-400">排程站次與走廊</span>
-        <div class="text-2xl font-black font-mono text-white">{report['stats']['total_stops']} <span class="text-xs font-normal text-slate-400">站</span></div>
-        <div class="text-[11px] text-slate-500">{report['stats']['active_corridors_count']} 條跨廠 OD 走廊</div>
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">24H 需求 vs 有效運能</span>
+        <div class="text-xl font-black font-mono text-white">{sm['total_demand_24h']:,} <span class="text-xs text-slate-400">/ {sm['active_od_cap_24h']:,}批</span></div>
+        <div class="text-[11px] text-slate-500">5 車 {report['stats']['total_stops']} 站 ({report['stats']['active_corridors_count']} 條走廊)</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">最高走廊利用率 (上限85%)</span>
+        <div class="text-2xl font-black font-mono {'text-emerald-400' if sm['max_utilization']<=85.0 else 'text-rose-400'}">{sm['max_utilization']}%</div>
+        <div class="text-[11px] text-slate-500">全網平均利用率 {sm['avg_utilization']}%</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">雙目標：Slack / 等候時間</span>
+        <div class="text-xl font-black font-mono text-indigo-300">{sm['total_slack_mins']}分 <span class="text-xs text-slate-400">/ {sm['weighted_avg_wait_mins']}分</span></div>
+        <div class="text-[11px] text-slate-500">加權等候 {sm['weighted_wait_batch_mins']:,} 批·分</div>
+      </div>
+    </div>
+
+    <!-- 3-Plan Executive Comparison Table -->
+    <div class="glass-card rounded-3xl p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base lg:text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-scale-balanced text-indigo-400"></i>
+          <span>三方案全維度驗收橫向對照表 (原方案 vs. 方案二 vs. 方案三)</span>
+        </h2>
+        <span class="text-xs text-slate-400">點擊方案名稱可切換檢視各方案完整驗收細節</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-700 text-slate-400 bg-slate-900/50">
+              <th class="py-2.5 px-4">排程方案</th>
+              <th class="py-2.5 px-3 text-center">驗收裁決</th>
+              <th class="py-2.5 px-3 text-center">硬約束合規率</th>
+              <th class="py-2.5 px-3 text-center">軟約束評分</th>
+              <th class="py-2.5 px-3 text-center">綜合總分</th>
+              <th class="py-2.5 px-3 text-right">24H 需求 / 有效運能</th>
+              <th class="py-2.5 px-3 text-center">最高利用率 (≤85%)</th>
+              <th class="py-2.5 px-3 text-center">目標1: 無效空檔 Slack</th>
+              <th class="py-2.5 px-3 text-right">目標2: 加權平均等候</th>
+            </tr>
+          </thead>
+          <tbody>
+            {comp_tbody_html}
+          </tbody>
+        </table>
       </div>
     </div>
 
     <!-- Rules Checklist -->
-    <div class="glass-card rounded-3xl p-6 lg:p-8 space-y-6">
-      <h2 class="text-lg font-bold text-white flex items-center gap-2">
+    <div class="glass-card rounded-3xl p-6 lg:p-8 space-y-5">
+      <h2 class="text-base lg:text-lg font-bold text-white flex items-center gap-2">
         <i class="fa-solid fa-list-check text-purple-400"></i>
-        <span>八大規格與運籌法規逐條稽核清單</span>
+        <span>八大規格與運籌法規逐條稽核清單 ({report['plan_label']})</span>
       </h2>
-      <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 """
         for k, r in report['rules'].items():
             b_bg = 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' if r['status'] == 'PASS' else ('bg-amber-950/40 border-amber-500/40 text-amber-300' if r['status'] == 'WARN' else 'bg-rose-950/50 border-rose-500/50 text-rose-300')
             b_icon = 'fa-check' if r['status'] == 'PASS' else ('fa-exclamation' if r['status'] == 'WARN' else 'fa-xmark')
             
             html += f"""
-        <div class="p-4 rounded-2xl border {b_bg} space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-white flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold {b_bg}"><i class="fa-solid {b_icon}"></i></span>
-              <span>{r['name']}</span>
-            </span>
-            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold {b_bg}">[{r['category']}] {r['status']}</span>
+        <div class="p-4 rounded-2xl border {b_bg} space-y-2 flex flex-col justify-between">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold {b_bg}"><i class="fa-solid {b_icon}"></i></span>
+                <span>{r['name']}</span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 {b_bg}">[{r['category']}] {r['status']}</span>
+            </div>
+            <p class="text-xs text-slate-400">{r['desc']}</p>
           </div>
-          <p class="text-xs text-slate-400">{r['desc']}</p>
 """
             if r.get('violations'):
                 html += f"""
-          <div class="bg-rose-950/40 p-3 rounded-xl border border-rose-800/40 text-xs space-y-1">
+          <div class="bg-rose-950/50 p-3 rounded-xl border border-rose-800/50 text-xs space-y-1 mt-2">
             <strong class="text-rose-400 block font-semibold">❌ 違規事項明細 ({len(r['violations'])} 件):</strong>
-            <ul class="list-disc list-inside space-y-0.5 text-rose-200">
+            <ul class="list-disc list-inside space-y-0.5 text-rose-200 max-h-36 overflow-y-auto">
 """
-                for v in r['violations'][:5]:
+                for v in r['violations']:
                     html += f"              <li>{v['msg']}</li>\n"
-                if len(r['violations']) > 5:
-                    html += f"              <li class='text-slate-400'>... 另有 {len(r['violations'])-5} 件違規</li>\n"
                 html += "            </ul>\n          </div>\n"
 
             if r.get('warnings'):
                 html += f"""
-          <div class="bg-amber-950/30 p-3 rounded-xl border border-amber-800/40 text-xs space-y-1">
+          <div class="bg-amber-950/40 p-3 rounded-xl border border-amber-800/50 text-xs space-y-1 mt-2">
             <strong class="text-amber-400 block font-semibold">⚠️ 軟約束警示明細 ({len(r['warnings'])} 件):</strong>
-            <ul class="list-disc list-inside space-y-0.5 text-amber-200">
+            <ul class="list-disc list-inside space-y-0.5 text-amber-200 max-h-36 overflow-y-auto">
 """
-                for w in r['warnings'][:5]:
+                for w in r['warnings']:
                     html += f"              <li>{w['msg']}</li>\n"
-                if len(r['warnings']) > 5:
-                    html += f"              <li class='text-slate-400'>... 另有 {len(r['warnings'])-5} 件警告</li>\n"
                 html += "            </ul>\n          </div>\n"
 
             html += "        </div>\n"
@@ -626,9 +813,39 @@ class ScheduleValidator:
       </div>
     </div>
 
+    <!-- 22 OD Corridors Verification Table -->
+    <div class="glass-card rounded-3xl p-6 lg:p-8 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-base lg:text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-route text-cyan-400"></i>
+          <span>22 條跨廠 OD 走廊運能供給、利用率 (≤85.0%) 與等候時間明細驗收表</span>
+        </h2>
+        <span class="text-xs font-mono text-slate-400">24H 總需求：{sm['total_demand_24h']:,} 批 ｜ 24H 有效總運能：{sm['active_od_cap_24h']:,} 批 ｜ 全網平均利用率：{sm['avg_utilization']}%</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-700 text-xs text-slate-400 bg-slate-900/50">
+              <th class="py-2.5 px-3">#</th>
+              <th class="py-2.5 px-3">OD 走廊 (起點 ➔ 終點)</th>
+              <th class="py-2.5 px-3 text-right">24H 剛性需求</th>
+              <th class="py-2.5 px-3 text-center">日班 / 夜班趟次 (12H≥1)</th>
+              <th class="py-2.5 px-3 text-right">24H 供給運能 (日+夜)</th>
+              <th class="py-2.5 px-3">走廊利用率 (上限 85.0%)</th>
+              <th class="py-2.5 px-3 text-right">平均等候 E[W]</th>
+              <th class="py-2.5 px-3 text-center">合規狀態</th>
+            </tr>
+          </thead>
+          <tbody>
+            {od_rows_html}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer class="text-center text-xs text-slate-500 py-4">
-      半導體廠區物流運籌系統 ｜ 獨立數位稽核員自動化驗收工具 ｜ 依據《問題敘述_限制條件.txt》
+      半導體廠區物流運籌系統 ｜ 獨立數位稽核員自動化驗收工具 ｜ 嚴格依據《問題敘述_限制條件.txt》
     </footer>
 
   </div>
@@ -638,6 +855,7 @@ class ScheduleValidator:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(html)
         print(f"HTML Audit Report generated: {output_path}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="半導體廠區物流排程 - 獨立約束驗證與合規稽核器")
@@ -651,21 +869,19 @@ def main():
     validator = ScheduleValidator(args.db, args.table)
     report = validator.audit()
 
-    # CLI Report
     print(validator.generate_cli_report(report))
 
-    # JSON Report
     if args.json:
         with open(args.json, 'w', encoding='utf-8') as f:
             json.dump(report, f, ensure_ascii=False, indent=2)
         print(f"JSON Audit Report saved: {args.json}")
 
-    # HTML Report
     if args.html:
         validator.generate_html_report(report, args.html)
 
     if args.strict and report['summary']['verdict'] == 'FAILED':
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

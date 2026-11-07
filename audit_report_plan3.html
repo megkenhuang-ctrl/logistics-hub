@@ -2,191 +2,700 @@
 <html lang="zh-TW" class="dark">
 <head>
   <meta charset="UTF-8">
-  <title>廠區物流排程 - 獨立驗收與合規稽核報告</title>
+  <title>廠區物流排程 - 獨立驗收與合規稽核報告 (方案三 (100% 剛性合規落地版))</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body { background: #0b1120; color: #cbd5e1; font-family: system-ui, -apple-system, sans-serif; }
-    .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(71, 85, 105, 0.4); }
+    .glass-card { background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(71, 85, 105, 0.45); }
   </style>
 </head>
 <body class="p-4 lg:p-8">
-  <div class="max-w-6xl mx-auto space-y-8">
+  <div class="max-w-7xl mx-auto space-y-6">
     
     <!-- Top Navigation Bar -->
-    <div class="flex items-center justify-between gap-4 pb-2">
-      <div class="flex items-center gap-2">
-        <a href="plans.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition">
-          <i class="fa-solid fa-arrow-left"></i>
-          <span>返回方案全景報告 (plans.html)</span>
-        </a>
-        <a href="index.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/40 text-xs text-blue-300 border border-blue-500/30 transition">
+    <div class="flex flex-wrap items-center justify-between gap-4 pb-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="index.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/40 text-xs text-blue-300 border border-blue-500/30 transition font-bold">
           <i class="fa-solid fa-gauge-high"></i>
-          <span>戰情總網</span>
+          <span>戰情總網 (index.html)</span>
+        </a>
+        <a href="plans.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 transition font-bold">
+          <i class="fa-solid fa-Code-compare"></i>
+          <span>三方案優化對比報告 (plans.html)</span>
+        </a>
+        <a href="spec.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 border border-slate-700 transition">
+          <i class="fa-solid fa-book"></i>
+          <span>限制條件規格書 (spec.html)</span>
         </a>
       </div>
-      <div class="flex items-center gap-2">
-        <a href="audit_report_plan2.html" class="px-2.5 py-1 rounded-lg text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">方案二報告</a>
-        <a href="audit_report_plan3.html" class="px-2.5 py-1 rounded-lg text-xs bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/40 transition font-bold">方案三報告 (100% PASS)</a>
+      <div class="flex flex-wrap items-center gap-2">
+        
+            <a href="audit_report.html" class="px-3.5 py-2 rounded-xl text-xs border transition flex items-center gap-2 bg-slate-800/90 hover:bg-slate-700 text-slate-300 border-slate-700">
+              <span>🔴 原方案 (Baseline 原始基準)</span>
+              <span class="px-1.5 py-0.5 rounded bg-black/30 font-mono text-[11px]">61.1分</span>
+            </a>
+            <a href="audit_report_plan2.html" class="px-3.5 py-2 rounded-xl text-xs border transition flex items-center gap-2 bg-slate-800/90 hover:bg-slate-700 text-slate-300 border-slate-700">
+              <span>🟡 方案二 (CP-SAT 雙層路網優化)</span>
+              <span class="px-1.5 py-0.5 rounded bg-black/30 font-mono text-[11px]">97.6分</span>
+            </a>
+            <a href="audit_report_plan3.html" class="px-3.5 py-2 rounded-xl text-xs border transition flex items-center gap-2 bg-indigo-600 text-white border-indigo-400 shadow-lg shadow-indigo-600/30 font-extrabold">
+              <span>🟢 方案三 (100% 剛性合規落地版)</span>
+              <span class="px-1.5 py-0.5 rounded bg-black/30 font-mono text-[11px]">100.0分</span>
+            </a>
       </div>
     </div>
 
     <!-- Top Header -->
     <div class="glass-card rounded-3xl p-6 lg:p-8 border-slate-700 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-            <i class="fa-solid fa-stamp"></i> 獨立數位稽核員 (Constraint Validator)
+            <i class="fa-solid fa-stamp"></i> 獨立數位稽核員 (Automated Constraint Validator)
           </span>
-          <span class="text-xs text-slate-400">系統時間: 2026-11-03 21:34:50</span>
+          <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-slate-800 text-cyan-300 border border-slate-700">
+            檢驗目標表：schedules_plan3 (方案三 (100% 剛性合規落地版))
+          </span>
+          <span class="text-xs text-slate-400">驗收時間: 2026-11-08 00:35:45</span>
         </div>
         <h1 class="text-2xl lg:text-3xl font-extrabold text-white mt-2">廠區物流排程合規性檢驗與驗收報告</h1>
-        <p class="text-xs text-slate-400 mt-1">依據《問題敘述_限制條件.txt》標準，針對現行排程進行 100% 剛性驗收</p>
+        <p class="text-xs text-slate-400 mt-1">嚴格依據《問題敘述_限制條件.txt》與 24H 最新需求矩陣 (5,742 批 / 22 條走廊 / Car A~E 5車)，執行 6 大硬約束、2 大軟約束與雙目標函數驗收</p>
       </div>
-      <div class="px-5 py-3 rounded-2xl bg-amber-950/60 border border-amber-500/50 text-amber-400 font-bold text-center">
+      <div class="px-5 py-3.5 rounded-2xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-400 font-bold text-center min-w-[280px]">
         <div class="text-[11px] uppercase tracking-wider text-slate-400">最終驗收裁決 Verdict</div>
-        <div class="text-xl font-black mt-0.5">🟡 稽核條件通過 (WARNING) - 硬約束 100% 合規，存在軟約束改善建議</div>
+        <div class="text-base lg:text-lg font-black mt-0.5">🟢 稽核完全通過 (PASSED) - 卓越排程品質，准予正式營運</div>
       </div>
     </div>
 
-    <!-- KPI Strip -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="glass-card p-5 rounded-2xl space-y-1">
-        <span class="text-xs text-slate-400">硬約束合規率 (Hard Rate)</span>
-        <div class="text-2xl font-black font-mono text-amber-400">100.0%</div>
-        <div class="text-[11px] text-slate-500">6/6 項完全通過</div>
+    <!-- KPI Strip (6 Cards) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">硬約束合規率 (Hard Rate)</span>
+        <div class="text-2xl font-black font-mono text-emerald-400">100.0%</div>
+        <div class="text-[11px] text-slate-500">6/6 項剛性指標通過</div>
       </div>
-      <div class="glass-card p-5 rounded-2xl space-y-1">
-        <span class="text-xs text-slate-400">軟約束評分 (Soft Score)</span>
-        <div class="text-2xl font-black font-mono text-cyan-400">75.0 <span class="text-xs font-normal">/100</span></div>
-        <div class="text-[11px] text-slate-500">20 件警示改善建議</div>
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">軟約束評分 (Soft Score)</span>
+        <div class="text-2xl font-black font-mono text-cyan-400">100.0 <span class="text-xs font-normal">/100</span></div>
+        <div class="text-[11px] text-slate-500">0 件軟約束建議</div>
       </div>
-      <div class="glass-card p-5 rounded-2xl space-y-1">
-        <span class="text-xs text-slate-400">綜合品質指標 (Overall)</span>
-        <div class="text-2xl font-black font-mono text-amber-400">92.5 <span class="text-xs font-normal">/100</span></div>
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">綜合品質得分 (Overall)</span>
+        <div class="text-2xl font-black font-mono text-amber-400">100.0 <span class="text-xs font-normal">/100</span></div>
         <div class="text-[11px] text-slate-500">70% 硬約束 + 30% 軟約束</div>
       </div>
-      <div class="glass-card p-5 rounded-2xl space-y-1">
-        <span class="text-xs text-slate-400">排程站次與走廊</span>
-        <div class="text-2xl font-black font-mono text-white">190 <span class="text-xs font-normal text-slate-400">站</span></div>
-        <div class="text-[11px] text-slate-500">22 條跨廠 OD 走廊</div>
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">24H 需求 vs 有效運能</span>
+        <div class="text-xl font-black font-mono text-white">5,742 <span class="text-xs text-slate-400">/ 7,776批</span></div>
+        <div class="text-[11px] text-slate-500">5 車 198 站 (22 條走廊)</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">最高走廊利用率 (上限85%)</span>
+        <div class="text-2xl font-black font-mono text-emerald-400">84.7%</div>
+        <div class="text-[11px] text-slate-500">全網平均利用率 73.8%</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl space-y-1">
+        <span class="text-[11px] text-slate-400">雙目標：Slack / 等候時間</span>
+        <div class="text-xl font-black font-mono text-indigo-300">0分 <span class="text-xs text-slate-400">/ 75.7分</span></div>
+        <div class="text-[11px] text-slate-500">加權等候 434,942 批·分</div>
+      </div>
+    </div>
+
+    <!-- 3-Plan Executive Comparison Table -->
+    <div class="glass-card rounded-3xl p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base lg:text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-scale-balanced text-indigo-400"></i>
+          <span>三方案全維度驗收橫向對照表 (原方案 vs. 方案二 vs. 方案三)</span>
+        </h2>
+        <span class="text-xs text-slate-400">點擊方案名稱可切換檢視各方案完整驗收細節</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-700 text-slate-400 bg-slate-900/50">
+              <th class="py-2.5 px-4">排程方案</th>
+              <th class="py-2.5 px-3 text-center">驗收裁決</th>
+              <th class="py-2.5 px-3 text-center">硬約束合規率</th>
+              <th class="py-2.5 px-3 text-center">軟約束評分</th>
+              <th class="py-2.5 px-3 text-center">綜合總分</th>
+              <th class="py-2.5 px-3 text-right">24H 需求 / 有效運能</th>
+              <th class="py-2.5 px-3 text-center">最高利用率 (≤85%)</th>
+              <th class="py-2.5 px-3 text-center">目標1: 無效空檔 Slack</th>
+              <th class="py-2.5 px-3 text-right">目標2: 加權平均等候</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            <tr class="border-b border-slate-800/80 transition hover:bg-slate-800/40">
+              <td class="py-3 px-4 font-bold text-white">
+                <a href="audit_report.html" class="hover:text-indigo-300 underline decoration-dotted">原方案 (Baseline 原始基準)</a>
+                
+              </td>
+              <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-500/40 font-bold text-[11px]">🔴 FAILED</span></td>
+              <td class="py-3 px-3 text-center font-mono font-bold text-rose-400">66.7% (4/6)</td>
+              <td class="py-3 px-3 text-center font-mono text-cyan-300 font-bold">48.0 <span class="text-[11px] text-slate-400">(29警)</span></td>
+              <td class="py-3 px-3 text-center font-mono font-black text-amber-300 text-sm">61.1</td>
+              <td class="py-3 px-3 text-right font-mono text-slate-200">5,742 / 6,000 批</td>
+              <td class="py-3 px-3 text-center font-mono text-rose-400 font-bold">200.0% <span class="text-[11px] text-slate-400">(均 95.7%)</span></td>
+              <td class="py-3 px-3 text-center font-mono text-emerald-300">60 分</td>
+              <td class="py-3 px-3 text-right font-mono text-indigo-300">74.1 分 <span class="text-[10px] text-slate-400">(425,525 批·分)</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/80 transition hover:bg-slate-800/40">
+              <td class="py-3 px-4 font-bold text-white">
+                <a href="audit_report_plan2.html" class="hover:text-indigo-300 underline decoration-dotted">方案二 (CP-SAT 雙層路網優化)</a>
+                
+              </td>
+              <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40 font-bold text-[11px]">🟡 WARNING</span></td>
+              <td class="py-3 px-3 text-center font-mono font-bold text-emerald-400">100.0% (6/6)</td>
+              <td class="py-3 px-3 text-center font-mono text-cyan-300 font-bold">92.0 <span class="text-[11px] text-slate-400">(4警)</span></td>
+              <td class="py-3 px-3 text-center font-mono font-black text-amber-300 text-sm">97.6</td>
+              <td class="py-3 px-3 text-right font-mono text-slate-200">5,742 / 7,776 批</td>
+              <td class="py-3 px-3 text-center font-mono text-emerald-400 font-bold">84.7% <span class="text-[11px] text-slate-400">(均 73.8%)</span></td>
+              <td class="py-3 px-3 text-center font-mono text-emerald-300">0 分</td>
+              <td class="py-3 px-3 text-right font-mono text-indigo-300">75.7 分 <span class="text-[10px] text-slate-400">(434,942 批·分)</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/80 transition bg-indigo-950/40 border-l-4 border-l-indigo-400">
+              <td class="py-3 px-4 font-bold text-white">
+                <a href="audit_report_plan3.html" class="hover:text-indigo-300 underline decoration-dotted">方案三 (100% 剛性合規落地版)</a>
+                <span class='ml-1.5 px-1.5 py-0.5 text-[10px] rounded bg-indigo-500/30 text-indigo-200'>目前檢視</span>
+              </td>
+              <td class="py-3 px-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold text-[11px]">🟢 PASSED</span></td>
+              <td class="py-3 px-3 text-center font-mono font-bold text-emerald-400">100.0% (6/6)</td>
+              <td class="py-3 px-3 text-center font-mono text-cyan-300 font-bold">100.0 <span class="text-[11px] text-slate-400">(0警)</span></td>
+              <td class="py-3 px-3 text-center font-mono font-black text-amber-300 text-sm">100.0</td>
+              <td class="py-3 px-3 text-right font-mono text-slate-200">5,742 / 7,776 批</td>
+              <td class="py-3 px-3 text-center font-mono text-emerald-400 font-bold">84.7% <span class="text-[11px] text-slate-400">(均 73.8%)</span></td>
+              <td class="py-3 px-3 text-center font-mono text-emerald-300">0 分</td>
+              <td class="py-3 px-3 text-right font-mono text-indigo-300">75.7 分 <span class="text-[10px] text-slate-400">(434,942 批·分)</span></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
     <!-- Rules Checklist -->
-    <div class="glass-card rounded-3xl p-6 lg:p-8 space-y-6">
-      <h2 class="text-lg font-bold text-white flex items-center gap-2">
+    <div class="glass-card rounded-3xl p-6 lg:p-8 space-y-5">
+      <h2 class="text-base lg:text-lg font-bold text-white flex items-center gap-2">
         <i class="fa-solid fa-list-check text-purple-400"></i>
-        <span>八大規格與運籌法規逐條稽核清單</span>
+        <span>八大規格與運籌法規逐條稽核清單 (方案三 (100% 剛性合規落地版))</span>
       </h2>
-      <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-white flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
-              <span>車輛容量基準 (4 籠車 × 12 儲位 = 48 批)</span>
-            </span>
-            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
-          </div>
-          <p class="text-xs text-slate-400">每部車廂至多容納 4 部籠車，每籠車 12 儲位，全車單趟載運極限為 48 批。</p>
-        </div>
-
-        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-white flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
-              <span>環廠在途滾動載量協議 (上貨≤24 / 保留24空位 / 末站滿車)</span>
-            </span>
-            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
-          </div>
-          <p class="text-xs text-slate-400">環廠中途各站上貨總批數不可超過 24 批，必須維持至少 24 批空位，防止前站滿載導致後站拒載。</p>
-        </div>
-
-        <div class="p-4 rounded-2xl border bg-rose-950/50 border-rose-500/50 text-rose-300 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-white flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-rose-950/50 border-rose-500/50 text-rose-300"><i class="fa-solid fa-xmark"></i></span>
-              <span>軟約束 1：碼頭進站間隔 ≥ 10 分鐘 (泊位互斥防塞車)</span>
-            </span>
-            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-rose-950/50 border-rose-500/50 text-rose-300">[SOFT] FAIL</span>
-          </div>
-          <p class="text-xs text-slate-400">碼頭空間有限，不同車輛相鄰進站時間應錯開至少 10 分鐘，避免排隊倒車壅塞。</p>
-
-          <div class="bg-amber-950/30 p-3 rounded-xl border border-amber-800/40 text-xs space-y-1">
-            <strong class="text-amber-400 block font-semibold">⚠️ 軟約束警示明細 (20 件):</strong>
-            <ul class="list-disc list-inside space-y-0.5 text-amber-200">
-              <li>FAB8E (day)：Car D (14:20) 與 Car E (14:20) 到站僅隔 0 分鐘 (< 10分)</li>
-              <li>FAB8E (day)：Car E (14:20) 與 Car B (14:25) 到站僅隔 5 分鐘 (< 10分)</li>
-              <li>FAB8E (day)：Car C (15:50) 與 Car A (15:55) 到站僅隔 5 分鐘 (< 10分)</li>
-              <li>FAB8AB (day)：Car A (10:40) 與 Car C (10:45) 到站僅隔 5 分鐘 (< 10分)</li>
-              <li>FAB8AB (day)：Car B (16:25) 與 Car C (16:25) 到站僅隔 0 分鐘 (< 10分)</li>
-              <li class='text-slate-400'>... 另有 15 件警告</li>
-            </ul>
+        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2 flex flex-col justify-between">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
+                <span>硬約束 1：車輛容量基準 (4 籠車 × 12 儲位 = 48 批)</span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
+            </div>
+            <p class="text-xs text-slate-400">每部車廂至多容納 4 部籠車，每籠車 12 儲位，全車單趟載運極限為 48 批 (Car U 不納入規劃)。</p>
           </div>
         </div>
 
-        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-white flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
-              <span>軟約束 2：連續出發目的地多樣性 (促成多向空間分流)</span>
-            </span>
-            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[SOFT] PASS</span>
+        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2 flex flex-col justify-between">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
+                <span>硬約束 2：環廠滾動裝載與空間預留原則 (首站48 / 下兩站保底24空位 / 倒數第二站48)</span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
+            </div>
+            <p class="text-xs text-slate-400">環廠首站允許依需求滿載 48 批出發；下兩站抵達卸貨後在途量 ≤24 批 (各保底 24 批淨空位)；倒數第二站允許滿載 48 批直達末站卸空。</p>
           </div>
-          <p class="text-xs text-slate-400">同一廠區連續發出的班次目的地應盡量多元，避免部分廠區物料遭長期冷落。</p>
         </div>
 
-        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-white flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
-              <span>硬約束 3：OD 每 12H 至少訪問一次 (杜絕跨班斷料)</span>
-            </span>
-            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
+        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2 flex flex-col justify-between">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
+                <span>軟約束 1：碼頭進站間隔 ≥ 10 分鐘 (泊位互斥防塞車)</span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[SOFT] PASS</span>
+            </div>
+            <p class="text-xs text-slate-400">碼頭空間有限，不同車輛相鄰進站時間應錯開至少 10 分鐘，避免排隊倒車壅塞。</p>
           </div>
-          <p class="text-xs text-slate-400">22 條有需求的跨廠走廊，日班與夜班各自每 12 小時至少需有 1 班次以上服務，避免物料滯留跨班。</p>
         </div>
 
-        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-white flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
-              <span>硬約束 4：走廊利用率 ≤ 85.0% (保證 ≥15% 安全抗震裕度)</span>
-            </span>
-            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
+        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2 flex flex-col justify-between">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
+                <span>軟約束 2：出發目的地連續兩班不重複 (促成多向空間分流)</span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[SOFT] PASS</span>
+            </div>
+            <p class="text-xs text-slate-400">同一廠區連續發出的班次目的地應盡量多元，避免部分廠區物料遭長期冷落。</p>
           </div>
-          <p class="text-xs text-slate-400">每一段有需求的走廊利用率（需求÷運能）嚴格要求 ≤85.0%，保留至少 15% 以上安全緩衝，杜絕 100% 死鎖。</p>
         </div>
 
-        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-white flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
-              <span>硬約束 5：司機休息與交接合規 (午休/夜休 60 分鐘完整保障)</span>
-            </span>
-            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
+        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2 flex flex-col justify-between">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
+                <span>硬約束 3：OD 每 12H 至少訪問一次 (杜絕跨班斷料)</span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
+            </div>
+            <p class="text-xs text-slate-400">22 條有需求的跨廠走廊，日班與夜班各自每 12 小時至少需有 1 班次以上服務，避免物料滯留跨班。</p>
           </div>
-          <p class="text-xs text-slate-400">日班午休 60 分鐘、夜班夜休 60 分鐘、交接緩衝 20 分鐘必須分秒足額，且停靠於母港設施區。</p>
         </div>
 
-        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-white flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
-              <span>硬約束 6：行車與作業時間不可壓縮 (物理剛性不可突破)</span>
-            </span>
-            <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
+        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2 flex flex-col justify-between">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
+                <span>硬約束 4：走廊利用率 ≤ 85.0% (保證 ≥15% 安全抗震裕度)</span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
+            </div>
+            <p class="text-xs text-slate-400">每一段有需求的走廊利用率（需求÷運能）嚴格要求 ≤85.0%，保留至少 15% 以上安全緩衝，杜絕爆倉。</p>
           </div>
-          <p class="text-xs text-slate-400">鄰近 5 分鐘、跨區 10 分鐘、外廠 15 分鐘，碼頭裝卸時間不可為負值，嚴禁排定紙上虛假工時。</p>
         </div>
 
+        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2 flex flex-col justify-between">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
+                <span>硬約束 5：司機休息與交接合規 (午休/晚餐 60 分鐘、跨班交接固定充足)</span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
+            </div>
+            <p class="text-xs text-slate-400">日班午休 60 分鐘、夜班晚餐 60 分鐘與跨班交接時間必須固定且充足。</p>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 space-y-2 flex flex-col justify-between">
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-sm text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
+                <span>硬約束 6：行車與作業時間不可壓縮 (物理剛性不可突破)</span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
+            </div>
+            <p class="text-xs text-slate-400">鄰近 5 分鐘、跨區 10 分鐘、外廠 15 分鐘，碼頭裝卸時間不可壓縮，嚴禁排定 0 分鐘瞬間移動或紙上虛假工時。</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 22 OD Corridors Verification Table -->
+    <div class="glass-card rounded-3xl p-6 lg:p-8 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-base lg:text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-route text-cyan-400"></i>
+          <span>22 條跨廠 OD 走廊運能供給、利用率 (≤85.0%) 與等候時間明細驗收表</span>
+        </h2>
+        <span class="text-xs font-mono text-slate-400">24H 總需求：5,742 批 ｜ 24H 有效總運能：7,776 批 ｜ 全網平均利用率：73.8%</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-700 text-xs text-slate-400 bg-slate-900/50">
+              <th class="py-2.5 px-3">#</th>
+              <th class="py-2.5 px-3">OD 走廊 (起點 ➔ 終點)</th>
+              <th class="py-2.5 px-3 text-right">24H 剛性需求</th>
+              <th class="py-2.5 px-3 text-center">日班 / 夜班趟次 (12H≥1)</th>
+              <th class="py-2.5 px-3 text-right">24H 供給運能 (日+夜)</th>
+              <th class="py-2.5 px-3">走廊利用率 (上限 85.0%)</th>
+              <th class="py-2.5 px-3 text-right">平均等候 E[W]</th>
+              <th class="py-2.5 px-3 text-center">合規狀態</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#01</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8F ➔ FAB8S</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">858 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">13 / 13 <span class="text-slate-500">(26趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">1,032 批 <span class="text-[10px] text-slate-500">(516+516)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-teal-400" style="width:83.1%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">83.1%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">27.7 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#02</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8S ➔ FAB8F</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">858 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">13 / 13 <span class="text-slate-500">(26趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">1,032 批 <span class="text-[10px] text-slate-500">(516+516)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-teal-400" style="width:83.1%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">83.1%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">27.7 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#03</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8AB ➔ FAB8F</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">532 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">7 / 7 <span class="text-slate-500">(14趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">672 批 <span class="text-[10px] text-slate-500">(336+336)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:79.2%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">79.2%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">51.4 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#04</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8F ➔ FAB8AB</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">532 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">7 / 7 <span class="text-slate-500">(14趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">672 批 <span class="text-[10px] text-slate-500">(336+336)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:79.2%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">79.2%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">51.4 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#05</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8CD ➔ FAB8F</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">439 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">6 / 6 <span class="text-slate-500">(12趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">576 批 <span class="text-[10px] text-slate-500">(288+288)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:76.2%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">76.2%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">60.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#06</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8F ➔ FAB8CD</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">439 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">8 / 8 <span class="text-slate-500">(16趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">696 批 <span class="text-[10px] text-slate-500">(348+348)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:63.1%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">63.1%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">45.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#07</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8CD ➔ FAB8E</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">373 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">7 / 7 <span class="text-slate-500">(14趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">456 批 <span class="text-[10px] text-slate-500">(228+228)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-teal-400" style="width:81.8%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">81.8%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">51.4 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#08</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8E ➔ FAB8CD</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">373 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">7 / 7 <span class="text-slate-500">(14趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">600 批 <span class="text-[10px] text-slate-500">(300+300)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:62.2%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">62.2%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">51.4 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#09</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8AB ➔ FAB8E</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">302 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">4 / 4 <span class="text-slate-500">(8趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">384 批 <span class="text-[10px] text-slate-500">(192+192)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:78.6%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">78.6%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">90.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#10</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8E ➔ FAB8AB</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">302 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">4 / 4 <span class="text-slate-500">(8趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">384 批 <span class="text-[10px] text-slate-500">(192+192)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:78.6%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">78.6%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">90.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#11</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8E ➔ 嘉晶篤行</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">96 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">2 / 2 <span class="text-slate-500">(4趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">192 批 <span class="text-[10px] text-slate-500">(96+96)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:50.0%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">50.0%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">180.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#12</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">嘉晶篤行 ➔ FAB8E</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">96 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">2 / 2 <span class="text-slate-500">(4趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">192 批 <span class="text-[10px] text-slate-500">(96+96)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:50.0%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">50.0%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">180.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#13</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8AB ➔ FAB8S</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">74 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">1 / 1 <span class="text-slate-500">(2趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">96 批 <span class="text-[10px] text-slate-500">(48+48)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:77.1%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">77.1%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">360.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#14</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8S ➔ FAB8AB</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">74 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">1 / 1 <span class="text-slate-500">(2趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">96 批 <span class="text-[10px] text-slate-500">(48+48)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:77.1%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">77.1%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">360.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#15</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8CD ➔ FAB8S</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">61 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">3 / 3 <span class="text-slate-500">(6趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">72 批 <span class="text-[10px] text-slate-500">(36+36)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-teal-400" style="width:84.7%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">84.7%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">120.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#16</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8S ➔ FAB8CD</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">61 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">1 / 1 <span class="text-slate-500">(2趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">96 批 <span class="text-[10px] text-slate-500">(48+48)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:63.5%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">63.5%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">360.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#17</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8E ➔ 嘉晶創新</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">48 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">1 / 1 <span class="text-slate-500">(2趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">96 批 <span class="text-[10px] text-slate-500">(48+48)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:50.0%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">50.0%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">360.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#18</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">嘉晶創新 ➔ FAB8E</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">48 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">1 / 1 <span class="text-slate-500">(2趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">96 批 <span class="text-[10px] text-slate-500">(48+48)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:50.0%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">50.0%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">360.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#19</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8E ➔ FAB8F</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">45 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">3 / 3 <span class="text-slate-500">(6趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">72 批 <span class="text-[10px] text-slate-500">(36+36)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:62.5%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">62.5%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">120.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#20</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8F ➔ FAB8E</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">45 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">1 / 1 <span class="text-slate-500">(2趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">96 批 <span class="text-[10px] text-slate-500">(48+48)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:46.9%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">46.9%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">360.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#21</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8E ➔ FAB8S</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">43 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">1 / 1 <span class="text-slate-500">(2趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">96 批 <span class="text-[10px] text-slate-500">(48+48)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:44.8%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">44.8%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">360.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-slate-400">#22</td>
+              <td class="py-2.5 px-3 font-bold text-white font-mono">FAB8S ➔ FAB8E</td>
+              <td class="py-2.5 px-3 text-right font-mono text-amber-300 font-bold">43 批</td>
+              <td class="py-2.5 px-3 text-center font-mono text-slate-300">3 / 3 <span class="text-slate-500">(6趟)</span></td>
+              <td class="py-2.5 px-3 text-right font-mono text-cyan-300 font-bold">72 批 <span class="text-[10px] text-slate-500">(36+36)</span></td>
+              <td class="py-2.5 px-3 w-48">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500" style="width:59.7%"></div>
+                  </div>
+                  <span class="font-mono font-bold w-14 text-right text-emerald-300">59.7%</span>
+                </div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-indigo-300">120.0 分</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">PASS ≤85%</span></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
     <!-- Footer -->
     <footer class="text-center text-xs text-slate-500 py-4">
-      半導體廠區物流運籌系統 ｜ 獨立數位稽核員自動化驗收工具 ｜ 依據《問題敘述_限制條件.txt》
+      半導體廠區物流運籌系統 ｜ 獨立數位稽核員自動化驗收工具 ｜ 嚴格依據《問題敘述_限制條件.txt》
     </footer>
 
   </div>

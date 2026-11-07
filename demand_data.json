@@ -1,0 +1,211 @@
+{
+  "fabs": [
+    "FAB8AB",
+    "FAB8CD",
+    "FAB8E",
+    "FAB8F",
+    "FAB8S",
+    "嘉晶 (篤行)",
+    "嘉晶 (創新)"
+  ],
+  "matrix": {
+    "FAB8AB": {
+      "FAB8AB": 0,
+      "FAB8CD": 0,
+      "FAB8E": 302,
+      "FAB8F": 532,
+      "FAB8S": 74,
+      "嘉晶 (篤行)": 0,
+      "嘉晶 (創新)": 0
+    },
+    "FAB8CD": {
+      "FAB8AB": 0,
+      "FAB8CD": 0,
+      "FAB8E": 373,
+      "FAB8F": 439,
+      "FAB8S": 61,
+      "嘉晶 (篤行)": 0,
+      "嘉晶 (創新)": 0
+    },
+    "FAB8E": {
+      "FAB8AB": 302,
+      "FAB8CD": 373,
+      "FAB8E": 0,
+      "FAB8F": 45,
+      "FAB8S": 43,
+      "嘉晶 (篤行)": 96,
+      "嘉晶 (創新)": 48
+    },
+    "FAB8F": {
+      "FAB8AB": 532,
+      "FAB8CD": 439,
+      "FAB8E": 45,
+      "FAB8F": 0,
+      "FAB8S": 858,
+      "嘉晶 (篤行)": 0,
+      "嘉晶 (創新)": 0
+    },
+    "FAB8S": {
+      "FAB8AB": 74,
+      "FAB8CD": 61,
+      "FAB8E": 43,
+      "FAB8F": 858,
+      "FAB8S": 0,
+      "嘉晶 (篤行)": 0,
+      "嘉晶 (創新)": 0
+    },
+    "嘉晶 (篤行)": {
+      "FAB8AB": 0,
+      "FAB8CD": 0,
+      "FAB8E": 96,
+      "FAB8F": 0,
+      "FAB8S": 0,
+      "嘉晶 (篤行)": 0,
+      "嘉晶 (創新)": 0
+    },
+    "嘉晶 (創新)": {
+      "FAB8AB": 0,
+      "FAB8CD": 0,
+      "FAB8E": 48,
+      "FAB8F": 0,
+      "FAB8S": 0,
+      "嘉晶 (篤行)": 0,
+      "嘉晶 (創新)": 0
+    }
+  },
+  "row_sums": {
+    "FAB8AB": 908,
+    "FAB8CD": 873,
+    "FAB8E": 907,
+    "FAB8F": 1874,
+    "FAB8S": 1036,
+    "嘉晶 (篤行)": 96,
+    "嘉晶 (創新)": 48
+  },
+  "col_sums": {
+    "FAB8AB": 908,
+    "FAB8CD": 873,
+    "FAB8E": 907,
+    "FAB8F": 1874,
+    "FAB8S": 1036,
+    "嘉晶 (篤行)": 96,
+    "嘉晶 (創新)": 48
+  },
+  "total_sum": 5742,
+  "total_sum_12h": 2871,
+  "corridors": [
+    {
+      "from": "FAB8F",
+      "to": "FAB8S",
+      "batches": 858
+    },
+    {
+      "from": "FAB8S",
+      "to": "FAB8F",
+      "batches": 858
+    },
+    {
+      "from": "FAB8AB",
+      "to": "FAB8F",
+      "batches": 532
+    },
+    {
+      "from": "FAB8F",
+      "to": "FAB8AB",
+      "batches": 532
+    },
+    {
+      "from": "FAB8CD",
+      "to": "FAB8F",
+      "batches": 439
+    },
+    {
+      "from": "FAB8F",
+      "to": "FAB8CD",
+      "batches": 439
+    },
+    {
+      "from": "FAB8CD",
+      "to": "FAB8E",
+      "batches": 373
+    },
+    {
+      "from": "FAB8E",
+      "to": "FAB8CD",
+      "batches": 373
+    },
+    {
+      "from": "FAB8AB",
+      "to": "FAB8E",
+      "batches": 302
+    },
+    {
+      "from": "FAB8E",
+      "to": "FAB8AB",
+      "batches": 302
+    },
+    {
+      "from": "FAB8E",
+      "to": "嘉晶 (篤行)",
+      "batches": 96
+    },
+    {
+      "from": "嘉晶 (篤行)",
+      "to": "FAB8E",
+      "batches": 96
+    },
+    {
+      "from": "FAB8AB",
+      "to": "FAB8S",
+      "batches": 74
+    },
+    {
+      "from": "FAB8S",
+      "to": "FAB8AB",
+      "batches": 74
+    },
+    {
+      "from": "FAB8CD",
+      "to": "FAB8S",
+      "batches": 61
+    },
+    {
+      "from": "FAB8S",
+      "to": "FAB8CD",
+      "batches": 61
+    },
+    {
+      "from": "FAB8E",
+      "to": "嘉晶 (創新)",
+      "batches": 48
+    },
+    {
+      "from": "嘉晶 (創新)",
+      "to": "FAB8E",
+      "batches": 48
+    },
+    {
+      "from": "FAB8E",
+      "to": "FAB8F",
+      "batches": 45
+    },
+    {
+      "from": "FAB8F",
+      "to": "FAB8E",
+      "batches": 45
+    },
+    {
+      "from": "FAB8E",
+      "to": "FAB8S",
+      "batches": 43
+    },
+    {
+      "from": "FAB8S",
+      "to": "FAB8E",
+      "batches": 43
+    }
+  ],
+  "active_corridors_count": 22,
+  "source_file": "Demand_from_to.xlsx",
+  "source_url": "https://docs.google.com/spreadsheets/d/1VujchvWL4E75W2_xx48gGvJzPcWwOuzJ/edit?usp=sharing&ouid=105026712656586958579&rtpof=true&sd=true"
+}

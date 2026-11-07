@@ -1,6 +1,8 @@
 {
-  "timestamp": "2026-11-03 20:51:26",
+  "timestamp": "2026-11-07 12:42:01",
   "db_path": "logistics.db",
+  "table_name": "schedules",
+  "plan_label": "原方案 (Baseline 原始基準)",
   "summary": {
     "verdict": "FAILED",
     "verdict_badge": "🔴 稽核未通過 (FAILED) - 存在硬約束違規，嚴禁正式上線",
@@ -9,31 +11,46 @@
     "soft_pass_count": 0,
     "soft_total_count": 2,
     "hard_compliance_rate": 50.0,
-    "soft_satisfaction_score": 60.0,
-    "overall_score": 53.0,
-    "total_violations": 64,
-    "total_warnings": 23
+    "soft_satisfaction_score": 48.0,
+    "overall_score": 49.4,
+    "total_violations": 95,
+    "total_warnings": 29,
+    "total_demand_24h": 5742,
+    "active_od_cap_24h": 6000,
+    "max_utilization": 200.0,
+    "avg_utilization": 95.7,
+    "total_slack_mins": 60,
+    "weighted_wait_batch_mins": 425525,
+    "weighted_avg_wait_mins": 74.1
   },
   "stats": {
     "total_stops": 198,
     "active_stops": 178,
     "break_stops": 20,
     "cars_count": 5,
-    "active_corridors_count": 22
+    "active_corridors_count": 22,
+    "total_demand_24h": 5742,
+    "total_fleet_cap_24h": 6168,
+    "active_od_cap_24h": 6000,
+    "max_utilization": 200.0,
+    "avg_utilization": 95.7,
+    "total_slack_mins": 60,
+    "weighted_wait_batch_mins": 425525,
+    "weighted_avg_wait_mins": 74.1
   },
   "rules": {
     "cap_48_standard": {
       "id": "RULE-CAP-48",
-      "name": "車輛容量基準 (4 籠車 × 12 儲位 = 48 批)",
+      "name": "硬約束 1：車輛容量基準 (4 籠車 × 12 儲位 = 48 批)",
       "category": "HARD",
       "status": "PASS",
       "violations_count": 0,
       "violations": [],
-      "desc": "每部車廂至多容納 4 部籠車，每籠車 12 儲位，全車單趟載運極限為 48 批。"
+      "desc": "每部車廂至多容納 4 部籠車，每籠車 12 儲位，全車單趟載運極限為 48 批 (Car U 不納入規劃)。"
     },
     "loop_loading_protocol": {
       "id": "RULE-LOOP-24",
-      "name": "環廠在途滾動載量協議 (上貨≤24 / 保留24空位 / 末站滿車)",
+      "name": "硬約束 2：環廠在途滾動載量協議 (上貨≤24 [12+12] / 保留24空位 / 末站滿車)",
       "category": "HARD",
       "status": "FAIL",
       "violations_count": 22,
@@ -215,7 +232,7 @@
           "msg": "Car D 第 17 站 (FAB8S) 在途容量 48 批 > 24 批（未保留 24 批空位給下一站）"
         }
       ],
-      "desc": "環廠中途各站上貨總批數不可超過 24 批，必須維持至少 24 批空位，防止前站滿載導致後站拒載。"
+      "desc": "環廠上車站可載往後兩站貨物，每站上貨總批數不超過 24 批且均分 (12+12)，保留 24 批空位給下一站；循環最後一站可裝滿車 (48批)。"
     },
     "soft_1_dock_headway": {
       "id": "RULE-SOFT-1",
@@ -310,161 +327,221 @@
     },
     "soft_2_dest_diversity": {
       "id": "RULE-SOFT-2",
-      "name": "軟約束 2：連續出發目的地多樣性 (促成多向空間分流)",
+      "name": "軟約束 2：出發目的地連續兩班不重複 (促成多向空間分流)",
       "category": "SOFT",
       "status": "WARN",
-      "score": 40.0,
-      "warnings_count": 15,
+      "score": 16.0,
+      "warnings_count": 21,
       "warnings": [
         {
           "shift": "day",
           "fab": "FAB8E",
-          "dest": "8CD",
+          "dest": "FAB8CD",
+          "car_a": "Car D",
+          "dep_a": "09:55",
+          "car_b": "Car A",
+          "dep_b": "10:10",
+          "msg": "FAB8E (day) 連續出發班次皆開往 FAB8CD：Car D(09:55) ➔ Car A(10:10)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8E",
+          "dest": "FAB8S",
+          "car_a": "Car E",
+          "dep_a": "10:30",
+          "car_b": "Car A",
+          "dep_b": "11:55",
+          "msg": "FAB8E (day) 連續出發班次皆開往 FAB8S：Car E(10:30) ➔ Car A(11:55)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8E",
+          "dest": "FAB8CD",
           "car_a": "Car D",
           "dep_a": "13:25",
           "car_b": "Car E",
           "dep_b": "13:50",
-          "msg": "FAB8E (day) 連續出發班次皆開往 8CD：Car D(13:25) ➔ Car E(13:50)"
+          "msg": "FAB8E (day) 連續出發班次皆開往 FAB8CD：Car D(13:25) ➔ Car E(13:50)"
+        },
+        {
+          "shift": "day",
+          "fab": "FAB8E",
+          "dest": "FAB8CD",
+          "car_a": "Car E",
+          "dep_a": "13:50",
+          "car_b": "Car A",
+          "dep_b": "14:25",
+          "msg": "FAB8E (day) 連續出發班次皆開往 FAB8CD：Car E(13:50) ➔ Car A(14:25)"
         },
         {
           "shift": "day",
           "fab": "FAB8CD",
-          "dest": "8F",
+          "dest": "FAB8F",
           "car_a": "Car D",
           "dep_a": "07:55",
           "car_b": "Car B",
           "dep_b": "08:30",
-          "msg": "FAB8CD (day) 連續出發班次皆開往 8F：Car D(07:55) ➔ Car B(08:30)"
+          "msg": "FAB8CD (day) 連續出發班次皆開往 FAB8F：Car D(07:55) ➔ Car B(08:30)"
         },
         {
           "shift": "day",
           "fab": "FAB8CD",
-          "dest": "8F",
+          "dest": "FAB8F",
           "car_a": "Car C",
           "dep_a": "11:15",
           "car_b": "Car B",
           "dep_b": "13:50",
-          "msg": "FAB8CD (day) 連續出發班次皆開往 8F：Car C(11:15) ➔ Car B(13:50)"
+          "msg": "FAB8CD (day) 連續出發班次皆開往 FAB8F：Car C(11:15) ➔ Car B(13:50)"
         },
         {
           "shift": "day",
           "fab": "FAB8CD",
-          "dest": "8E",
+          "dest": "FAB8E",
           "car_a": "Car D",
           "dep_a": "16:45",
           "car_b": "Car A",
           "dep_b": "17:55",
-          "msg": "FAB8CD (day) 連續出發班次皆開往 8E：Car D(16:45) ➔ Car A(17:55)"
+          "msg": "FAB8CD (day) 連續出發班次皆開往 FAB8E：Car D(16:45) ➔ Car A(17:55)"
         },
         {
           "shift": "day",
           "fab": "FAB8AB",
-          "dest": "8E",
+          "dest": "FAB8E",
           "car_a": "Car A",
           "dep_a": "09:40",
           "car_b": "Car E",
           "dep_b": "10:05",
-          "msg": "FAB8AB (day) 連續出發班次皆開往 8E：Car A(09:40) ➔ Car E(10:05)"
+          "msg": "FAB8AB (day) 連續出發班次皆開往 FAB8E：Car A(09:40) ➔ Car E(10:05)"
         },
         {
           "shift": "day",
           "fab": "FAB8AB",
-          "dest": "8S",
+          "dest": "FAB8S",
           "car_a": "Car D",
           "dep_a": "14:25",
           "car_b": "Car B",
           "dep_b": "14:50",
-          "msg": "FAB8AB (day) 連續出發班次皆開往 8S：Car D(14:25) ➔ Car B(14:50)"
+          "msg": "FAB8AB (day) 連續出發班次皆開往 FAB8S：Car D(14:25) ➔ Car B(14:50)"
         },
         {
           "shift": "day",
           "fab": "FAB8F",
-          "dest": "8S",
+          "dest": "FAB8S",
           "car_a": "Car D",
           "dep_a": "10:55",
           "car_b": "Car B",
           "dep_b": "11:10",
-          "msg": "FAB8F (day) 連續出發班次皆開往 8S：Car D(10:55) ➔ Car B(11:10)"
+          "msg": "FAB8F (day) 連續出發班次皆開往 FAB8S：Car D(10:55) ➔ Car B(11:10)"
         },
         {
           "shift": "day",
           "fab": "FAB8F",
-          "dest": "8CD",
+          "dest": "FAB8CD",
           "car_a": "Car B",
           "dep_a": "16:05",
           "car_b": "Car D",
           "dep_b": "16:25",
-          "msg": "FAB8F (day) 連續出發班次皆開往 8CD：Car B(16:05) ➔ Car D(16:25)"
+          "msg": "FAB8F (day) 連續出發班次皆開往 FAB8CD：Car B(16:05) ➔ Car D(16:25)"
         },
         {
           "shift": "night",
           "fab": "FAB8E",
-          "dest": "8CD",
+          "dest": "FAB8CD",
           "car_a": "Car D",
           "dep_a": "01:25",
           "car_b": "Car E",
           "dep_b": "01:50",
-          "msg": "FAB8E (night) 連續出發班次皆開往 8CD：Car D(01:25) ➔ Car E(01:50)"
+          "msg": "FAB8E (night) 連續出發班次皆開往 FAB8CD：Car D(01:25) ➔ Car E(01:50)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8E",
+          "dest": "FAB8CD",
+          "car_a": "Car E",
+          "dep_a": "01:50",
+          "car_b": "Car A",
+          "dep_b": "02:25",
+          "msg": "FAB8E (night) 連續出發班次皆開往 FAB8CD：Car E(01:50) ➔ Car A(02:25)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8E",
+          "dest": "FAB8CD",
+          "car_a": "Car D",
+          "dep_a": "21:55",
+          "car_b": "Car A",
+          "dep_b": "22:10",
+          "msg": "FAB8E (night) 連續出發班次皆開往 FAB8CD：Car D(21:55) ➔ Car A(22:10)"
+        },
+        {
+          "shift": "night",
+          "fab": "FAB8E",
+          "dest": "FAB8S",
+          "car_a": "Car E",
+          "dep_a": "22:30",
+          "car_b": "Car A",
+          "dep_b": "23:55",
+          "msg": "FAB8E (night) 連續出發班次皆開往 FAB8S：Car E(22:30) ➔ Car A(23:55)"
         },
         {
           "shift": "night",
           "fab": "FAB8CD",
-          "dest": "8E",
+          "dest": "FAB8E",
           "car_a": "Car D",
           "dep_a": "04:45",
           "car_b": "Car A",
           "dep_b": "05:55",
-          "msg": "FAB8CD (night) 連續出發班次皆開往 8E：Car D(04:45) ➔ Car A(05:55)"
+          "msg": "FAB8CD (night) 連續出發班次皆開往 FAB8E：Car D(04:45) ➔ Car A(05:55)"
         },
         {
           "shift": "night",
           "fab": "FAB8CD",
-          "dest": "8F",
+          "dest": "FAB8F",
           "car_a": "Car D",
           "dep_a": "19:55",
           "car_b": "Car B",
           "dep_b": "20:30",
-          "msg": "FAB8CD (night) 連續出發班次皆開往 8F：Car D(19:55) ➔ Car B(20:30)"
+          "msg": "FAB8CD (night) 連續出發班次皆開往 FAB8F：Car D(19:55) ➔ Car B(20:30)"
         },
         {
           "shift": "night",
           "fab": "FAB8AB",
-          "dest": "8S",
+          "dest": "FAB8S",
           "car_a": "Car D",
           "dep_a": "02:25",
           "car_b": "Car B",
           "dep_b": "02:50",
-          "msg": "FAB8AB (night) 連續出發班次皆開往 8S：Car D(02:25) ➔ Car B(02:50)"
+          "msg": "FAB8AB (night) 連續出發班次皆開往 FAB8S：Car D(02:25) ➔ Car B(02:50)"
         },
         {
           "shift": "night",
           "fab": "FAB8AB",
-          "dest": "8E",
+          "dest": "FAB8E",
           "car_a": "Car A",
           "dep_a": "21:40",
           "car_b": "Car E",
           "dep_b": "22:05",
-          "msg": "FAB8AB (night) 連續出發班次皆開往 8E：Car A(21:40) ➔ Car E(22:05)"
+          "msg": "FAB8AB (night) 連續出發班次皆開往 FAB8E：Car A(21:40) ➔ Car E(22:05)"
         },
         {
           "shift": "night",
           "fab": "FAB8F",
-          "dest": "8CD",
+          "dest": "FAB8CD",
           "car_a": "Car B",
           "dep_a": "04:05",
           "car_b": "Car D",
           "dep_b": "04:25",
-          "msg": "FAB8F (night) 連續出發班次皆開往 8CD：Car B(04:05) ➔ Car D(04:25)"
+          "msg": "FAB8F (night) 連續出發班次皆開往 FAB8CD：Car B(04:05) ➔ Car D(04:25)"
         },
         {
           "shift": "night",
           "fab": "FAB8F",
-          "dest": "8S",
+          "dest": "FAB8S",
           "car_a": "Car D",
           "dep_a": "22:55",
           "car_b": "Car B",
           "dep_b": "23:10",
-          "msg": "FAB8F (night) 連續出發班次皆開往 8S：Car D(22:55) ➔ Car B(23:10)"
+          "msg": "FAB8F (night) 連續出發班次皆開往 FAB8S：Car D(22:55) ➔ Car B(23:10)"
         }
       ],
       "desc": "同一廠區連續發出的班次目的地應盡量多元，避免部分廠區物料遭長期冷落。"
@@ -483,382 +560,424 @@
       "name": "硬約束 4：走廊利用率 ≤ 85.0% (保證 ≥15% 安全抗震裕度)",
       "category": "HARD",
       "status": "FAIL",
-      "violations_count": 14,
+      "violations_count": 11,
       "violations": [
         {
-          "from": "FAB8AB",
-          "to": "FAB8E",
-          "demand": 150,
-          "capacity": 136,
-          "utilization": 110.3,
-          "msg": "走廊 FAB8AB ➔ FAB8E 利用率達 110.3% 超出 85.0% 上限 (需求 150 批 / 供給 136 批)"
-        },
-        {
-          "from": "FAB8AB",
-          "to": "FAB8F",
-          "demand": 250,
-          "capacity": 96,
-          "utilization": 260.4,
-          "msg": "走廊 FAB8AB ➔ FAB8F 利用率達 260.4% 超出 85.0% 上限 (需求 250 批 / 供給 96 批)"
-        },
-        {
-          "from": "FAB8CD",
-          "to": "FAB8E",
-          "demand": 150,
-          "capacity": 88,
-          "utilization": 170.5,
-          "msg": "走廊 FAB8CD ➔ FAB8E 利用率達 170.5% 超出 85.0% 上限 (需求 150 批 / 供給 88 批)"
-        },
-        {
-          "from": "FAB8CD",
-          "to": "FAB8F",
-          "demand": 300,
-          "capacity": 72,
-          "utilization": 416.7,
-          "msg": "走廊 FAB8CD ➔ FAB8F 利用率達 416.7% 超出 85.0% 上限 (需求 300 批 / 供給 72 批)"
-        },
-        {
-          "from": "FAB8E",
-          "to": "FAB8AB",
-          "demand": 150,
-          "capacity": 120,
-          "utilization": 125.0,
-          "msg": "走廊 FAB8E ➔ FAB8AB 利用率達 125.0% 超出 85.0% 上限 (需求 150 批 / 供給 120 批)"
-        },
-        {
-          "from": "FAB8E",
-          "to": "FAB8CD",
-          "demand": 150,
-          "capacity": 160,
-          "utilization": 93.8,
-          "msg": "走廊 FAB8E ➔ FAB8CD 利用率達 93.8% 超出 85.0% 上限 (需求 150 批 / 供給 160 批)"
-        },
-        {
-          "from": "FAB8E",
-          "to": "嘉晶創新",
-          "demand": 30,
-          "capacity": 24,
-          "utilization": 125.0,
-          "msg": "走廊 FAB8E ➔ 嘉晶創新 利用率達 125.0% 超出 85.0% 上限 (需求 30 批 / 供給 24 批)"
-        },
-        {
-          "from": "FAB8F",
-          "to": "FAB8AB",
-          "demand": 250,
-          "capacity": 72,
-          "utilization": 347.2,
-          "msg": "走廊 FAB8F ➔ FAB8AB 利用率達 347.2% 超出 85.0% 上限 (需求 250 批 / 供給 72 批)"
-        },
-        {
-          "from": "FAB8F",
-          "to": "FAB8CD",
-          "demand": 300,
-          "capacity": 24,
-          "utilization": 1250.0,
-          "msg": "走廊 FAB8F ➔ FAB8CD 利用率達 1250.0% 超出 85.0% 上限 (需求 300 批 / 供給 24 批)"
-        },
-        {
           "from": "FAB8F",
           "to": "FAB8S",
-          "demand": 260,
-          "capacity": 96,
-          "utilization": 270.8,
-          "msg": "走廊 FAB8F ➔ FAB8S 利用率達 270.8% 超出 85.0% 上限 (需求 260 批 / 供給 96 批)"
-        },
-        {
-          "from": "FAB8S",
-          "to": "FAB8AB",
-          "demand": 50,
-          "capacity": 48,
-          "utilization": 104.2,
-          "msg": "走廊 FAB8S ➔ FAB8AB 利用率達 104.2% 超出 85.0% 上限 (需求 50 批 / 供給 48 批)"
+          "demand": 858,
+          "capacity": 600,
+          "utilization": 143.0,
+          "msg": "走廊 FAB8F ➔ FAB8S 利用率達 143.0% 超出 85.0% 上限 (需求 858 批 / 供給 600 批)"
         },
         {
           "from": "FAB8S",
           "to": "FAB8F",
-          "demand": 260,
-          "capacity": 72,
-          "utilization": 361.1,
-          "msg": "走廊 FAB8S ➔ FAB8F 利用率達 361.1% 超出 85.0% 上限 (需求 260 批 / 供給 72 批)"
-        },
-        {
-          "from": "嘉晶篤行",
-          "to": "FAB8E",
-          "demand": 30,
-          "capacity": 24,
-          "utilization": 125.0,
-          "msg": "走廊 嘉晶篤行 ➔ FAB8E 利用率達 125.0% 超出 85.0% 上限 (需求 30 批 / 供給 24 批)"
-        },
-        {
-          "from": "嘉晶創新",
-          "to": "FAB8E",
-          "demand": 30,
-          "capacity": 12,
-          "utilization": 250.0,
-          "msg": "走廊 嘉晶創新 ➔ FAB8E 利用率達 250.0% 超出 85.0% 上限 (需求 30 批 / 供給 12 批)"
-        }
-      ],
-      "od_table": [
-        {
-          "from": "FAB8AB",
-          "to": "FAB8E",
-          "demand": 150,
-          "day_trips": 6,
-          "night_trips": 6,
-          "total_trips": 12,
-          "capacity": 136,
-          "utilization": 110.3,
-          "status": "FAIL"
+          "demand": 858,
+          "capacity": 576,
+          "utilization": 149.0,
+          "msg": "走廊 FAB8S ➔ FAB8F 利用率達 149.0% 超出 85.0% 上限 (需求 858 批 / 供給 576 批)"
         },
         {
           "from": "FAB8AB",
           "to": "FAB8F",
-          "demand": 250,
-          "day_trips": 4,
-          "night_trips": 4,
-          "total_trips": 8,
-          "capacity": 96,
-          "utilization": 260.4,
-          "status": "FAIL"
+          "demand": 532,
+          "capacity": 368,
+          "utilization": 144.6,
+          "msg": "走廊 FAB8AB ➔ FAB8F 利用率達 144.6% 超出 85.0% 上限 (需求 532 批 / 供給 368 批)"
         },
         {
-          "from": "FAB8AB",
-          "to": "FAB8S",
-          "demand": 50,
-          "day_trips": 7,
-          "night_trips": 7,
-          "total_trips": 14,
-          "capacity": 160,
-          "utilization": 31.2,
-          "status": "PASS"
+          "from": "FAB8F",
+          "to": "FAB8AB",
+          "demand": 532,
+          "capacity": 304,
+          "utilization": 175.0,
+          "msg": "走廊 FAB8F ➔ FAB8AB 利用率達 175.0% 超出 85.0% 上限 (需求 532 批 / 供給 304 批)"
         },
         {
           "from": "FAB8CD",
           "to": "FAB8E",
-          "demand": 150,
-          "day_trips": 4,
-          "night_trips": 4,
-          "total_trips": 8,
-          "capacity": 88,
-          "utilization": 170.5,
-          "status": "FAIL"
+          "demand": 373,
+          "capacity": 400,
+          "utilization": 93.2,
+          "msg": "走廊 FAB8CD ➔ FAB8E 利用率達 93.2% 超出 85.0% 上限 (需求 373 批 / 供給 400 批)"
         },
         {
-          "from": "FAB8CD",
-          "to": "FAB8F",
-          "demand": 300,
-          "day_trips": 3,
-          "night_trips": 3,
-          "total_trips": 6,
-          "capacity": 72,
-          "utilization": 416.7,
-          "status": "FAIL"
-        },
-        {
-          "from": "FAB8CD",
-          "to": "FAB8S",
-          "demand": 80,
-          "day_trips": 4,
-          "night_trips": 4,
-          "total_trips": 8,
-          "capacity": 96,
-          "utilization": 83.3,
-          "status": "PASS"
+          "from": "FAB8AB",
+          "to": "FAB8E",
+          "demand": 302,
+          "capacity": 344,
+          "utilization": 87.8,
+          "msg": "走廊 FAB8AB ➔ FAB8E 利用率達 87.8% 超出 85.0% 上限 (需求 302 批 / 供給 344 批)"
         },
         {
           "from": "FAB8E",
           "to": "FAB8AB",
-          "demand": 150,
-          "day_trips": 5,
-          "night_trips": 5,
-          "total_trips": 10,
-          "capacity": 120,
-          "utilization": 125.0,
-          "status": "FAIL"
-        },
-        {
-          "from": "FAB8E",
-          "to": "FAB8CD",
-          "demand": 150,
-          "day_trips": 7,
-          "night_trips": 7,
-          "total_trips": 14,
-          "capacity": 160,
-          "utilization": 93.8,
-          "status": "FAIL"
-        },
-        {
-          "from": "FAB8E",
-          "to": "FAB8F",
-          "demand": 20,
-          "day_trips": 4,
-          "night_trips": 4,
-          "total_trips": 8,
-          "capacity": 88,
-          "utilization": 22.7,
-          "status": "PASS"
-        },
-        {
-          "from": "FAB8E",
-          "to": "FAB8S",
-          "demand": 40,
-          "day_trips": 4,
-          "night_trips": 4,
-          "total_trips": 8,
-          "capacity": 88,
-          "utilization": 45.5,
-          "status": "PASS"
+          "demand": 302,
+          "capacity": 288,
+          "utilization": 104.9,
+          "msg": "走廊 FAB8E ➔ FAB8AB 利用率達 104.9% 超出 85.0% 上限 (需求 302 批 / 供給 288 批)"
         },
         {
           "from": "FAB8E",
           "to": "嘉晶篤行",
-          "demand": 30,
-          "day_trips": 2,
-          "night_trips": 2,
-          "total_trips": 4,
-          "capacity": 48,
-          "utilization": 62.5,
-          "status": "PASS"
+          "demand": 96,
+          "capacity": 56,
+          "utilization": 171.4,
+          "msg": "走廊 FAB8E ➔ 嘉晶篤行 利用率達 171.4% 超出 85.0% 上限 (需求 96 批 / 供給 56 批)"
+        },
+        {
+          "from": "嘉晶篤行",
+          "to": "FAB8E",
+          "demand": 96,
+          "capacity": 88,
+          "utilization": 109.1,
+          "msg": "走廊 嘉晶篤行 ➔ FAB8E 利用率達 109.1% 超出 85.0% 上限 (需求 96 批 / 供給 88 批)"
         },
         {
           "from": "FAB8E",
           "to": "嘉晶創新",
-          "demand": 30,
-          "day_trips": 1,
-          "night_trips": 1,
-          "total_trips": 2,
+          "demand": 48,
           "capacity": 24,
-          "utilization": 125.0,
-          "status": "FAIL"
+          "utilization": 200.0,
+          "msg": "走廊 FAB8E ➔ 嘉晶創新 利用率達 200.0% 超出 85.0% 上限 (需求 48 批 / 供給 24 批)"
         },
         {
-          "from": "FAB8F",
-          "to": "FAB8AB",
-          "demand": 250,
-          "day_trips": 3,
-          "night_trips": 3,
-          "total_trips": 6,
-          "capacity": 72,
-          "utilization": 347.2,
-          "status": "FAIL"
-        },
-        {
-          "from": "FAB8F",
-          "to": "FAB8CD",
-          "demand": 300,
-          "day_trips": 1,
-          "night_trips": 1,
-          "total_trips": 2,
-          "capacity": 24,
-          "utilization": 1250.0,
-          "status": "FAIL"
-        },
-        {
-          "from": "FAB8F",
+          "from": "嘉晶創新",
           "to": "FAB8E",
-          "demand": 20,
-          "day_trips": 4,
-          "night_trips": 4,
-          "total_trips": 8,
-          "capacity": 96,
-          "utilization": 20.8,
-          "status": "PASS"
-        },
+          "demand": 48,
+          "capacity": 24,
+          "utilization": 200.0,
+          "msg": "走廊 嘉晶創新 ➔ FAB8E 利用率達 200.0% 超出 85.0% 上限 (需求 48 批 / 供給 24 批)"
+        }
+      ],
+      "od_table": [
         {
           "from": "FAB8F",
           "to": "FAB8S",
-          "demand": 260,
-          "day_trips": 4,
-          "night_trips": 4,
-          "total_trips": 8,
-          "capacity": 96,
-          "utilization": 270.8,
+          "demand": 858,
+          "day_trips": 8,
+          "night_trips": 8,
+          "total_trips": 16,
+          "day_cap": 300,
+          "night_cap": 300,
+          "capacity": 600,
+          "utilization": 143.0,
+          "avg_wait_mins": 45.0,
           "status": "FAIL"
-        },
-        {
-          "from": "FAB8S",
-          "to": "FAB8AB",
-          "demand": 50,
-          "day_trips": 2,
-          "night_trips": 2,
-          "total_trips": 4,
-          "capacity": 48,
-          "utilization": 104.2,
-          "status": "FAIL"
-        },
-        {
-          "from": "FAB8S",
-          "to": "FAB8CD",
-          "demand": 80,
-          "day_trips": 5,
-          "night_trips": 5,
-          "total_trips": 10,
-          "capacity": 120,
-          "utilization": 66.7,
-          "status": "PASS"
-        },
-        {
-          "from": "FAB8S",
-          "to": "FAB8E",
-          "demand": 40,
-          "day_trips": 6,
-          "night_trips": 6,
-          "total_trips": 12,
-          "capacity": 144,
-          "utilization": 27.8,
-          "status": "PASS"
         },
         {
           "from": "FAB8S",
           "to": "FAB8F",
-          "demand": 260,
-          "day_trips": 3,
-          "night_trips": 3,
-          "total_trips": 6,
-          "capacity": 72,
-          "utilization": 361.1,
+          "demand": 858,
+          "day_trips": 6,
+          "night_trips": 6,
+          "total_trips": 12,
+          "day_cap": 288,
+          "night_cap": 288,
+          "capacity": 576,
+          "utilization": 149.0,
+          "avg_wait_mins": 60.0,
+          "status": "FAIL"
+        },
+        {
+          "from": "FAB8AB",
+          "to": "FAB8F",
+          "demand": 532,
+          "day_trips": 5,
+          "night_trips": 5,
+          "total_trips": 10,
+          "day_cap": 184,
+          "night_cap": 184,
+          "capacity": 368,
+          "utilization": 144.6,
+          "avg_wait_mins": 72.0,
+          "status": "FAIL"
+        },
+        {
+          "from": "FAB8F",
+          "to": "FAB8AB",
+          "demand": 532,
+          "day_trips": 4,
+          "night_trips": 4,
+          "total_trips": 8,
+          "day_cap": 152,
+          "night_cap": 152,
+          "capacity": 304,
+          "utilization": 175.0,
+          "avg_wait_mins": 90.0,
+          "status": "FAIL"
+        },
+        {
+          "from": "FAB8CD",
+          "to": "FAB8F",
+          "demand": 439,
+          "day_trips": 9,
+          "night_trips": 9,
+          "total_trips": 18,
+          "day_cap": 332,
+          "night_cap": 332,
+          "capacity": 664,
+          "utilization": 66.1,
+          "avg_wait_mins": 40.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8F",
+          "to": "FAB8CD",
+          "demand": 439,
+          "day_trips": 8,
+          "night_trips": 8,
+          "total_trips": 16,
+          "day_cap": 360,
+          "night_cap": 360,
+          "capacity": 720,
+          "utilization": 61.0,
+          "avg_wait_mins": 45.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8CD",
+          "to": "FAB8E",
+          "demand": 373,
+          "day_trips": 6,
+          "night_trips": 6,
+          "total_trips": 12,
+          "day_cap": 200,
+          "night_cap": 200,
+          "capacity": 400,
+          "utilization": 93.2,
+          "avg_wait_mins": 60.0,
+          "status": "FAIL"
+        },
+        {
+          "from": "FAB8E",
+          "to": "FAB8CD",
+          "demand": 373,
+          "day_trips": 8,
+          "night_trips": 8,
+          "total_trips": 16,
+          "day_cap": 220,
+          "night_cap": 220,
+          "capacity": 440,
+          "utilization": 84.8,
+          "avg_wait_mins": 45.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8AB",
+          "to": "FAB8E",
+          "demand": 302,
+          "day_trips": 7,
+          "night_trips": 7,
+          "total_trips": 14,
+          "day_cap": 172,
+          "night_cap": 172,
+          "capacity": 344,
+          "utilization": 87.8,
+          "avg_wait_mins": 51.4,
+          "status": "FAIL"
+        },
+        {
+          "from": "FAB8E",
+          "to": "FAB8AB",
+          "demand": 302,
+          "day_trips": 5,
+          "night_trips": 5,
+          "total_trips": 10,
+          "day_cap": 144,
+          "night_cap": 144,
+          "capacity": 288,
+          "utilization": 104.9,
+          "avg_wait_mins": 72.0,
+          "status": "FAIL"
+        },
+        {
+          "from": "FAB8E",
+          "to": "嘉晶篤行",
+          "demand": 96,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "day_cap": 28,
+          "night_cap": 28,
+          "capacity": 56,
+          "utilization": 171.4,
+          "avg_wait_mins": 180.0,
           "status": "FAIL"
         },
         {
           "from": "嘉晶篤行",
           "to": "FAB8E",
-          "demand": 30,
+          "demand": 96,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "day_cap": 44,
+          "night_cap": 44,
+          "capacity": 88,
+          "utilization": 109.1,
+          "avg_wait_mins": 180.0,
+          "status": "FAIL"
+        },
+        {
+          "from": "FAB8AB",
+          "to": "FAB8S",
+          "demand": 74,
+          "day_trips": 5,
+          "night_trips": 5,
+          "total_trips": 10,
+          "day_cap": 104,
+          "night_cap": 104,
+          "capacity": 208,
+          "utilization": 35.6,
+          "avg_wait_mins": 72.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8S",
+          "to": "FAB8AB",
+          "demand": 74,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "day_cap": 64,
+          "night_cap": 64,
+          "capacity": 128,
+          "utilization": 57.8,
+          "avg_wait_mins": 180.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8CD",
+          "to": "FAB8S",
+          "demand": 61,
+          "day_trips": 4,
+          "night_trips": 4,
+          "total_trips": 8,
+          "day_cap": 52,
+          "night_cap": 52,
+          "capacity": 104,
+          "utilization": 58.7,
+          "avg_wait_mins": 90.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8S",
+          "to": "FAB8CD",
+          "demand": 61,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "day_cap": 64,
+          "night_cap": 64,
+          "capacity": 128,
+          "utilization": 47.7,
+          "avg_wait_mins": 180.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8E",
+          "to": "嘉晶創新",
+          "demand": 48,
           "day_trips": 1,
           "night_trips": 1,
           "total_trips": 2,
+          "day_cap": 12,
+          "night_cap": 12,
           "capacity": 24,
-          "utilization": 125.0,
+          "utilization": 200.0,
+          "avg_wait_mins": 360.0,
           "status": "FAIL"
         },
         {
           "from": "嘉晶創新",
           "to": "FAB8E",
-          "demand": 30,
+          "demand": 48,
           "day_trips": 1,
           "night_trips": 1,
           "total_trips": 2,
-          "capacity": 12,
-          "utilization": 250.0,
+          "day_cap": 12,
+          "night_cap": 12,
+          "capacity": 24,
+          "utilization": 200.0,
+          "avg_wait_mins": 360.0,
           "status": "FAIL"
+        },
+        {
+          "from": "FAB8E",
+          "to": "FAB8F",
+          "demand": 45,
+          "day_trips": 2,
+          "night_trips": 2,
+          "total_trips": 4,
+          "day_cap": 36,
+          "night_cap": 36,
+          "capacity": 72,
+          "utilization": 62.5,
+          "avg_wait_mins": 180.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8F",
+          "to": "FAB8E",
+          "demand": 45,
+          "day_trips": 1,
+          "night_trips": 1,
+          "total_trips": 2,
+          "day_cap": 36,
+          "night_cap": 36,
+          "capacity": 72,
+          "utilization": 62.5,
+          "avg_wait_mins": 360.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8E",
+          "to": "FAB8S",
+          "demand": 43,
+          "day_trips": 4,
+          "night_trips": 4,
+          "total_trips": 8,
+          "day_cap": 92,
+          "night_cap": 92,
+          "capacity": 184,
+          "utilization": 23.4,
+          "avg_wait_mins": 90.0,
+          "status": "PASS"
+        },
+        {
+          "from": "FAB8S",
+          "to": "FAB8E",
+          "demand": 43,
+          "day_trips": 5,
+          "night_trips": 5,
+          "total_trips": 10,
+          "day_cap": 104,
+          "night_cap": 104,
+          "capacity": 208,
+          "utilization": 20.7,
+          "avg_wait_mins": 72.0,
+          "status": "PASS"
         }
       ],
-      "desc": "每一段有需求的走廊利用率（需求÷運能）嚴格要求 ≤85.0%，保留至少 15% 以上安全緩衝，杜絕 100% 死鎖。"
+      "desc": "每一段有需求的走廊利用率（需求÷運能）嚴格要求 ≤85.0%，保留至少 15% 以上安全緩衝，杜絕爆倉。"
     },
     "hard_5_driver_rest": {
       "id": "RULE-HARD-REST",
-      "name": "硬約束 5：司機休息與交接合規 (午休/夜休 60 分鐘完整保障)",
+      "name": "硬約束 5：司機休息與交接合規 (午休/晚餐 60 分鐘、跨班交接固定充足)",
       "category": "HARD",
       "status": "PASS",
       "violations_count": 0,
       "violations": [],
-      "desc": "日班午休 60 分鐘、夜班夜休 60 分鐘、交接緩衝 20 分鐘必須分秒足額，且停靠於母港設施區。"
+      "desc": "日班午休 60 分鐘、夜班晚餐 60 分鐘與跨班交接時間必須固定且充足。"
     },
     "hard_6_physics_transit": {
       "id": "RULE-HARD-PHYSICS",
       "name": "硬約束 6：行車與作業時間不可壓縮 (物理剛性不可突破)",
       "category": "HARD",
       "status": "FAIL",
-      "violations_count": 28,
+      "violations_count": 62,
       "violations": [
         {
           "car": "Car A",
@@ -867,7 +986,7 @@
           "to": "FAB8AB",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car A 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (day) 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -876,7 +995,7 @@
           "to": "FAB8E",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car A 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (day) 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -885,7 +1004,7 @@
           "to": "嘉晶篤行",
           "actual": 5,
           "min_req": 15,
-          "msg": "Car A 從 FAB8E ➔ 嘉晶篤行 行車時間僅 5 分鐘 (< 物理最低需 15 分鐘)"
+          "msg": "Car A (day) 從 FAB8E ➔ 嘉晶篤行 行車時間僅 5 分鐘 (< 物理最低需 15 分鐘)"
         },
         {
           "car": "Car A",
@@ -894,7 +1013,25 @@
           "to": "FAB8E",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car A 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (day) 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car A",
+          "shift": "day",
+          "from": "FAB8E",
+          "to": "休息用餐",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car A (day) 從 FAB8E ➔ 休息用餐 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car A",
+          "shift": "day",
+          "from": "休息用餐",
+          "to": "FAB8S",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car A (day) 從 休息用餐 ➔ FAB8S 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -903,7 +1040,7 @@
           "to": "嘉晶創新",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car A 從 FAB8S ➔ 嘉晶創新 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (day) 從 FAB8S ➔ 嘉晶創新 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -912,7 +1049,7 @@
           "to": "FAB8E",
           "actual": 10,
           "min_req": 15,
-          "msg": "Car A 從 嘉晶創新 ➔ FAB8E 行車時間僅 10 分鐘 (< 物理最低需 15 分鐘)"
+          "msg": "Car A (day) 從 嘉晶創新 ➔ FAB8E 行車時間僅 10 分鐘 (< 物理最低需 15 分鐘)"
         },
         {
           "car": "Car A",
@@ -921,7 +1058,7 @@
           "to": "FAB8CD",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car A 從 FAB8E ➔ FAB8CD 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (day) 從 FAB8E ➔ FAB8CD 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -930,7 +1067,7 @@
           "to": "FAB8E",
           "actual": 0,
           "min_req": 15,
-          "msg": "Car A 從 嘉晶篤行 ➔ FAB8E 行車時間僅 0 分鐘 (< 物理最低需 15 分鐘)"
+          "msg": "Car A (day) 從 嘉晶篤行 ➔ FAB8E 行車時間僅 0 分鐘 (< 物理最低需 15 分鐘)"
         },
         {
           "car": "Car A",
@@ -939,7 +1076,61 @@
           "to": "FAB8AB",
           "actual": 0,
           "min_req": 10,
-          "msg": "Car A 從 FAB8E ➔ FAB8AB 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (day) 從 FAB8E ➔ FAB8AB 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car A",
+          "shift": "day",
+          "from": "FAB8E",
+          "to": "交接整備",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car A (day) 從 FAB8E ➔ 交接整備 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car B",
+          "shift": "day",
+          "from": "FAB8S",
+          "to": "休息用餐",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car B (day) 從 FAB8S ➔ 休息用餐 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car B",
+          "shift": "day",
+          "from": "休息用餐",
+          "to": "FAB8F",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car B (day) 從 休息用餐 ➔ FAB8F 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car B",
+          "shift": "day",
+          "from": "FAB8F",
+          "to": "交接整備",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car B (day) 從 FAB8F ➔ 交接整備 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car C",
+          "shift": "day",
+          "from": "FAB8AB",
+          "to": "休息用餐",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car C (day) 從 FAB8AB ➔ 休息用餐 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car C",
+          "shift": "day",
+          "from": "休息用餐",
+          "to": "FAB8F",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car C (day) 從 休息用餐 ➔ FAB8F 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car C",
@@ -948,7 +1139,16 @@
           "to": "FAB8AB",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car C 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car C (day) 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car C",
+          "shift": "day",
+          "from": "FAB8F",
+          "to": "FAB8E",
+          "actual": 5,
+          "min_req": 10,
+          "msg": "Car C (day) 從 FAB8F ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car C",
@@ -957,7 +1157,52 @@
           "to": "FAB8AB",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car C 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car C (day) 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car C",
+          "shift": "day",
+          "from": "FAB8AB",
+          "to": "交接整備",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car C (day) 從 FAB8AB ➔ 交接整備 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car D",
+          "shift": "day",
+          "from": "FAB8S",
+          "to": "休息用餐",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car D (day) 從 FAB8S ➔ 休息用餐 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car D",
+          "shift": "day",
+          "from": "休息用餐",
+          "to": "FAB8E",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car D (day) 從 休息用餐 ➔ FAB8E 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car D",
+          "shift": "day",
+          "from": "FAB8E",
+          "to": "FAB8F",
+          "actual": 5,
+          "min_req": 10,
+          "msg": "Car D (day) 從 FAB8E ➔ FAB8F 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car D",
+          "shift": "day",
+          "from": "FAB8AB",
+          "to": "交接整備",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car D (day) 從 FAB8AB ➔ 交接整備 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car E",
@@ -966,7 +1211,25 @@
           "to": "FAB8E",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car E 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car E (day) 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car E",
+          "shift": "day",
+          "from": "FAB8F",
+          "to": "休息用餐",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car E (day) 從 FAB8F ➔ 休息用餐 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car E",
+          "shift": "day",
+          "from": "休息用餐",
+          "to": "FAB8AB",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car E (day) 從 休息用餐 ➔ FAB8AB 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car E",
@@ -975,7 +1238,7 @@
           "to": "FAB8E",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car E 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car E (day) 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car E",
@@ -984,7 +1247,16 @@
           "to": "FAB8E",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car E 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car E (day) 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car E",
+          "shift": "day",
+          "from": "FAB8CD",
+          "to": "交接整備",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car E (day) 從 FAB8CD ➔ 交接整備 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -993,7 +1265,7 @@
           "to": "FAB8AB",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car A 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (night) 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -1002,7 +1274,7 @@
           "to": "FAB8E",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car A 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (night) 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -1011,7 +1283,7 @@
           "to": "嘉晶篤行",
           "actual": 5,
           "min_req": 15,
-          "msg": "Car A 從 FAB8E ➔ 嘉晶篤行 行車時間僅 5 分鐘 (< 物理最低需 15 分鐘)"
+          "msg": "Car A (night) 從 FAB8E ➔ 嘉晶篤行 行車時間僅 5 分鐘 (< 物理最低需 15 分鐘)"
         },
         {
           "car": "Car A",
@@ -1020,7 +1292,25 @@
           "to": "FAB8E",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car A 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (night) 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car A",
+          "shift": "night",
+          "from": "FAB8E",
+          "to": "休息用餐",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car A (night) 從 FAB8E ➔ 休息用餐 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car A",
+          "shift": "night",
+          "from": "休息用餐",
+          "to": "FAB8S",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car A (night) 從 休息用餐 ➔ FAB8S 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -1029,7 +1319,7 @@
           "to": "嘉晶創新",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car A 從 FAB8S ➔ 嘉晶創新 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (night) 從 FAB8S ➔ 嘉晶創新 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -1038,7 +1328,7 @@
           "to": "FAB8E",
           "actual": 10,
           "min_req": 15,
-          "msg": "Car A 從 嘉晶創新 ➔ FAB8E 行車時間僅 10 分鐘 (< 物理最低需 15 分鐘)"
+          "msg": "Car A (night) 從 嘉晶創新 ➔ FAB8E 行車時間僅 10 分鐘 (< 物理最低需 15 分鐘)"
         },
         {
           "car": "Car A",
@@ -1047,7 +1337,7 @@
           "to": "FAB8CD",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car A 從 FAB8E ➔ FAB8CD 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (night) 從 FAB8E ➔ FAB8CD 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car A",
@@ -1056,7 +1346,7 @@
           "to": "FAB8E",
           "actual": 0,
           "min_req": 15,
-          "msg": "Car A 從 嘉晶篤行 ➔ FAB8E 行車時間僅 0 分鐘 (< 物理最低需 15 分鐘)"
+          "msg": "Car A (night) 從 嘉晶篤行 ➔ FAB8E 行車時間僅 0 分鐘 (< 物理最低需 15 分鐘)"
         },
         {
           "car": "Car A",
@@ -1065,7 +1355,61 @@
           "to": "FAB8AB",
           "actual": 0,
           "min_req": 10,
-          "msg": "Car A 從 FAB8E ➔ FAB8AB 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car A (night) 從 FAB8E ➔ FAB8AB 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car A",
+          "shift": "night",
+          "from": "FAB8E",
+          "to": "交接整備",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car A (night) 從 FAB8E ➔ 交接整備 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car B",
+          "shift": "night",
+          "from": "FAB8S",
+          "to": "休息用餐",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car B (night) 從 FAB8S ➔ 休息用餐 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car B",
+          "shift": "night",
+          "from": "休息用餐",
+          "to": "FAB8F",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car B (night) 從 休息用餐 ➔ FAB8F 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car B",
+          "shift": "night",
+          "from": "FAB8F",
+          "to": "交接整備",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car B (night) 從 FAB8F ➔ 交接整備 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car C",
+          "shift": "night",
+          "from": "FAB8AB",
+          "to": "休息用餐",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car C (night) 從 FAB8AB ➔ 休息用餐 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car C",
+          "shift": "night",
+          "from": "休息用餐",
+          "to": "FAB8F",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car C (night) 從 休息用餐 ➔ FAB8F 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car C",
@@ -1074,7 +1418,16 @@
           "to": "FAB8AB",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car C 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car C (night) 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car C",
+          "shift": "night",
+          "from": "FAB8F",
+          "to": "FAB8E",
+          "actual": 5,
+          "min_req": 10,
+          "msg": "Car C (night) 從 FAB8F ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car C",
@@ -1083,7 +1436,52 @@
           "to": "FAB8AB",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car C 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car C (night) 從 FAB8E ➔ FAB8AB 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car C",
+          "shift": "night",
+          "from": "FAB8AB",
+          "to": "交接整備",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car C (night) 從 FAB8AB ➔ 交接整備 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car D",
+          "shift": "night",
+          "from": "FAB8S",
+          "to": "休息用餐",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car D (night) 從 FAB8S ➔ 休息用餐 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car D",
+          "shift": "night",
+          "from": "休息用餐",
+          "to": "FAB8E",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car D (night) 從 休息用餐 ➔ FAB8E 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car D",
+          "shift": "night",
+          "from": "FAB8E",
+          "to": "FAB8F",
+          "actual": 5,
+          "min_req": 10,
+          "msg": "Car D (night) 從 FAB8E ➔ FAB8F 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car D",
+          "shift": "night",
+          "from": "FAB8AB",
+          "to": "交接整備",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car D (night) 從 FAB8AB ➔ 交接整備 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car E",
@@ -1092,7 +1490,25 @@
           "to": "FAB8E",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car E 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car E (night) 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car E",
+          "shift": "night",
+          "from": "FAB8F",
+          "to": "休息用餐",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car E (night) 從 FAB8F ➔ 休息用餐 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car E",
+          "shift": "night",
+          "from": "休息用餐",
+          "to": "FAB8AB",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car E (night) 從 休息用餐 ➔ FAB8AB 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car E",
@@ -1101,7 +1517,7 @@
           "to": "FAB8E",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car E 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car E (night) 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
         },
         {
           "car": "Car E",
@@ -1110,10 +1526,19 @@
           "to": "FAB8E",
           "actual": 5,
           "min_req": 10,
-          "msg": "Car E 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+          "msg": "Car E (night) 從 FAB8AB ➔ FAB8E 行車時間僅 5 分鐘 (< 物理最低需 10 分鐘)"
+        },
+        {
+          "car": "Car E",
+          "shift": "night",
+          "from": "FAB8CD",
+          "to": "交接整備",
+          "actual": 0,
+          "min_req": 10,
+          "msg": "Car E (night) 從 FAB8CD ➔ 交接整備 行車時間僅 0 分鐘 (< 物理最低需 10 分鐘)"
         }
       ],
-      "desc": "鄰近 5 分鐘、跨區 10 分鐘、外廠 15 分鐘，碼頭裝卸時間不可為負值，嚴禁排定紙上虛假工時。"
+      "desc": "鄰近 5 分鐘、跨區 10 分鐘、外廠 15 分鐘，碼頭裝卸時間不可壓縮，嚴禁排定 0 分鐘瞬間移動或紙上虛假工時。"
     }
   }
 }
