@@ -28,11 +28,11 @@ if hasattr(sys.stdout, 'reconfigure'):
 MIN_TRANSIT = ScheduleValidator.MIN_TRANSIT_MINS
 
 FAB_META = {
-    'FAB8AB': ('8AB', '晶圓八廠 AB 區碼頭'),
-    'FAB8CD': ('8CD', '晶圓八廠 CD 區碼頭'),
-    'FAB8E':  ('8E',  '晶圓八廠 E 區主樞紐'),
-    'FAB8F':  ('8F',  '晶圓八廠 F 區核心碼頭'),
-    'FAB8S':  ('8S',  '晶圓八廠 S 區碼頭'),
+    'FAB8AB': ('8AB', '晶圓 8AB 廠碼頭'),
+    'FAB8CD': ('8CD', '晶圓 8CD 廠碼頭'),
+    'FAB8E':  ('8E',  '晶圓 8E 廠主樞紐'),
+    'FAB8F':  ('8F',  '晶圓 8F 廠核心碼頭'),
+    'FAB8S':  ('8S',  '晶圓 8S 廠碼頭'),
     '嘉晶創新': ('嘉晶創新', '嘉晶電子創新廠區碼頭'),
     '嘉晶篤行': ('嘉晶篤行', '嘉晶電子篤行廠區碼頭')
 }
@@ -45,7 +45,8 @@ CAR_NAMES = {
     'Car_E': 'Car E'
 }
 
-LUNCH_AFTER = {'Car_A': 9, 'Car_B': 8, 'Car_C': 8, 'Car_D': 8, 'Car_E': 8}
+# 嚴格規定外包廠區 (嘉晶創新/嘉晶篤行) 不可休息，Car A 改於第 9 站 (index 8, FAB8E 母港) 執行 60 分鐘休息
+LUNCH_AFTER = {'Car_A': 8, 'Car_B': 8, 'Car_C': 8, 'Car_D': 8, 'Car_E': 8}
 
 
 def fmt_time(m):
@@ -163,8 +164,8 @@ def build_plan_rows(state_data):
                         'shift': shift,
                         'shift_label': shift_label,
                         'fab_code': fab,
-                        'station_raw': f"{st_raw} (休息區)",
-                        'station_location': st_loc,
+                        'station_raw': f"{st_raw} (專屬停車區/休息室)",
+                        'station_location': f"{st_raw} 專屬停車區／司機休息室旁（不佔據碼頭裝卸作業泊位）",
                         'mode': '休息',
                         'od_flow': '休息交接',
                         'origin_fab': fab,
@@ -176,8 +177,8 @@ def build_plan_rows(state_data):
                         'dep_min': brk_dep,
                         'dwell_mins': 60,
                         'transit_mins': tr_mins,
-                        'cargo_cmd': f"{brk_name} (60分鐘足額保障)",
-                        'sop_details': f"依據硬約束 5 規定，於 {st_raw} 停靠區執行 60 分鐘完整用餐與休息，休息後發車前往 {short_fab(dest_fab)}。",
+                        'cargo_cmd': f"{brk_name} (60分鐘足額保障｜車輛移至專屬停車區，不佔據碼頭裝卸泊位)",
+                        'sop_details': f"依據硬約束 5 與軟約束 1 規定，完成碼頭裝卸後立即駛離裝卸泊位，將車輛移至 {st_raw} 專屬停車區或司機休息室旁執行 60 分鐘完整用餐與休息，絕不佔據碼頭裝卸作業泊位；休息結束後準時發車前往 {short_fab(dest_fab)}。",
                         'capacity_batches': 0,
                         'is_break': 1
                     })
@@ -221,8 +222,8 @@ def build_plan_rows(state_data):
                         'shift': shift,
                         'shift_label': shift_label,
                         'fab_code': fab,
-                        'station_raw': f"{st_raw} (母港交接)",
-                        'station_location': st_loc,
+                        'station_raw': f"{st_raw} (母港專屬停車區)",
+                        'station_location': f"{st_raw} 母港專屬停車區／司機休息室旁（不佔據碼頭裝卸作業泊位）",
                         'mode': '休息',
                         'od_flow': '休息交接',
                         'origin_fab': fab,
@@ -234,8 +235,8 @@ def build_plan_rows(state_data):
                         'dep_min': ho_dep,
                         'dwell_mins': 60,
                         'transit_mins': 0,
-                        'cargo_cmd': '跨班交接、車輛充電檢修與休息 (60分鐘)',
-                        'sop_details': f"日夜班司機於 {st_raw} 母港進行籠車清點、行車紀錄交接與 60 分鐘充足跨班緩衝。",
+                        'cargo_cmd': '跨班交接、車輛充電檢修與休息 (60分鐘｜移至母港專屬停車區，不佔據碼頭裝卸泊位)',
+                        'sop_details': f"終點站卸貨完畢後立即駛離裝卸碼頭，移至 {st_raw} 母港專屬停車區或司機休息室旁進行日夜班司機籠車清點、行車紀錄交接與 60 分鐘充足跨班緩衝，不佔據碼頭裝卸作業泊位。",
                         'capacity_batches': 0,
                         'is_break': 1
                     })

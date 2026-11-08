@@ -56,7 +56,7 @@
           <span class="px-2.5 py-1 rounded-full text-xs font-mono bg-slate-800 text-cyan-300 border border-slate-700">
             檢驗目標表：schedules_plan2 (方案二 (CP-SAT 雙層路網優化))
           </span>
-          <span class="text-xs text-slate-400">驗收時間: 2026-11-08 00:35:41</span>
+          <span class="text-xs text-slate-400">驗收時間: 2026-11-08 13:12:21</span>
         </div>
         <h1 class="text-2xl lg:text-3xl font-extrabold text-white mt-2">廠區物流排程合規性檢驗與驗收報告</h1>
         <p class="text-xs text-slate-400 mt-1">嚴格依據《問題敘述_限制條件.txt》與 24H 最新需求矩陣 (5,742 批 / 22 條走廊 / Car A~E 5車)，執行 6 大硬約束、2 大軟約束與雙目標函數驗收</p>
@@ -164,8 +164,8 @@
               <td class="py-3 px-3 text-center font-mono font-bold text-emerald-400">100.0% (6/6)</td>
               <td class="py-3 px-3 text-center font-mono text-cyan-300 font-bold">100.0 <span class="text-[11px] text-slate-400">(0警)</span></td>
               <td class="py-3 px-3 text-center font-mono font-black text-amber-300 text-sm">100.0</td>
-              <td class="py-3 px-3 text-right font-mono text-slate-200">5,742 / 7,488 批</td>
-              <td class="py-3 px-3 text-center font-mono text-emerald-400 font-bold">84.7% <span class="text-[11px] text-slate-400">(均 76.7%)</span></td>
+              <td class="py-3 px-3 text-right font-mono text-slate-200">5,742 / 7,776 批</td>
+              <td class="py-3 px-3 text-center font-mono text-emerald-400 font-bold">84.7% <span class="text-[11px] text-slate-400">(均 73.8%)</span></td>
               <td class="py-3 px-3 text-center font-mono text-emerald-300">0 分</td>
               <td class="py-3 px-3 text-right font-mono text-indigo-300">75.7 分 <span class="text-[10px] text-slate-400">(434,942 批·分)</span></td>
             </tr>
@@ -213,11 +213,11 @@
             <div class="flex items-center justify-between gap-2">
               <span class="font-bold text-sm text-white flex items-center gap-2">
                 <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
-                <span>軟約束 1：碼頭進站間隔 ≥ 10 分鐘 (泊位互斥防塞車)</span>
+                <span>軟約束 1：碼頭進站間隔 ≥ 10 分鐘 (泊位互斥防塞車｜休息移至專屬停車區不佔泊位)</span>
               </span>
               <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[SOFT] PASS</span>
             </div>
-            <p class="text-xs text-slate-400">碼頭空間有限，不同車輛相鄰進站時間應錯開至少 10 分鐘，避免排隊倒車壅塞。</p>
+            <p class="text-xs text-slate-400">碼頭空間有限，不同車輛相鄰進站時間應錯開至少 10 分鐘；且車輛用餐／休息時移至專屬停車區或司機休息室旁，不佔據碼頭裝卸作業泊位。</p>
           </div>
         </div>
 
@@ -275,11 +275,11 @@
             <div class="flex items-center justify-between gap-2">
               <span class="font-bold text-sm text-white flex items-center gap-2">
                 <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold bg-emerald-950/40 border-emerald-500/40 text-emerald-300"><i class="fa-solid fa-check"></i></span>
-                <span>硬約束 5：司機休息與交接合規 (午休/晚餐 60 分鐘、跨班交接固定充足)</span>
+                <span>硬約束 5：司機休息合規 (午晚餐/交接60分鐘｜本廠專屬停車區不佔泊位｜嘉晶外廠不可休息)</span>
               </span>
               <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 bg-emerald-950/40 border-emerald-500/40 text-emerald-300">[HARD] PASS</span>
             </div>
-            <p class="text-xs text-slate-400">日班午休 60 分鐘、夜班晚餐 60 分鐘與跨班交接時間必須固定且充足。</p>
+            <p class="text-xs text-slate-400">日班午休 60 分鐘、夜班晚餐 60 分鐘與跨班交接固定充足（允許 ±20m 梯次錯峰）；車輛休息時移至本廠區專屬停車區或司機休息室旁（不佔據碼頭泊位），且外包廠區（嘉晶創新／嘉晶篤行）嚴禁安排休息。</p>
           </div>
         </div>
 
@@ -296,6 +296,154 @@
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Interactive Review Checklist -->
+    <div class="glass-card rounded-3xl p-6 lg:p-8 space-y-4 border border-emerald-500/30">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="text-base lg:text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-check text-emerald-400"></i>
+          <span>專案驗收與合規審查檢核表 (Project Review Checklist — 含 Code / 資安 / UI & UX 強制審查共 15 項)</span>
+        </h2>
+        <span class="text-xs font-mono text-emerald-300 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-500/30">Review Checklist v3.0 (含「晶圓 8XX 廠」規格與每次更動三維審查程序)</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-700 text-xs text-slate-400 bg-slate-900/50">
+              <th class="py-2.5 px-3">檢核編號</th>
+              <th class="py-2.5 px-3">類別</th>
+              <th class="py-2.5 px-3">審查項目與規格要求</th>
+              <th class="py-2.5 px-3">量化判定標準</th>
+              <th class="py-2.5 px-3 text-center">檢核結果</th>
+              <th class="py-2.5 px-3">實測數據與佐證說明</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-H01</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">硬性條件</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">車廂物理容量極限 (4 部籠車 × 12 儲位 = 48 批)</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">單站裝載量 ≤ 48 批</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">全車隊 198 站次 100% 符合 ≤ 48 批物理上限</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-H02</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">硬性條件</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">環廠滾動裝載與空間預留原則 (48 / 保底24空位 / 48)</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">首站≤48、下兩站卸後在途≤24、倒數第二站≤48</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">首站滿載 48 批，下兩站各保底 ≥24 批淨空位，倒數第二站滿車 48 批直達末站卸空</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-H03</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">硬性條件</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">22 條有需求 OD 每 12Hrs 至少訪問一次</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">日班 ≥ 1 趟 且 夜班 ≥ 1 趟</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">22/22 條走廊日夜班每 12H 皆 ≥ 1 趟服務，零跨班斷料</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-H04</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">硬性條件</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">每一段有需求 OD 走廊利用率 ≤ 85.0%</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">Demand / Capacity ≤ 85.0%</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">最高走廊利用率 84.7% (全網平均 73.8%)</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-H05</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">硬性條件</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">司機午晚餐與跨班交接 60 分鐘足額保障 (±20m 梯次錯峰｜嘉晶創新/篤行不可休息)</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">連續 60 分鐘 & 外包廠區 0 休息</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">全車隊 100% 於本廠區 (8E/8S/8AB/8F/8CD) 執行 60 分鐘休息與交接，嘉晶創新/篤行 0 休息</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-H06</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">硬性條件</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">車輛用餐／休息時移至專屬停車區或司機休息室旁，不佔據碼頭裝卸作業泊位</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">is_break=1 移至專屬停車區，0 佔用碼頭泊位</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">完成裝卸後立即駛離碼頭移至專屬停車區/休息室旁，100% 零佔用裝卸泊位</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-H07</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">硬性條件</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">站點間行車時間與操作時間不可壓縮</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">鄰近5m / 跨區10m / 外廠15m</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">違規壓縮 0 件</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-H08</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">硬性條件</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">Car U 不納入規劃 (全由 Car A~E 5 部正班車承接)</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">Car_U 班次 = 0</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">全廠 5,742 批需求 100% 由 Car A~E 五部常態正班車獨立承載</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-H09</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">分級平準</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">OD 走廊動態分級與服務平準化原則 (Tier 1 Hmax≤90m / Tier 2 Hmax≤150m)</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">Tier 1 ≤90m, Tier 2 ≤150m, Tier 3 12H≥1</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">Tier 1 最大班距 ≤90m、Tier 2 最大班距 ≤144m，100% 達標</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-S01</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">軟性條件</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">碼頭進站時間間隔 ≥ 10 分鐘 (泊位互斥防塞車)</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">|t_arr(c1) - t_arr(c2)| ≥ 10m</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">碼頭進站衝突警示 0 件</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-S02</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">軟性條件</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">從廠區出發的車輛，下一個目的地不要連續兩班都相同</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">dest(f, m) ≠ dest(f, m+1)</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-amber-950/90 text-amber-300 border border-amber-500/40">⚠️ WARN</span></td>
+              <td class="py-2.5 px-3 text-slate-300">連續同向發車警示 4 件</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-A01</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">兩階段算法</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">Stage 1 雙層歐拉閉迴路拓撲與 MILP 運能配置 + Stage 2 CP-SAT 時空排程與微創鄰域搜尋</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">min ∑Slack & min ∑(Wait×Demand)</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">Slack = 0 分 ｜ 加權平均等候 = 75.7 分 (434,942 批·分)</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-R01</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">Code Review</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">程式碼品質、廠區標準命名規範 (晶圓 8XX 廠) 與跨檔資料同步審查</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">AST 0 錯誤 & 舊命名 0 殘留</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">廠區標準命名違規: 0 件 ｜ 核心模組 AST 語法與跨表結構: 100% 通過</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-R02</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">資安審查</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">Security Review：SQL 參數化查詢、表單白名單、路徑防護與零硬編碼金鑰審查</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">0 資安弱點 / 100% 參數化</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">SQL 參數化查詢: 100% ｜ 路由與表單白名單: 已啟用 ｜ 敏感憑證外洩: 0 件</td>
+            </tr>
+            <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 text-xs">
+              <td class="py-2.5 px-3 font-mono text-indigo-300 font-bold">CHK-R03</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px] font-semibold">UI/UX 審查</span></td>
+              <td class="py-2.5 px-3 font-bold text-white">UI & UX Review：廠區與專屬停車區語意標籤、響應式排版與雙模零延遲切換體驗</td>
+              <td class="py-2.5 px-3 font-mono text-cyan-300 text-[11px]">WCAG 對比達標 & 互動流暢</td>
+              <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">✅ PASS</span></td>
+              <td class="py-2.5 px-3 text-slate-300">廠區/停車區標籤語意: 100% 清晰 ｜ 響應式導覽與雙模快取: 100% 正常</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 

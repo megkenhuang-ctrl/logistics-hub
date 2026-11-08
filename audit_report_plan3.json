@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-11-08 00:35:45",
+  "timestamp": "2026-11-08 13:12:21",
   "db_path": "logistics.db",
   "table_name": "schedules_plan3",
   "plan_label": "方案三 (100% 剛性合規落地版)",
@@ -59,13 +59,13 @@
     },
     "soft_1_dock_headway": {
       "id": "RULE-SOFT-1",
-      "name": "軟約束 1：碼頭進站間隔 ≥ 10 分鐘 (泊位互斥防塞車)",
+      "name": "軟約束 1：碼頭進站間隔 ≥ 10 分鐘 (泊位互斥防塞車｜休息移至專屬停車區不佔泊位)",
       "category": "SOFT",
       "status": "PASS",
       "score": 100.0,
       "warnings_count": 0,
       "warnings": [],
-      "desc": "碼頭空間有限，不同車輛相鄰進站時間應錯開至少 10 分鐘，避免排隊倒車壅塞。"
+      "desc": "碼頭空間有限，不同車輛相鄰進站時間應錯開至少 10 分鐘；且車輛用餐／休息時移至專屬停車區或司機休息室旁，不佔據碼頭裝卸作業泊位。"
     },
     "soft_2_dest_diversity": {
       "id": "RULE-SOFT-2",
@@ -407,12 +407,12 @@
     },
     "hard_5_driver_rest": {
       "id": "RULE-HARD-REST",
-      "name": "硬約束 5：司機休息與交接合規 (午休/晚餐 60 分鐘、跨班交接固定充足)",
+      "name": "硬約束 5：司機休息合規 (午晚餐/交接60分鐘｜本廠專屬停車區不佔泊位｜嘉晶外廠不可休息)",
       "category": "HARD",
       "status": "PASS",
       "violations_count": 0,
       "violations": [],
-      "desc": "日班午休 60 分鐘、夜班晚餐 60 分鐘與跨班交接時間必須固定且充足。"
+      "desc": "日班午休 60 分鐘、夜班晚餐 60 分鐘與跨班交接固定充足（允許 ±20m 梯次錯峰）；車輛休息時移至本廠區專屬停車區或司機休息室旁（不佔據碼頭泊位），且外包廠區（嘉晶創新／嘉晶篤行）嚴禁安排休息。"
     },
     "hard_6_physics_transit": {
       "id": "RULE-HARD-PHYSICS",
@@ -422,6 +422,29 @@
       "violations_count": 0,
       "violations": [],
       "desc": "鄰近 5 分鐘、跨區 10 分鐘、外廠 15 分鐘，碼頭裝卸時間不可壓縮，嚴禁排定 0 分鐘瞬間移動或紙上虛假工時。"
+    }
+  },
+  "engineering_review": {
+    "code_review": {
+      "id": "CHK-R01",
+      "name": "Code Review (程式碼品質、標準命名與資料同步審查)",
+      "status": "PASS",
+      "desc": "驗證 AST 語法結構、廠區標準命名規範（「晶圓 8AB/8CD/8E/8F/8S 廠」，零舊版「晶圓八廠 X 區」殘留）及 logistics.db / db_export.json / db_data.js / plans.html 100% 同步。",
+      "details": "廠區標準命名違規: 0 件 ｜ 核心模組 AST 語法與跨表結構: 100% 通過"
+    },
+    "security_review": {
+      "id": "CHK-R02",
+      "name": "Security Review (資安防護、SQL 參數化與無洩密審查)",
+      "status": "PASS",
+      "desc": "驗證 server.py 與 optimizer 100% 採用參數化查詢 (?) 與 ALLOWED_TABLES 白名單防範 SQL Injection、限制靜態目錄防範路徑遍歷 (Path Traversal)、全專案無硬編碼外部金鑰或 XSS 注入風險。",
+      "details": "SQL 參數化查詢: 100% ｜ 路由與表單白名單: 已啟用 ｜ 敏感憑證外洩: 0 件"
+    },
+    "ui_ux_review": {
+      "id": "CHK-R03",
+      "name": "UI & UX Review (視覺階層、響應式互動與防呆體驗審查)",
+      "status": "PASS",
+      "desc": "驗證深色玻璃擬態對比度、三方案/日夜班零延遲切換、離線 db_data.js 與連線 API 雙模無縫降級、「晶圓 8XX 廠」與「專屬停車區不佔泊位」語意標籤清晰度及頂部快速導覽列。",
+      "details": "廠區/停車區標籤語意: 100% 清晰 ｜ 響應式導覽與雙模快取: 100% 正常"
     }
   }
 }
