@@ -79,7 +79,9 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == '/api/open_ppt':
             try:
-                ppt_path = os.path.abspath('半導體廠區物流排程優化與數位稽核系統_專案簡報.pptx')
+                ppt_path = os.path.abspath('半導體廠區物流排程優化_高階主管報告與演算法規格.pptx')
+                if not os.path.exists(ppt_path):
+                    ppt_path = os.path.abspath('現況診斷與運籌痛點分析_可編輯簡報.pptx')
                 if os.name == 'nt' and hasattr(os, 'startfile') and os.path.exists(ppt_path):
                     os.startfile(ppt_path)
                 return self.send_json({'status': 'opened', 'path': ppt_path})
