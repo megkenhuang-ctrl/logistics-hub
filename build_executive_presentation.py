@@ -516,6 +516,207 @@ def build_presentation(output_path):
             ]
         )
 
+
+    # =========================================================================
+    # SLIDE 5: 傳統 IT/OR 專案 vs. AI 協同開發（逆分工實踐）
+    # =========================================================================
+    s5 = prs.slides.add_slide(blank_layout)
+    setup_background(s5, prs)
+    add_header(
+        s5,
+        "05 ｜ 傳統 IT/OR 專案 vs. AI 協同開發（逆分工實踐）",
+        "從「跨 5 部門、耗時半年的瀑布式分工」，轉變為「領域專家帶領 AI、數天完成端到端落地」",
+        "EXECUTIVE PARADIGM SHIFT ｜ TRADITIONAL WATERFALL VS. AI-AGENT SYNTHESIS"
+    )
+
+    s5_w = Inches(5.75)
+    s5_gap = Inches(0.33)
+    s5_c1_left = Inches(0.75)
+    s5_c2_left = s5_c1_left + s5_w + s5_gap
+
+    # Left Container: 傳統企業分工模式 (6~9 個月)
+    add_round_rect(s5, s5_c1_left, col_top, s5_w, col_h, '101C2E', 'EF4444', 1.2, radius=0.03)
+    add_text_box(
+        s5, s5_c1_left + Inches(0.2), col_top + Inches(0.12), s5_w - Inches(0.4), Inches(0.35),
+        [("【傳統模式：跨部門專業分工（耗時 6~9 個月）】", 13, 'FFFFFF', True, 0)],
+        align=PP_ALIGN.CENTER
+    )
+
+    trad_steps = [
+        ("1. 現場痛點調研 (耗時 1 個月)", "IE 與生管拿碼表跟車訪談司機、手動記錄月台塞車與貨物滯留，整理業務需求說明書。"),
+        ("2. 運籌數學建模 (耗時 1 個月)", "找資料科學家或外包顧問推導公式，常陷入大矩陣算力爆炸 (NP-hard)，難以算出生產級解。"),
+        ("3. 提單與 IT 排期 (耗時 2~3 週)", "跨部門開會審核規格、爭取系統開發排期，業務需求常在多次轉譯溝通中失真。"),
+        ("4. IT 全端系統編碼 (耗時 2~3 個月)", "IT 前後端分頭寫程式、建資料庫、手刻前台網頁，規格一變即引發嚴重返工摩擦。"),
+        ("5. 現場驗收與試跑 (耗時 1 個月)", "現場試跑驗收改 Bug；算出來的班表過於理想化，常被現場司機抱怨根本開不出來。")
+    ]
+    t_top = col_top + Inches(0.52)
+    for st_title, st_desc in trad_steps:
+        st_box_h = Inches(0.82)
+        add_round_rect(s5, s5_c1_left + Inches(0.15), t_top, s5_w - Inches(0.3), st_box_h, '1A1F2C', '7F1D1D', 1.0, radius=0.03)
+        add_text_box(
+            s5, s5_c1_left + Inches(0.22), t_top + Inches(0.06), s5_w - Inches(0.44), st_box_h - Inches(0.12),
+            [
+                (f"• {st_title}", 10.5, 'FCA5A5', True, 2),
+                (st_desc, 9.2, 'CBD5E1', False, 0)
+            ]
+        )
+        t_top += Inches(0.88)
+
+    # Left Bottom Summary Badge
+    add_round_rect(s5, s5_c1_left + Inches(0.15), col_top + col_h - Inches(0.48), s5_w - Inches(0.3), Inches(0.38), '3B141E', 'EF4444', 1.0, radius=0.08)
+    add_text_box(
+        s5, s5_c1_left + Inches(0.2), col_top + col_h - Inches(0.45), s5_w - Inches(0.4), Inches(0.32),
+        [("🔴 核心痛點：多層交接摩擦、專案週期漫長、需求一變全部重來", 10, 'FCA5A5', True, 0)],
+        align=PP_ALIGN.CENTER
+    )
+
+    # Right Container: AI 協同開發模式（逆分工實踐 - < 1 週）
+    add_round_rect(s5, s5_c2_left, col_top, s5_w, col_h, '101C2E', '10B981', 1.5, radius=0.03)
+    add_text_box(
+        s5, s5_c2_left + Inches(0.2), col_top + Inches(0.12), s5_w - Inches(0.4), Inches(0.35),
+        [("【AI 協同模式：領域專家逆分工（< 1 週端到端閉環）】", 13, 'FFFFFF', True, 0)],
+        align=PP_ALIGN.CENTER
+    )
+
+    ai_steps = [
+        ("1. 領域專家直下關鍵規則 (即時對話)", "懂現場的人直接定義核心限制（司機用餐不佔碼頭、各廠上下貨耗時、轉彎行車時間）。"),
+        ("2. 演算法秒級解耦求解 (雙層架構)", "AI 秒級自發建構 Stage 1 MILP 拓撲配比 + Stage 2 CP-SAT 時序防撞，徹底避開算力爆炸。"),
+        ("3. 全端架構一體成型 (代碼即規格)", "同步自動產出正規化 SQLite、REST API、現代化戰情室、動態甘特圖與廠區時刻表。"),
+        ("4. 獨立數位稽核護欄 (客觀裁判)", "validator.py 逐班檢驗 198 站次時間與容量，確保 100% 合規不踩雷、無自驗盲點。"),
+        ("5. 動態自癒與隨時驗收 (即時重排)", "現場隨時丟入新需求 Excel，系統自動診斷瓶頸，秒級動態重排並自我修復回 100 分。")
+    ]
+    a_top = col_top + Inches(0.52)
+    for sa_title, sa_desc in ai_steps:
+        sa_box_h = Inches(0.82)
+        add_round_rect(s5, s5_c2_left + Inches(0.15), a_top, s5_w - Inches(0.3), sa_box_h, '064E3B', '059669', 1.0, radius=0.03)
+        add_text_box(
+            s5, s5_c2_left + Inches(0.22), a_top + Inches(0.06), s5_w - Inches(0.44), sa_box_h - Inches(0.12),
+            [
+                (f"• {sa_title}", 10.5, '6EE7B7', True, 2),
+                (sa_desc, 9.2, 'E2E8F0', False, 0)
+            ]
+        )
+        a_top += Inches(0.88)
+
+    # Right Bottom Summary Badge
+    add_round_rect(s5, s5_c2_left + Inches(0.15), col_top + col_h - Inches(0.48), s5_w - Inches(0.3), Inches(0.38), '064E3B', '10B981', 1.2, radius=0.08)
+    add_text_box(
+        s5, s5_c2_left + Inches(0.2), col_top + col_h - Inches(0.45), s5_w - Inches(0.4), Inches(0.32),
+        [("🟢 核心效益：1 位領域專家掌控全流程，跳過跨部門公文，數天交付生產級系統", 10, 'A7F3D0', True, 0)],
+        align=PP_ALIGN.CENTER
+    )
+
+    # =========================================================================
+    # SLIDE 6: 實戰驗證與核心商業價值：面對產能突發變更的動態自癒力
+    # =========================================================================
+    s6 = prs.slides.add_slide(blank_layout)
+    setup_background(s6, prs)
+    add_header(
+        s6,
+        "06 ｜ 實戰驗證與核心價值：面對產能突發變更的動態自癒力",
+        "以日需求自 5,742 變更為 5,542 批為例：系統最值錢的不是省下開發費，而是現場隨時能動態自適應",
+        "CASE STUDY & STRATEGIC ROI ｜ DYNAMIC RESILIENCE AGAINST DEMAND SHOCKS"
+    )
+
+    s6_w = Inches(3.75)
+    s6_gap = Inches(0.29)
+    s6_c1_left = Inches(0.75)
+    s6_c2_left = s6_c1_left + s6_w + s6_gap
+    s6_c3_left = s6_c2_left + s6_w + s6_gap
+
+    # Column 1: 突發情境：需求結構劇烈異動
+    add_round_rect(s6, s6_c1_left, col_top, s6_w, col_h, '101C2E', 'F59E0B', 1.2, radius=0.03)
+    add_text_box(
+        s6, s6_c1_left + Inches(0.15), col_top + Inches(0.12), s6_w - Inches(0.3), Inches(0.35),
+        [("【突發情境：需求結構劇烈異動】", 12.5, 'FFFFFF', True, 0)],
+        align=PP_ALIGN.CENTER
+    )
+    col1_items = [
+        ("全廠需求調整 (5,542 批/日)", "各廠訂單與產能波動，總需求自 5,742 微幅下修至 5,542 批，但走廊分佈發生重大轉移。"),
+        ("走廊 CD➔E 暴增 (103.7% 超載)", "FAB8CD➔8E 需求突增 100 批 (達 473 批/天)，突破原 456 批運力上限，負荷率飆至 103.7% (🚨 嚴重超載)。"),
+        ("傳統 IT 系統困境 (癱瘓 1 個月)", "傳統系統被視為 Scope Change，重新開會排期要耗費 1 個月；現場調度員只能手動硬塞，引發月台嚴重塞車與斷料。")
+    ]
+    c1_y = col_top + Inches(0.55)
+    for ci_title, ci_desc in col1_items:
+        ci_h = Inches(1.35)
+        add_round_rect(s6, s6_c1_left + Inches(0.12), c1_y, s6_w - Inches(0.24), ci_h, '1A1F2C', '78350F', 1.0, radius=0.04)
+        add_text_box(
+            s6, s6_c1_left + Inches(0.18), c1_y + Inches(0.08), s6_w - Inches(0.36), ci_h - Inches(0.16),
+            [
+                (ci_title, 11, 'FBBF24', True, 3),
+                (ci_desc, 9.5, 'CBD5E1', False, 0)
+            ]
+        )
+        c1_y += Inches(1.45)
+    add_round_rect(s6, s6_c1_left + Inches(0.12), col_top + col_h - Inches(0.48), s6_w - Inches(0.24), Inches(0.38), '451A03', 'F59E0B', 1.0, radius=0.08)
+    add_text_box(
+        s6, s6_c1_left + Inches(0.15), col_top + col_h - Inches(0.45), s6_w - Inches(0.3), Inches(0.32),
+        [("⚠️ 現況診斷：88.3 分 🟡 WARNING（走廊超載）", 10, 'FCD34D', True, 0)],
+        align=PP_ALIGN.CENTER
+    )
+
+    # Column 2: AI 動態重排：兩階段秒級自癒求解
+    add_round_rect(s6, s6_c2_left, col_top, s6_w, col_h, '101C2E', '0284C7', 1.2, radius=0.03)
+    add_text_box(
+        s6, s6_c2_left + Inches(0.15), col_top + Inches(0.12), s6_w - Inches(0.3), Inches(0.35),
+        [("【AI 動態重排：兩階段秒級自癒】", 12.5, 'FFFFFF', True, 0)],
+        align=PP_ALIGN.CENTER
+    )
+    col2_items = [
+        ("極限壓力測試與自發診斷", "自訂 Excel 匯入 5 秒內完成 22 條走廊壓力測試，精準定位 CD➔E 運能缺口 17 批。"),
+        ("Stage 1 拓撲容量跨線重調", "演算法自動自富餘走廊 (FAB8F➔8S) 抽調 192 批運力至 CD➔E，使 CD➔E 運能自 456 升至 648 批，負載降至 73.0% 綠線。"),
+        ("Stage 2 CP-SAT 時序防撞重排", "重新規劃全網到離站時序，確保各廠碼頭車距 ≥10 分鐘，維持用餐離席無碰撞與零等候浪費。")
+    ]
+    c2_y = col_top + Inches(0.55)
+    for c2_title, c2_desc in col2_items:
+        c2_h = Inches(1.35)
+        add_round_rect(s6, s6_c2_left + Inches(0.12), c2_y, s6_w - Inches(0.24), c2_h, '0C2A4A', '0284C7', 1.0, radius=0.04)
+        add_text_box(
+            s6, s6_c2_left + Inches(0.18), c2_y + Inches(0.08), s6_w - Inches(0.36), c2_h - Inches(0.16),
+            [
+                (c2_title, 11, '7DD3FC', True, 3),
+                (c2_desc, 9.5, 'E2E8F0', False, 0)
+            ]
+        )
+        c2_y += Inches(1.45)
+    add_round_rect(s6, s6_c2_left + Inches(0.12), col_top + col_h - Inches(0.48), s6_w - Inches(0.24), Inches(0.38), '0C4A6E', '38BDF8', 1.0, radius=0.08)
+    add_text_box(
+        s6, s6_c2_left + Inches(0.15), col_top + col_h - Inches(0.45), s6_w - Inches(0.3), Inches(0.32),
+        [("⚡ 兩階段求解：幾秒內重新產出防撞最優班表", 10, 'BAE6FD', True, 0)],
+        align=PP_ALIGN.CENTER
+    )
+
+    # Column 3: 高階決策價值：抗不確定性的超敏捷營運
+    add_round_rect(s6, s6_c3_left, col_top, s6_w, col_h, '101C2E', '10B981', 1.5, radius=0.03)
+    add_text_box(
+        s6, s6_c3_left + Inches(0.15), col_top + Inches(0.12), s6_w - Inches(0.3), Inches(0.35),
+        [("【高階決策價值：超敏捷營運力】", 12.5, 'FFFFFF', True, 0)],
+        align=PP_ALIGN.CENTER
+    )
+    col3_items = [
+        ("滿分驗收：100.0 分 🟢 PASSED", "走廊最高負荷自 103.7% 降至 84.7%，22 條走廊全部合規 (≤85%)，碼頭衝突維持 0 件。"),
+        ("徹底解放 IT 排期與溝通枷鎖", "產能變更是工廠常態；現場人員自己上傳 Excel 就能一鍵重算，不用再跟 IT 開會提單等下季。"),
+        ("真正的投報率 (Strategic ROI)", "最值錢的不是省下外包開發費，而是為半導體晶圓廠建立了「不怕產能劇變的彈性供應鏈韌性」。")
+    ]
+    c3_y = col_top + Inches(0.55)
+    for c3_title, c3_desc in col3_items:
+        c3_h = Inches(1.35)
+        add_round_rect(s6, s6_c3_left + Inches(0.12), c3_y, s6_w - Inches(0.24), c3_h, '064E3B', '10B981', 1.0, radius=0.04)
+        add_text_box(
+            s6, s6_c3_left + Inches(0.18), c3_y + Inches(0.08), s6_w - Inches(0.36), c3_h - Inches(0.16),
+            [
+                (c3_title, 11, '6EE7B7', True, 3),
+                (c3_desc, 9.5, 'E2E8F0', False, 0)
+            ]
+        )
+        c3_y += Inches(1.45)
+    add_round_rect(s6, s6_c3_left + Inches(0.12), col_top + col_h - Inches(0.48), s6_w - Inches(0.24), Inches(0.38), '064E3B', '10B981', 1.2, radius=0.08)
+    add_text_box(
+        s6, s6_c3_left + Inches(0.15), col_top + col_h - Inches(0.45), s6_w - Inches(0.3), Inches(0.32),
+        [("🏆 戰略成果：打造自主適應 (Self-Healing) 物流大腦", 10, 'A7F3D0', True, 0)],
+        align=PP_ALIGN.CENTER
+    )
+
     # Save Presentation
     prs.save(output_path)
     print(f"--> 成功生成可編輯簡報：{output_path}")
@@ -526,4 +727,10 @@ if __name__ == '__main__':
     build_presentation(out_file)
     # 同步複製一份至使用者常用命名路徑
     shutil_copy = '現況診斷與運籌痛點分析_可編輯簡報.pptx'
+    import shutil
+    try:
+        shutil.copyfile(out_file, shutil_copy)
+        print(f"--> 已同步複製更新：{shutil_copy}")
+    except Exception as e:
+        print(f"複製警告: {e}")
     print("簡報建構完成！")
