@@ -282,6 +282,14 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             # Distinct destinations from this fab
             destinations = list(set(v['dest_fab'] for v in visits if v['dest_fab']))
 
+            fleet_status = {}
+            for cid in ['Car_A', 'Car_B', 'Car_C', 'Car_D', 'Car_E', 'Car_U']:
+                cname = cid.replace('_', ' ')
+                fleet_status[cname] = {
+                    'is_active': (cid != 'Car_U'),
+                    'visits_here': cars_count.get(cname, 0)
+                }
+
             conn.close()
             return self.send_json({
                 'fab_code': fab_code,
@@ -296,7 +304,8 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 'total_capacity': total_cap,
                 'cars_count': cars_count,
                 'mode_count': mode_count,
-                'destinations': destinations
+                'destinations': destinations,
+                'fleet_status': fleet_status
             })
 
         elif path == '/api/summary':

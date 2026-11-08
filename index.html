@@ -3254,6 +3254,7 @@
     async function renderFabAnalysis() {
       const data = await fetchFabAnalysis(selectedFab, currentShift);
       if (!data) return;
+      lastFabAnalysisData = data;
 
       // 1. Update KPIs
       document.getElementById('kpiAvgHeadway').innerText = data.avg_headway_min.toFixed(1);
@@ -3338,6 +3339,7 @@
 
         let timelineViewMode = 'swimlane'; // 'swimlane' or 'compact'
     let lastRenderedVisits = [];
+    let lastFabAnalysisData = null;
 
     // Timeline Car Visibility Filter (Default: Car U is true in actual mode)
     let timelineCarFilters = {
@@ -3394,15 +3396,32 @@
       container.innerHTML = cars.map(c => {
         const isShown = timelineCarFilters[c.name] === true;
         const vCount = carVisitCounts[c.name] || 0;
-        const isSuspended = (lastRenderedVisits.length > 0 && vCount === 0);
+        // 精準業務判斷：由司機班表/車隊出勤狀態判定是否停駛，絕不把「未停靠本廠」誤判為停駛
+        const fStatus = (typeof lastFabAnalysisData !== 'undefined' && lastFabAnalysisData && lastFabAnalysisData.fleet_status) ? lastFabAnalysisData.fleet_status[c.name] : null;
+        const isSuspended = fStatus ? (fStatus.is_active === false) : false;
+        const notServingHere = (!isSuspended && vCount === 0);
 
         if (isShown) {
+          let badgeText = '';
+          let titleText = `點擊隱藏 ${c.name}`;
+          let extraClass = '';
+
+          if (isSuspended) {
+            badgeText = ' (停駛)';
+            titleText = `${c.name} 本班次無司機排班 (停駛)`;
+            extraClass = 'opacity-40 line-through';
+          } else if (notServingHere) {
+            badgeText = ' (未停靠)';
+            titleText = `${c.name} 正常執勤營運中，但路線未停靠 ${selectedFab}`;
+            extraClass = 'opacity-70 border-dashed';
+          }
+
           return `
             <button onclick="toggleTimelineCar('${c.name}')" 
-              class="px-2 py-0.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${c.bg} text-white ${c.border} shadow-sm ring-1 ring-white/20 hover:brightness-110 ${isSuspended ? 'opacity-40 line-through' : ''}"
-              title="${isSuspended ? c.name + ' 本班次無營運/停駛' : '點擊隱藏 ' + c.name}">
-              <span class="w-1.5 h-1.5 rounded-full ${isSuspended ? 'bg-slate-400' : 'bg-white'}"></span>
-              <span>✓ ${c.name}${isSuspended ? ' (停駛)' : ''}</span>
+              class="px-2 py-0.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${c.bg} text-white ${c.border} shadow-sm ring-1 ring-white/20 hover:brightness-110 ${extraClass}"
+              title="${titleText}">
+              <span class="w-1.5 h-1.5 rounded-full ${isSuspended ? 'bg-slate-400' : (notServingHere ? 'bg-amber-300' : 'bg-white')}"></span>
+              <span>✓ ${c.name}${badgeText}</span>
             </button>
           `;
         } else {
