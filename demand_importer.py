@@ -194,14 +194,14 @@ def parse_demand_excel(file_source):
         return name
 
     for f in ui_fabs:
-        ui_matrix[f] = {}
+        ui_matrix[f] = {t: 0 for t in ui_fabs}
         ui_row_sums[f] = 0
         ui_col_sums[f] = 0
 
     for (f_raw, t_raw), b in matrix.items():
         fu = to_ui_fab(f_raw)
         tu = to_ui_fab(t_raw)
-        if fu in ui_matrix and tu in ui_matrix[fu]:
+        if fu in ui_matrix and tu in ui_matrix:
             ui_matrix[fu][tu] = b
             ui_row_sums[fu] += b
             ui_col_sums[tu] += b

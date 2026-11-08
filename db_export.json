@@ -68,9 +68,9 @@
       "display_name": "8CD 廠碼頭",
       "color": "#10B981",
       "description": "裝卸專用碼頭，需上3F換車作業",
-      "demand_out_24h": 873,
-      "demand_in_24h": 873,
-      "demand_excel_sum": 873
+      "demand_out_24h": 973,
+      "demand_in_24h": 973,
+      "demand_excel_sum": 973
     },
     {
       "code": "FAB8E",
@@ -78,9 +78,9 @@
       "display_name": "8E 廠大廳",
       "color": "#8B5CF6",
       "description": "外廠對接門戶，直達嘉晶外廠站點",
-      "demand_out_24h": 907,
-      "demand_in_24h": 907,
-      "demand_excel_sum": 907
+      "demand_out_24h": 1007,
+      "demand_in_24h": 1007,
+      "demand_excel_sum": 1007
     },
     {
       "code": "FAB8F",
@@ -88,9 +88,9 @@
       "display_name": "8F 廠代工碼頭",
       "color": "#F59E0B",
       "description": "全廠代工核心樞紐，物料流量最高",
-      "demand_out_24h": 1874,
-      "demand_in_24h": 1874,
-      "demand_excel_sum": 1874
+      "demand_out_24h": 1674,
+      "demand_in_24h": 1674,
+      "demand_excel_sum": 1674
     },
     {
       "code": "FAB8S",
@@ -98,9 +98,9 @@
       "display_name": "8S 廠大廳",
       "color": "#EF4444",
       "description": "物料儲備與大型庫房基地",
-      "demand_out_24h": 1036,
-      "demand_in_24h": 1036,
-      "demand_excel_sum": 1036
+      "demand_out_24h": 836,
+      "demand_in_24h": 836,
+      "demand_excel_sum": 836
     },
     {
       "code": "嘉晶創新",
@@ -15575,154 +15575,154 @@
   ],
   "demand_matrix": [
     {
-      "id": 111,
+      "id": 133,
       "from_fab": "FAB8F",
       "to_fab": "FAB8S",
-      "demand_batches": 858,
-      "demand_shift_batches": 429
+      "demand_batches": 658,
+      "demand_shift_batches": 329
     },
     {
-      "id": 112,
+      "id": 134,
       "from_fab": "FAB8S",
       "to_fab": "FAB8F",
-      "demand_batches": 858,
-      "demand_shift_batches": 429
+      "demand_batches": 658,
+      "demand_shift_batches": 329
     },
     {
-      "id": 113,
+      "id": 135,
       "from_fab": "FAB8AB",
       "to_fab": "FAB8F",
       "demand_batches": 532,
       "demand_shift_batches": 266
     },
     {
-      "id": 114,
+      "id": 136,
       "from_fab": "FAB8F",
       "to_fab": "FAB8AB",
       "demand_batches": 532,
       "demand_shift_batches": 266
     },
     {
-      "id": 115,
+      "id": 137,
+      "from_fab": "FAB8CD",
+      "to_fab": "FAB8E",
+      "demand_batches": 473,
+      "demand_shift_batches": 237
+    },
+    {
+      "id": 138,
+      "from_fab": "FAB8E",
+      "to_fab": "FAB8CD",
+      "demand_batches": 473,
+      "demand_shift_batches": 237
+    },
+    {
+      "id": 139,
       "from_fab": "FAB8CD",
       "to_fab": "FAB8F",
       "demand_batches": 439,
       "demand_shift_batches": 220
     },
     {
-      "id": 116,
+      "id": 140,
       "from_fab": "FAB8F",
       "to_fab": "FAB8CD",
       "demand_batches": 439,
       "demand_shift_batches": 220
     },
     {
-      "id": 117,
-      "from_fab": "FAB8CD",
-      "to_fab": "FAB8E",
-      "demand_batches": 373,
-      "demand_shift_batches": 187
-    },
-    {
-      "id": 118,
-      "from_fab": "FAB8E",
-      "to_fab": "FAB8CD",
-      "demand_batches": 373,
-      "demand_shift_batches": 187
-    },
-    {
-      "id": 119,
+      "id": 141,
       "from_fab": "FAB8AB",
       "to_fab": "FAB8E",
       "demand_batches": 302,
       "demand_shift_batches": 151
     },
     {
-      "id": 120,
+      "id": 142,
       "from_fab": "FAB8E",
       "to_fab": "FAB8AB",
       "demand_batches": 302,
       "demand_shift_batches": 151
     },
     {
-      "id": 121,
+      "id": 143,
       "from_fab": "FAB8E",
       "to_fab": "嘉晶篤行",
       "demand_batches": 96,
       "demand_shift_batches": 48
     },
     {
-      "id": 122,
+      "id": 144,
       "from_fab": "嘉晶篤行",
       "to_fab": "FAB8E",
       "demand_batches": 96,
       "demand_shift_batches": 48
     },
     {
-      "id": 123,
+      "id": 145,
       "from_fab": "FAB8AB",
       "to_fab": "FAB8S",
       "demand_batches": 74,
       "demand_shift_batches": 37
     },
     {
-      "id": 124,
+      "id": 146,
       "from_fab": "FAB8S",
       "to_fab": "FAB8AB",
       "demand_batches": 74,
       "demand_shift_batches": 37
     },
     {
-      "id": 125,
+      "id": 147,
       "from_fab": "FAB8CD",
       "to_fab": "FAB8S",
       "demand_batches": 61,
       "demand_shift_batches": 31
     },
     {
-      "id": 126,
+      "id": 148,
       "from_fab": "FAB8S",
       "to_fab": "FAB8CD",
       "demand_batches": 61,
       "demand_shift_batches": 31
     },
     {
-      "id": 127,
+      "id": 149,
       "from_fab": "FAB8E",
       "to_fab": "嘉晶創新",
       "demand_batches": 48,
       "demand_shift_batches": 24
     },
     {
-      "id": 128,
+      "id": 150,
       "from_fab": "嘉晶創新",
       "to_fab": "FAB8E",
       "demand_batches": 48,
       "demand_shift_batches": 24
     },
     {
-      "id": 129,
+      "id": 151,
       "from_fab": "FAB8E",
       "to_fab": "FAB8F",
       "demand_batches": 45,
       "demand_shift_batches": 23
     },
     {
-      "id": 130,
+      "id": 152,
       "from_fab": "FAB8F",
       "to_fab": "FAB8E",
       "demand_batches": 45,
       "demand_shift_batches": 23
     },
     {
-      "id": 131,
+      "id": 153,
       "from_fab": "FAB8E",
       "to_fab": "FAB8S",
       "demand_batches": 43,
       "demand_shift_batches": 22
     },
     {
-      "id": 132,
+      "id": 154,
       "from_fab": "FAB8S",
       "to_fab": "FAB8E",
       "demand_batches": 43,
@@ -20773,7 +20773,7 @@
   ],
   "audit_reports": {
     "schedules": {
-      "timestamp": "2026-11-08 16:04:58",
+      "timestamp": "2026-11-08 17:27:00",
       "db_path": "logistics.db",
       "table_name": "schedules",
       "plan_label": "原方案 (Baseline 原始基準)",
@@ -20787,15 +20787,15 @@
         "hard_compliance_rate": 66.7,
         "soft_satisfaction_score": 48.0,
         "overall_score": 61.1,
-        "total_violations": 73,
+        "total_violations": 74,
         "total_warnings": 29,
-        "total_demand_24h": 5742,
+        "total_demand_24h": 5542,
         "active_od_cap_24h": 6000,
         "max_utilization": 200.0,
-        "avg_utilization": 95.7,
+        "avg_utilization": 92.4,
         "total_slack_mins": 60,
-        "weighted_wait_batch_mins": 425525,
-        "weighted_avg_wait_mins": 74.1
+        "weighted_wait_batch_mins": 415025,
+        "weighted_avg_wait_mins": 74.9
       },
       "stats": {
         "total_stops": 198,
@@ -20803,14 +20803,14 @@
         "break_stops": 20,
         "cars_count": 5,
         "active_corridors_count": 22,
-        "total_demand_24h": 5742,
+        "total_demand_24h": 5542,
         "total_fleet_cap_24h": 6168,
         "active_od_cap_24h": 6000,
         "max_utilization": 200.0,
-        "avg_utilization": 95.7,
+        "avg_utilization": 92.4,
         "total_slack_mins": 60,
-        "weighted_wait_batch_mins": 425525,
-        "weighted_avg_wait_mins": 74.1
+        "weighted_wait_batch_mins": 415025,
+        "weighted_avg_wait_mins": 74.9
       },
       "rules": {
         "cap_48_standard": {
@@ -21157,23 +21157,23 @@
           "name": "硬約束 4：走廊利用率 ≤ 85.0% (保證 ≥15% 安全抗震裕度)",
           "category": "HARD",
           "status": "FAIL",
-          "violations_count": 11,
+          "violations_count": 12,
           "violations": [
             {
               "from": "FAB8F",
               "to": "FAB8S",
-              "demand": 858,
+              "demand": 658,
               "capacity": 600,
-              "utilization": 143.0,
-              "msg": "走廊 FAB8F ➔ FAB8S 利用率達 143.0% 超出 85.0% 上限 (需求 858 批 / 供給 600 批)"
+              "utilization": 109.7,
+              "msg": "走廊 FAB8F ➔ FAB8S 利用率達 109.7% 超出 85.0% 上限 (需求 658 批 / 供給 600 批)"
             },
             {
               "from": "FAB8S",
               "to": "FAB8F",
-              "demand": 858,
+              "demand": 658,
               "capacity": 576,
-              "utilization": 149.0,
-              "msg": "走廊 FAB8S ➔ FAB8F 利用率達 149.0% 超出 85.0% 上限 (需求 858 批 / 供給 576 批)"
+              "utilization": 114.2,
+              "msg": "走廊 FAB8S ➔ FAB8F 利用率達 114.2% 超出 85.0% 上限 (需求 658 批 / 供給 576 批)"
             },
             {
               "from": "FAB8AB",
@@ -21194,10 +21194,18 @@
             {
               "from": "FAB8CD",
               "to": "FAB8E",
-              "demand": 373,
+              "demand": 473,
               "capacity": 400,
-              "utilization": 93.2,
-              "msg": "走廊 FAB8CD ➔ FAB8E 利用率達 93.2% 超出 85.0% 上限 (需求 373 批 / 供給 400 批)"
+              "utilization": 118.3,
+              "msg": "走廊 FAB8CD ➔ FAB8E 利用率達 118.3% 超出 85.0% 上限 (需求 473 批 / 供給 400 批)"
+            },
+            {
+              "from": "FAB8E",
+              "to": "FAB8CD",
+              "demand": 473,
+              "capacity": 440,
+              "utilization": 107.5,
+              "msg": "走廊 FAB8E ➔ FAB8CD 利用率達 107.5% 超出 85.0% 上限 (需求 473 批 / 供給 440 批)"
             },
             {
               "from": "FAB8AB",
@@ -21252,28 +21260,28 @@
             {
               "from": "FAB8F",
               "to": "FAB8S",
-              "demand": 858,
+              "demand": 658,
               "day_trips": 8,
               "night_trips": 8,
               "total_trips": 16,
               "day_cap": 300,
               "night_cap": 300,
               "capacity": 600,
-              "utilization": 143.0,
+              "utilization": 109.7,
               "avg_wait_mins": 45.0,
               "status": "FAIL"
             },
             {
               "from": "FAB8S",
               "to": "FAB8F",
-              "demand": 858,
+              "demand": 658,
               "day_trips": 6,
               "night_trips": 6,
               "total_trips": 12,
               "day_cap": 288,
               "night_cap": 288,
               "capacity": 576,
-              "utilization": 149.0,
+              "utilization": 114.2,
               "avg_wait_mins": 60.0,
               "status": "FAIL"
             },
@@ -21307,6 +21315,34 @@
             },
             {
               "from": "FAB8CD",
+              "to": "FAB8E",
+              "demand": 473,
+              "day_trips": 6,
+              "night_trips": 6,
+              "total_trips": 12,
+              "day_cap": 200,
+              "night_cap": 200,
+              "capacity": 400,
+              "utilization": 118.3,
+              "avg_wait_mins": 60.0,
+              "status": "FAIL"
+            },
+            {
+              "from": "FAB8E",
+              "to": "FAB8CD",
+              "demand": 473,
+              "day_trips": 8,
+              "night_trips": 8,
+              "total_trips": 16,
+              "day_cap": 220,
+              "night_cap": 220,
+              "capacity": 440,
+              "utilization": 107.5,
+              "avg_wait_mins": 45.0,
+              "status": "FAIL"
+            },
+            {
+              "from": "FAB8CD",
               "to": "FAB8F",
               "demand": 439,
               "day_trips": 9,
@@ -21330,34 +21366,6 @@
               "night_cap": 360,
               "capacity": 720,
               "utilization": 61.0,
-              "avg_wait_mins": 45.0,
-              "status": "PASS"
-            },
-            {
-              "from": "FAB8CD",
-              "to": "FAB8E",
-              "demand": 373,
-              "day_trips": 6,
-              "night_trips": 6,
-              "total_trips": 12,
-              "day_cap": 200,
-              "night_cap": 200,
-              "capacity": 400,
-              "utilization": 93.2,
-              "avg_wait_mins": 60.0,
-              "status": "FAIL"
-            },
-            {
-              "from": "FAB8E",
-              "to": "FAB8CD",
-              "demand": 373,
-              "day_trips": 8,
-              "night_trips": 8,
-              "total_trips": 16,
-              "day_cap": 220,
-              "night_cap": 220,
-              "capacity": 440,
-              "utilization": 84.8,
               "avg_wait_mins": 45.0,
               "status": "PASS"
             },
@@ -22163,29 +22171,29 @@
       }
     },
     "schedules_plan2": {
-      "timestamp": "2026-11-08 16:04:58",
+      "timestamp": "2026-11-08 17:27:00",
       "db_path": "logistics.db",
       "table_name": "schedules_plan2",
       "plan_label": "方案二 (CP-SAT 雙層路網優化)",
       "summary": {
-        "verdict": "WARNING",
-        "verdict_badge": "🟡 稽核條件通過 (WARNING) - 硬約束 100% 合規，存在軟約束改善建議",
-        "hard_pass_count": 6,
+        "verdict": "FAILED",
+        "verdict_badge": "🔴 稽核未通過 (FAILED) - 存在硬約束違規，嚴禁正式上線",
+        "hard_pass_count": 5,
         "hard_total_count": 6,
         "soft_pass_count": 1,
         "soft_total_count": 2,
-        "hard_compliance_rate": 100.0,
+        "hard_compliance_rate": 83.3,
         "soft_satisfaction_score": 92.0,
-        "overall_score": 97.6,
-        "total_violations": 0,
+        "overall_score": 85.9,
+        "total_violations": 1,
         "total_warnings": 4,
-        "total_demand_24h": 5742,
+        "total_demand_24h": 5542,
         "active_od_cap_24h": 7776,
-        "max_utilization": 84.7,
-        "avg_utilization": 73.8,
+        "max_utilization": 103.7,
+        "avg_utilization": 71.3,
         "total_slack_mins": 0,
-        "weighted_wait_batch_mins": 434942,
-        "weighted_avg_wait_mins": 75.7
+        "weighted_wait_batch_mins": 434142,
+        "weighted_avg_wait_mins": 78.3
       },
       "stats": {
         "total_stops": 198,
@@ -22193,14 +22201,14 @@
         "break_stops": 20,
         "cars_count": 5,
         "active_corridors_count": 22,
-        "total_demand_24h": 5742,
+        "total_demand_24h": 5542,
         "total_fleet_cap_24h": 7776,
         "active_od_cap_24h": 7776,
-        "max_utilization": 84.7,
-        "avg_utilization": 73.8,
+        "max_utilization": 103.7,
+        "avg_utilization": 71.3,
         "total_slack_mins": 0,
-        "weighted_wait_batch_mins": 434942,
-        "weighted_avg_wait_mins": 75.7
+        "weighted_wait_batch_mins": 434142,
+        "weighted_avg_wait_mins": 78.3
       },
       "rules": {
         "cap_48_standard": {
@@ -22295,35 +22303,44 @@
           "id": "RULE-HARD-UTIL-85",
           "name": "硬約束 4：走廊利用率 ≤ 85.0% (保證 ≥15% 安全抗震裕度)",
           "category": "HARD",
-          "status": "PASS",
-          "violations_count": 0,
-          "violations": [],
+          "status": "FAIL",
+          "violations_count": 1,
+          "violations": [
+            {
+              "from": "FAB8CD",
+              "to": "FAB8E",
+              "demand": 473,
+              "capacity": 456,
+              "utilization": 103.7,
+              "msg": "走廊 FAB8CD ➔ FAB8E 利用率達 103.7% 超出 85.0% 上限 (需求 473 批 / 供給 456 批)"
+            }
+          ],
           "od_table": [
             {
               "from": "FAB8F",
               "to": "FAB8S",
-              "demand": 858,
+              "demand": 658,
               "day_trips": 13,
               "night_trips": 13,
               "total_trips": 26,
               "day_cap": 516,
               "night_cap": 516,
               "capacity": 1032,
-              "utilization": 83.1,
+              "utilization": 63.8,
               "avg_wait_mins": 27.7,
               "status": "PASS"
             },
             {
               "from": "FAB8S",
               "to": "FAB8F",
-              "demand": 858,
+              "demand": 658,
               "day_trips": 13,
               "night_trips": 13,
               "total_trips": 26,
               "day_cap": 516,
               "night_cap": 516,
               "capacity": 1032,
-              "utilization": 83.1,
+              "utilization": 63.8,
               "avg_wait_mins": 27.7,
               "status": "PASS"
             },
@@ -22357,6 +22374,34 @@
             },
             {
               "from": "FAB8CD",
+              "to": "FAB8E",
+              "demand": 473,
+              "day_trips": 7,
+              "night_trips": 7,
+              "total_trips": 14,
+              "day_cap": 228,
+              "night_cap": 228,
+              "capacity": 456,
+              "utilization": 103.7,
+              "avg_wait_mins": 51.4,
+              "status": "FAIL"
+            },
+            {
+              "from": "FAB8E",
+              "to": "FAB8CD",
+              "demand": 473,
+              "day_trips": 7,
+              "night_trips": 7,
+              "total_trips": 14,
+              "day_cap": 300,
+              "night_cap": 300,
+              "capacity": 600,
+              "utilization": 78.8,
+              "avg_wait_mins": 51.4,
+              "status": "PASS"
+            },
+            {
+              "from": "FAB8CD",
               "to": "FAB8F",
               "demand": 439,
               "day_trips": 6,
@@ -22381,34 +22426,6 @@
               "capacity": 696,
               "utilization": 63.1,
               "avg_wait_mins": 45.0,
-              "status": "PASS"
-            },
-            {
-              "from": "FAB8CD",
-              "to": "FAB8E",
-              "demand": 373,
-              "day_trips": 7,
-              "night_trips": 7,
-              "total_trips": 14,
-              "day_cap": 228,
-              "night_cap": 228,
-              "capacity": 456,
-              "utilization": 81.8,
-              "avg_wait_mins": 51.4,
-              "status": "PASS"
-            },
-            {
-              "from": "FAB8E",
-              "to": "FAB8CD",
-              "demand": 373,
-              "day_trips": 7,
-              "night_trips": 7,
-              "total_trips": 14,
-              "day_cap": 300,
-              "night_cap": 300,
-              "capacity": 600,
-              "utilization": 62.2,
-              "avg_wait_mins": 51.4,
               "status": "PASS"
             },
             {
@@ -22654,29 +22671,29 @@
       }
     },
     "schedules_plan3": {
-      "timestamp": "2026-11-08 16:04:58",
+      "timestamp": "2026-11-08 17:27:00",
       "db_path": "logistics.db",
       "table_name": "schedules_plan3",
       "plan_label": "方案三 (100% 剛性合規落地版)",
       "summary": {
-        "verdict": "PASSED",
-        "verdict_badge": "🟢 稽核完全通過 (PASSED) - 卓越排程品質，准予正式營運",
-        "hard_pass_count": 6,
+        "verdict": "FAILED",
+        "verdict_badge": "🔴 稽核未通過 (FAILED) - 存在硬約束違規，嚴禁正式上線",
+        "hard_pass_count": 5,
         "hard_total_count": 6,
         "soft_pass_count": 2,
         "soft_total_count": 2,
-        "hard_compliance_rate": 100.0,
+        "hard_compliance_rate": 83.3,
         "soft_satisfaction_score": 100.0,
-        "overall_score": 100.0,
-        "total_violations": 0,
+        "overall_score": 88.3,
+        "total_violations": 1,
         "total_warnings": 0,
-        "total_demand_24h": 5742,
+        "total_demand_24h": 5542,
         "active_od_cap_24h": 7776,
-        "max_utilization": 84.7,
-        "avg_utilization": 73.8,
+        "max_utilization": 103.7,
+        "avg_utilization": 71.3,
         "total_slack_mins": 0,
-        "weighted_wait_batch_mins": 434942,
-        "weighted_avg_wait_mins": 75.7
+        "weighted_wait_batch_mins": 434142,
+        "weighted_avg_wait_mins": 78.3
       },
       "stats": {
         "total_stops": 198,
@@ -22684,14 +22701,14 @@
         "break_stops": 20,
         "cars_count": 5,
         "active_corridors_count": 22,
-        "total_demand_24h": 5742,
+        "total_demand_24h": 5542,
         "total_fleet_cap_24h": 7776,
         "active_od_cap_24h": 7776,
-        "max_utilization": 84.7,
-        "avg_utilization": 73.8,
+        "max_utilization": 103.7,
+        "avg_utilization": 71.3,
         "total_slack_mins": 0,
-        "weighted_wait_batch_mins": 434942,
-        "weighted_avg_wait_mins": 75.7
+        "weighted_wait_batch_mins": 434142,
+        "weighted_avg_wait_mins": 78.3
       },
       "rules": {
         "cap_48_standard": {
@@ -22745,35 +22762,44 @@
           "id": "RULE-HARD-UTIL-85",
           "name": "硬約束 4：走廊利用率 ≤ 85.0% (保證 ≥15% 安全抗震裕度)",
           "category": "HARD",
-          "status": "PASS",
-          "violations_count": 0,
-          "violations": [],
+          "status": "FAIL",
+          "violations_count": 1,
+          "violations": [
+            {
+              "from": "FAB8CD",
+              "to": "FAB8E",
+              "demand": 473,
+              "capacity": 456,
+              "utilization": 103.7,
+              "msg": "走廊 FAB8CD ➔ FAB8E 利用率達 103.7% 超出 85.0% 上限 (需求 473 批 / 供給 456 批)"
+            }
+          ],
           "od_table": [
             {
               "from": "FAB8F",
               "to": "FAB8S",
-              "demand": 858,
+              "demand": 658,
               "day_trips": 13,
               "night_trips": 13,
               "total_trips": 26,
               "day_cap": 516,
               "night_cap": 516,
               "capacity": 1032,
-              "utilization": 83.1,
+              "utilization": 63.8,
               "avg_wait_mins": 27.7,
               "status": "PASS"
             },
             {
               "from": "FAB8S",
               "to": "FAB8F",
-              "demand": 858,
+              "demand": 658,
               "day_trips": 13,
               "night_trips": 13,
               "total_trips": 26,
               "day_cap": 516,
               "night_cap": 516,
               "capacity": 1032,
-              "utilization": 83.1,
+              "utilization": 63.8,
               "avg_wait_mins": 27.7,
               "status": "PASS"
             },
@@ -22807,6 +22833,34 @@
             },
             {
               "from": "FAB8CD",
+              "to": "FAB8E",
+              "demand": 473,
+              "day_trips": 7,
+              "night_trips": 7,
+              "total_trips": 14,
+              "day_cap": 228,
+              "night_cap": 228,
+              "capacity": 456,
+              "utilization": 103.7,
+              "avg_wait_mins": 51.4,
+              "status": "FAIL"
+            },
+            {
+              "from": "FAB8E",
+              "to": "FAB8CD",
+              "demand": 473,
+              "day_trips": 7,
+              "night_trips": 7,
+              "total_trips": 14,
+              "day_cap": 300,
+              "night_cap": 300,
+              "capacity": 600,
+              "utilization": 78.8,
+              "avg_wait_mins": 51.4,
+              "status": "PASS"
+            },
+            {
+              "from": "FAB8CD",
               "to": "FAB8F",
               "demand": 439,
               "day_trips": 6,
@@ -22831,34 +22885,6 @@
               "capacity": 696,
               "utilization": 63.1,
               "avg_wait_mins": 45.0,
-              "status": "PASS"
-            },
-            {
-              "from": "FAB8CD",
-              "to": "FAB8E",
-              "demand": 373,
-              "day_trips": 7,
-              "night_trips": 7,
-              "total_trips": 14,
-              "day_cap": 228,
-              "night_cap": 228,
-              "capacity": 456,
-              "utilization": 81.8,
-              "avg_wait_mins": 51.4,
-              "status": "PASS"
-            },
-            {
-              "from": "FAB8E",
-              "to": "FAB8CD",
-              "demand": 373,
-              "day_trips": 7,
-              "night_trips": 7,
-              "total_trips": 14,
-              "day_cap": 300,
-              "night_cap": 300,
-              "capacity": 600,
-              "utilization": 62.2,
-              "avg_wait_mins": 51.4,
               "status": "PASS"
             },
             {
@@ -23104,5 +23130,5 @@
       }
     }
   },
-  "exported_at": "2026-11-08T16:04:58.223032"
+  "exported_at": "2026-11-08T17:27:00.529292"
 }
