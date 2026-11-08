@@ -9,6 +9,7 @@ import sys
 import urllib.parse
 from datetime import datetime
 from validator import ScheduleValidator, parse_od_pairs
+from actual_operations_engine import evaluate_actual_operations
 
 # Safe UTF-8 console output on Windows
 if hasattr(sys.stdout, 'reconfigure'):
@@ -108,6 +109,18 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(content)
                 return
+            except Exception as e:
+                return self.send_json({'error': str(e)}, status=500)
+
+        elif path == '/api/actual_operations':
+            try:
+                date_str = params.get('date', ['2026-11-01'])[0]
+                shift = params.get('shift', ['all'])[0].lower()
+                table = params.get('table', ['schedules_plan3'])[0]
+                if table not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+                    table = 'schedules_plan3'
+                result = evaluate_actual_operations(DB_PATH, date_str=date_str, shift=shift, table_name=table)
+                return self.send_json(result)
             except Exception as e:
                 return self.send_json({'error': str(e)}, status=500)
 
