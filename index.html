@@ -183,6 +183,10 @@
           <button id="btnPlan3" onclick="setGlobalPlan('schedules_plan3')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 bg-emerald-600 text-white shadow">
             <span>🟢 方案三 (100%驗收 ★)</span>
           </button>
+          <button id="btnPlanActual" onclick="setGlobalPlan('actual')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 text-slate-400 hover:text-white" title="依據司機真實每日出勤計算產能，納入 Car U 並即時預警路線 Overloading">
+            <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+            <span>🟣 實際營運出勤</span>
+          </button>
         </div>
 
                 <!-- Demand Upload Recompute Quick Button -->
@@ -267,6 +271,40 @@
       </a>
     </div>
   </header>
+  <!-- Top Global Actual Operations Bar (切換為「實際營運出勤」時於最上層浮現) -->
+  <div id="topActualOpsBar" class="hidden bg-slate-900 border-b border-purple-500/40 px-4 lg:px-8 py-2.5 shadow-xl transition-all">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-200 border border-purple-500/40 font-bold">
+          <i class="fa-solid fa-truck-fast text-purple-400"></i>
+          <span>實際出勤模式</span>
+        </div>
+        <!-- Date Selector -->
+        <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
+          <span class="text-slate-400 font-medium">營運日期:</span>
+          <input type="date" id="topActualDateInput" min="2026-11-01" max="2026-11-30" value="2026-11-01" onchange="onTopActualDateChange(this.value)" class="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-white font-mono focus:border-purple-500 focus:outline-none text-xs">
+        </div>
+        <!-- Quick Dates -->
+        <div class="hidden sm:flex items-center gap-1 text-[11px]">
+          <span class="text-slate-500">快選:</span>
+          <button onclick="setTopActualDateQuick('2026-11-01')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">11/01 (夜班U車)</button>
+          <button onclick="setTopActualDateQuick('2026-11-02')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">11/02</button>
+          <button onclick="setTopActualDateQuick('2026-11-08')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">今日 (11/08)</button>
+        </div>
+      </div>
+
+      <!-- Live Fleet Summary & Overload Indicator -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <div id="topFleetRosterBadges" class="flex items-center gap-1.5 flex-wrap">
+          <!-- Populated by JS -->
+        </div>
+        <div id="topOverloadSummaryBadge" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold font-mono">
+          🟢 0 條超載
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Main Content Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 space-y-6">
@@ -2119,6 +2157,7 @@
       const b1 = document.getElementById('btnPlan1');
       const b2 = document.getElementById('btnPlan2');
       const b3 = document.getElementById('btnPlan3');
+      const b4 = document.getElementById('btnPlanActual');
       if (b1 && b2 && b3) {
         b1.className = planTable === 'schedules'
           ? 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 bg-rose-600 text-white shadow'
@@ -2129,6 +2168,22 @@
         b3.className = planTable === 'schedules_plan3'
           ? 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 bg-emerald-600 text-white shadow'
           : 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 text-slate-400 hover:text-white';
+      }
+      if (b4) {
+        b4.className = planTable === 'actual'
+          ? 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30 font-bold'
+          : 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 text-slate-400 hover:text-white';
+      }
+
+      // 控制頂層實際營運出勤列
+      const topOpsBar = document.getElementById('topActualOpsBar');
+      if (topOpsBar) {
+        if (planTable === 'actual') {
+          topOpsBar.classList.remove('hidden');
+          updateTopActualOpsBar();
+        } else {
+          topOpsBar.classList.add('hidden');
+        }
       }
 
       // Update Tab 5 Plan Cards & Badge
@@ -2142,6 +2197,9 @@
         } else if (planTable === 'schedules_plan2') {
           badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono';
           badge.innerText = `目前檢視：方案二 (${p2sc}分 🟡 WARNING)`;
+        } else if (planTable === 'actual') {
+          badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-purple-500/20 text-purple-300 border border-purple-500/40 font-mono animate-pulse';
+          badge.innerText = '目前檢視：實際營運出勤模式 (司機每日出勤 / U車動態產能) 🟣';
         } else {
           badge.className = `px-2.5 py-0.5 rounded-full text-xs font-extrabold font-mono ${p3sc >= 99 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'}`;
           badge.innerText = `目前檢視：方案三 (${p3sc}分 ${p3sc >= 99 ? '🟢 PASSED' : '🟡 WARNING'})`;
@@ -2518,6 +2576,9 @@
     async function fetchSchedules(carId, shift, mode, search) {
       if (isLiveServer) {
         let url = `/api/schedules?car_id=${carId}&shift=${shift}&table=${currentPlanTable}`;
+        if (currentPlanTable === 'actual') {
+          url += `&date=${encodeURIComponent(currentActualDate || '2026-11-01')}`;
+        }
         if (mode && mode !== 'ALL') url += `&mode=${encodeURIComponent(mode)}`;
         if (search) url += `&search=${encodeURIComponent(search)}`;
         const res = await fetch(url);
@@ -4081,6 +4142,12 @@
     }
 
     async function renderODMatrix() {
+      if (currentPlanTable === 'actual') {
+        if (typeof updateActualOperationsView === 'function') {
+          await updateActualOperationsView();
+        }
+        return;
+      }
       const data = await fetchODMatrix(currentShift);
       if (!data || !data.fabs) return;
 
@@ -6249,6 +6316,72 @@
         </tr>
       `;
     }).join('');
+  }
+</script>
+<script>
+  // Top Global Actual Operations Helpers
+  function onTopActualDateChange(newDate) {
+    currentActualDate = newDate;
+    const inp = document.getElementById('actualOpsDateInput');
+    if (inp) inp.value = newDate;
+    refreshAllForActualOps();
+  }
+
+  function setTopActualDateQuick(quickDate) {
+    currentActualDate = quickDate;
+    const topInp = document.getElementById('topActualDateInput');
+    if (topInp) topInp.value = quickDate;
+    const mainInp = document.getElementById('actualOpsDateInput');
+    if (mainInp) mainInp.value = quickDate;
+    refreshAllForActualOps();
+  }
+
+  async function updateTopActualOpsBar() {
+    const shift = (typeof currentShift !== 'undefined') ? currentShift : 'all';
+    const data = await fetchActualOperationsData(currentActualDate, shift, 'schedules_plan3');
+    if (!data) return;
+
+    const badgesContainer = document.getElementById('topFleetRosterBadges');
+    const overloadBadge = document.getElementById('topOverloadSummaryBadge');
+
+    if (badgesContainer) {
+      const allCars = ['Car_A', 'Car_B', 'Car_C', 'Car_D', 'Car_E', 'Car_U'];
+      badgesContainer.innerHTML = allCars.map(cid => {
+        const info = data.car_roster[cid] || { driver: '—', status: '無班次' };
+        const isActive = info.status === '執勤';
+        const isU = cid === 'Car_U';
+        if (isU && !isActive) return ''; // Car U 沒出勤則不佔頂部空間
+        const col = isActive ? (isU ? 'bg-purple-900/60 text-purple-200 border-purple-500/40' : 'bg-emerald-950/60 text-emerald-300 border-emerald-500/40') : 'bg-slate-900 text-slate-500 border-slate-800 line-through';
+        return `<span class="px-2 py-0.5 rounded text-[11px] border ${col} font-medium">${info.driver || cid} (${cid.replace('Car_', '')})</span>`;
+      }).join('');
+
+      if (data.u_car_active) {
+        badgesContainer.innerHTML += `<span class="px-2 py-0.5 rounded text-[10px] bg-purple-500/30 text-purple-200 font-bold border border-purple-500/40">★ U車投入 (+${data.u_boost_batches}批)</span>`;
+      }
+    }
+
+    if (overloadBadge) {
+      if (data.overloaded_count > 0) {
+        overloadBadge.className = 'px-2.5 py-1 rounded-lg bg-rose-600 text-white font-bold font-mono animate-bounce shadow-md shadow-rose-600/30';
+        overloadBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 🔴 ${data.overloaded_count} 條走廊超載！`;
+      } else {
+        overloadBadge.className = 'px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold font-mono';
+        overloadBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> 🟢 0 條超載 (安全)`;
+      }
+    }
+  }
+
+  function refreshAllForActualOps() {
+    updateTopActualOpsBar();
+    if (typeof updateActualOperationsView === 'function') {
+      updateActualOperationsView();
+    }
+    if (typeof renderCarSchedules === 'function') {
+      renderCarSchedules();
+    }
+    if (typeof renderSummaryReport === 'function') {
+      renderSummaryReport();
+    }
   }
 </script>
 </body>

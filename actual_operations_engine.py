@@ -187,3 +187,128 @@ def evaluate_actual_operations(db_path=DB_PATH, date_str='2026-11-01', shift='al
         'avg_utilization': avg_util,
         'corridors': corridor_results
     }
+
+
+def get_actual_cars(db_path=DB_PATH, date_str='2026-11-01', shift='all'):
+    """回傳指定日期與班別下的車輛出勤名單 (包含司機與車牌，若 Car U 執勤則納入)"""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cars = [dict(r) for r in conn.execute("SELECT * FROM cars ORDER BY id").fetchall()]
+    
+    roster_query = "SELECT * FROM driver_roster WHERE date = ?"
+    args = [date_str]
+    if shift in ['day', 'night']:
+        roster_query += " AND lower(shift) = ?"
+        args.append(shift)
+        
+    roster_rows = conn.execute(roster_query, args).fetchall()
+    conn.close()
+    
+    roster_by_car = {}
+    for r in roster_rows:
+        cid = r['car_id']
+        if cid not in roster_by_car or r['status'] == '執勤':
+            roster_by_car[cid] = r
+            
+    res_cars = []
+    for c in cars:
+        cid = c['id']
+        r_info = roster_by_car.get(cid)
+        if r_info:
+            c['driver'] = r_info['driver']
+            c['plate'] = r_info['plate'] or c.get('plate', '')
+            c['status'] = r_info['status']
+            c['is_active'] = 1 if r_info['status'] == '執勤' else 0
+        else:
+            c['driver'] = '未排班'
+            c['is_active'] = 0
+            c['status'] = '無班次'
+            
+        if cid == 'Car_U':
+            if c['is_active'] == 1:
+                c['badge'] = '★ 夜班投入支援'
+            else:
+                c['badge'] = '待命備援'
+        res_cars.append(c)
+        
+    return res_cars
+
+
+def get_actual_schedules(db_path=DB_PATH, date_str='2026-11-01', shift=None, car_id=None, fab=None, mode=None, search=None, base_table='schedules_plan3'):
+    """依據司機真實出勤動態生成站點排程 (包含 Car U 站點，過濾停駛車輛)"""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    
+    roster_query = "SELECT * FROM driver_roster WHERE date = ?"
+    roster_rows = conn.execute(roster_query, [date_str]).fetchall()
+    
+    active_keys = set()
+    roster_map = {}
+    for r in roster_rows:
+        key = (r['car_id'], r['shift'].lower())
+        roster_map[key] = r
+        if r['status'] == '執勤':
+            active_keys.add(key)
+            
+    query = f"SELECT * FROM {base_table} WHERE 1=1"
+    args = []
+    
+    if car_id and car_id != 'ALL':
+        query += " AND car_id = ?"
+        args.append(car_id)
+        
+    if shift and shift != 'all':
+        query += " AND shift = ?"
+        args.append(shift)
+        
+    if fab and fab != 'ALL':
+        query += " AND fab_code = ?"
+        args.append(fab)
+        
+    if mode and mode != 'ALL':
+        query += " AND mode LIKE ?"
+        args.append(f"%{mode}%")
+        
+    if search:
+        query += " AND (cargo_cmd LIKE ? OR sop_details LIKE ? OR station_location LIKE ? OR od_flow LIKE ?)"
+        term = f"%{search}%"
+        args.extend([term, term, term, term])
+        
+    if car_id and car_id != 'ALL':
+        query += ' ORDER BY CASE WHEN shift="day" THEN 0 ELSE 1 END, stop_no ASC'
+    else:
+        if shift == 'night':
+            query += ' ORDER BY (arr_min - 1175 + 1440) % 1440 ASC'
+        elif shift == 'day':
+            query += ' ORDER BY arr_min ASC'
+        else:
+            query += ' ORDER BY (CASE WHEN shift="day" THEN arr_min WHEN shift="night" AND arr_min >= 455 THEN arr_min ELSE arr_min + 1440 END) ASC'
+            
+    raw_rows = conn.execute(query, args).fetchall()
+    conn.close()
+    
+    filtered_rows = []
+    for r in raw_rows:
+        d = dict(r)
+        cid = d['car_id']
+        s_lower = d['shift'].lower()
+        key = (cid, s_lower)
+        
+        r_info = roster_map.get(key)
+        is_active = (key in active_keys)
+        
+        if r_info:
+            d['driver_name'] = r_info['driver']
+            d['plate_no'] = r_info['plate']
+            d['driver_status'] = r_info['status']
+            d['is_active_trip'] = 1 if is_active else 0
+        else:
+            d['driver_name'] = '未排班'
+            d['plate_no'] = '—'
+            d['driver_status'] = '無班次'
+            d['is_active_trip'] = 0
+            
+        if (car_id and car_id != 'ALL') or is_active:
+            filtered_rows.append(d)
+            
+    return filtered_rows

@@ -9,7 +9,7 @@ import sys
 import urllib.parse
 from datetime import datetime
 from validator import ScheduleValidator, parse_od_pairs
-from actual_operations_engine import evaluate_actual_operations
+from actual_operations_engine import evaluate_actual_operations, get_actual_cars, get_actual_schedules
 
 # Safe UTF-8 console output on Windows
 if hasattr(sys.stdout, 'reconfigure'):
@@ -57,6 +57,12 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         # API Endpoints
         if path == '/api/cars':
+            tbl = params.get('table', ['schedules'])[0]
+            if tbl == 'actual':
+                date_str = params.get('date', ['2026-11-01'])[0]
+                shift = params.get('shift', ['all'])[0].lower()
+                cars = get_actual_cars(DB_PATH, date_str=date_str, shift=shift)
+                return self.send_json(cars)
             conn = get_db_connection()
             rows = conn.execute("SELECT * FROM cars WHERE id != 'Car_U' ORDER BY id").fetchall()
             conn.close()
@@ -125,15 +131,30 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 return self.send_json({'error': str(e)}, status=500)
 
         elif path == '/api/schedules':
-            conn = get_db_connection()
             tbl = params.get('table', ['schedules'])[0]
-            if tbl not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
-                tbl = 'schedules'
             car_id = params.get('car_id', [None])[0]
             shift = params.get('shift', [None])[0]
             fab = params.get('fab', [None])[0]
             mode = params.get('mode', [None])[0]
             search = params.get('search', [None])[0]
+
+            if tbl == 'actual':
+                date_str = params.get('date', ['2026-11-01'])[0]
+                rows = get_actual_schedules(
+                    DB_PATH,
+                    date_str=date_str,
+                    shift=shift,
+                    car_id=car_id,
+                    fab=fab,
+                    mode=mode,
+                    search=search,
+                    base_table='schedules_plan3'
+                )
+                return self.send_json(rows)
+
+            conn = get_db_connection()
+            if tbl not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+                tbl = 'schedules'
 
             query = f"SELECT * FROM {tbl} WHERE car_id != 'Car_U'"
             args = []
