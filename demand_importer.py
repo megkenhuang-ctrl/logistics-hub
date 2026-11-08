@@ -166,16 +166,57 @@ def parse_demand_excel(file_source):
     if total_demand_24h <= 0:
         raise ValueError("上傳的需求矩陣總需求量為 0，請確認數值填寫！")
 
+    corridors_list = []
+    for (f, t), b in matrix.items():
+        if b > 0:
+            corridors_list.append({
+                'from': f,
+                'to': t,
+                'batches': b,
+                'demand_24h': b,
+                'demand_shift': round(b / 2),
+                'bidirectional_24h': b * 2
+            })
+    corridors_list.sort(key=lambda x: x['batches'], reverse=True)
+
+    # Provide UI-compatible fabs array with parentheses
+    ui_fabs = [
+        'FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S',
+        '嘉晶 (篤行)', '嘉晶 (創新)'
+    ]
+    ui_matrix = {}
+    ui_row_sums = {}
+    ui_col_sums = {}
+
+    def to_ui_fab(name):
+        if '篤行' in name: return '嘉晶 (篤行)'
+        if '創新' in name: return '嘉晶 (創新)'
+        return name
+
+    for f in ui_fabs:
+        ui_matrix[f] = {}
+        ui_row_sums[f] = 0
+        ui_col_sums[f] = 0
+
+    for (f_raw, t_raw), b in matrix.items():
+        fu = to_ui_fab(f_raw)
+        tu = to_ui_fab(t_raw)
+        if fu in ui_matrix and tu in ui_matrix[fu]:
+            ui_matrix[fu][tu] = b
+            ui_row_sums[fu] += b
+            ui_col_sums[tu] += b
+
     return {
         'matrix': matrix,
         'total_demand_24h': total_demand_24h,
         'active_corridors_count': len(matrix),
         'grid_data': {
-            'fabs': STANDARD_FABS,
-            'matrix': grid_values,
-            'values': grid_values,
-            'row_sums': row_sums,
-            'col_sums': col_sums,
+            'fabs': ui_fabs,
+            'matrix': ui_matrix,
+            'values': ui_matrix,
+            'row_sums': ui_row_sums,
+            'col_sums': ui_col_sums,
+            'corridors': corridors_list,
             'total_sum': total_demand_24h,
             'total': total_demand_24h
         }

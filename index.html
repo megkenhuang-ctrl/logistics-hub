@@ -1598,16 +1598,42 @@
 
         // 1. Update KPIs
         const tot = Math.round(RAW_DEMAND_DATA.total_sum * multiplier);
-        document.getElementById('kpi-demand-total').innerHTML = `${tot.toLocaleString()} <span class="text-xs font-normal text-slate-400">${unit}</span>`;
-        document.getElementById('kpi-demand-sub').innerHTML = currentDemandMode === '24h'
-          ? '單班平均：<b>2,871 批/班</b> ｜ 每小時約 239 批'
-          : '整日合計：<b>5,742 批/天</b> ｜ 每班 12 小時基準';
+        const kpiTotal = document.getElementById('kpi-demand-total');
+        if (kpiTotal) kpiTotal.innerHTML = `${tot.toLocaleString()} <span class="text-xs font-normal text-slate-400">${unit}</span>`;
+        
+        const kpiSub = document.getElementById('kpi-demand-sub');
+        if (kpiSub) {
+          kpiSub.innerHTML = currentDemandMode === '24h'
+            ? `單班平均：<b>${Math.round(tot / 2).toLocaleString()} 批/班</b> ｜ 每小時約 ${Math.round(tot / 24)} 批`
+            : `整日合計：<b>${Math.round(RAW_DEMAND_DATA.total_sum).toLocaleString()} 批/天</b> ｜ 每班 12 小時基準`;
+        }
 
-        const topVal = Math.round(1716 * multiplier);
-        document.getElementById('kpi-demand-top-val').innerHTML = `${topVal.toLocaleString()} <span class="text-xs font-normal text-slate-400">${unit} (雙向)</span>`;
+        // Dynamic calculate top corridor and outer fabs
+        let maxPair = 0;
+        let outerTotal = 0;
+        if (RAW_DEMAND_DATA.matrix) {
+          const fabs = RAW_DEMAND_DATA.fabs || [];
+          for (let i = 0; i < fabs.length; i++) {
+            for (let j = i + 1; j < fabs.length; j++) {
+              const f1 = fabs[i], f2 = fabs[j];
+              const p1 = (RAW_DEMAND_DATA.matrix[f1] && RAW_DEMAND_DATA.matrix[f1][f2]) || 0;
+              const p2 = (RAW_DEMAND_DATA.matrix[f2] && RAW_DEMAND_DATA.matrix[f2][f1]) || 0;
+              if (p1 + p2 > maxPair) maxPair = p1 + p2;
+            }
+          }
+          fabs.forEach(f => {
+            if (f.includes('嘉晶') || f.includes('研新') || f.includes('研發')) {
+              outerTotal += (RAW_DEMAND_DATA.row_sums && RAW_DEMAND_DATA.row_sums[f]) || 0;
+            }
+          });
+        }
+        const topVal = Math.round((maxPair || 1716) * multiplier);
+        const kpiTop = document.getElementById('kpi-demand-top-val');
+        if (kpiTop) kpiTop.innerHTML = `${topVal.toLocaleString()} <span class="text-xs font-normal text-slate-400">${unit} (雙向)</span>`;
 
-        const outerVal = Math.round(288 * multiplier);
-        document.getElementById('kpi-demand-outer-val').innerHTML = `${outerVal.toLocaleString()} <span class="text-xs font-normal text-slate-400">${unit} (雙向)</span>`;
+        const outerVal = Math.round(((outerTotal * 2) || 288) * multiplier);
+        const kpiOuter = document.getElementById('kpi-demand-outer-val');
+        if (kpiOuter) kpiOuter.innerHTML = `${outerVal.toLocaleString()} <span class="text-xs font-normal text-slate-400">${unit} (雙向)</span>`;
 
         // 2. Render Heatmap Table
         renderHeatmapTable(multiplier, unit);
@@ -1631,16 +1657,16 @@
         const table = document.getElementById('demand-heatmap-table');
         if (!table) return;
 
-        const fabs = RAW_DEMAND_DATA.fabs;
-        const matrix = RAW_DEMAND_DATA.matrix;
-        const row_sums = RAW_DEMAND_DATA.row_sums;
-        const col_sums = RAW_DEMAND_DATA.col_sums;
+        const fabs = RAW_DEMAND_DATA.fabs || ['FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S', '嘉晶 (篤行)', '嘉晶 (創新)'];
+        const matrix = RAW_DEMAND_DATA.matrix || {};
+        const row_sums = RAW_DEMAND_DATA.row_sums || {};
+        const col_sums = RAW_DEMAND_DATA.col_sums || {};
         const total = Math.round(RAW_DEMAND_DATA.total_sum * multiplier);
 
         let html = `
           <thead class="bg-slate-800 text-slate-300 font-bold border-b border-slate-700">
             <tr>
-              <th class="p-3 text-center bg-slate-850 border-r border-slate-700 text-slate-400 font-mono">From \ To</th>
+              <th class="p-3 text-center bg-slate-850 border-r border-slate-700 text-slate-400 font-mono">From \\ To</th>
         `;
 
         fabs.forEach(f => {
@@ -1655,7 +1681,7 @@
         `;
 
         fabs.forEach(rf => {
-          const rTotal = Math.round(row_sums[rf] * multiplier);
+          const rTotal = Math.round((row_sums[rf] || 0) * multiplier);
           html += `
             <tr class="hover:bg-slate-800/50 transition">
               <td class="p-3 font-bold text-white bg-slate-800/60 border-r border-slate-700">${rf}</td>
@@ -1665,7 +1691,7 @@
             if (rf === cf) {
               html += `<td class="p-3 text-center text-slate-600 bg-slate-900/80 border-r border-slate-800 font-mono">-</td>`;
             } else {
-              const val24 = matrix[rf][cf];
+              const val24 = (matrix[rf] && matrix[rf][cf]) !== undefined ? matrix[rf][cf] : 0;
               const displayVal = Math.round(val24 * multiplier);
               const heatClass = getHeatmapClass(val24);
               html += `<td class="p-3 text-center font-mono border-r border-slate-800 ${heatClass}">${displayVal > 0 ? displayVal.toLocaleString() : '<span class="text-slate-600">0</span>'}</td>`;
@@ -1685,7 +1711,7 @@
         `;
 
         fabs.forEach(cf => {
-          const cTotal = Math.round(col_sums[cf] * multiplier);
+          const cTotal = Math.round((col_sums[cf] || 0) * multiplier);
           html += `<td class="p-3 text-center font-mono font-bold text-cyan-300 border-r border-slate-750">${cTotal.toLocaleString()}</td>`;
         });
 
@@ -1702,12 +1728,36 @@
         const tbody = document.getElementById('demand-corridors-tbody');
         if (!tbody) return;
 
-        const corridors = RAW_DEMAND_DATA.corridors;
-        const total = RAW_DEMAND_DATA.total_sum;
+        let corridors = RAW_DEMAND_DATA.corridors;
+        const total = RAW_DEMAND_DATA.total_sum || 1;
+
+        if (!Array.isArray(corridors) || corridors.length === 0) {
+          corridors = [];
+          const fabs = RAW_DEMAND_DATA.fabs || ['FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S', '嘉晶 (篤行)', '嘉晶 (創新)'];
+          const matrix = RAW_DEMAND_DATA.matrix || {};
+          fabs.forEach(f => {
+            fabs.forEach(t => {
+              if (f !== t) {
+                const d = (matrix[f] && matrix[f][t]) || 0;
+                if (d > 0) {
+                  corridors.push({
+                    from: f,
+                    to: t,
+                    batches: d,
+                    demand_24h: d,
+                    demand_shift: Math.round(d / 2)
+                  });
+                }
+              }
+            });
+          });
+          corridors.sort((a, b) => (b.batches || b.demand_24h || 0) - (a.batches || a.demand_24h || 0));
+          RAW_DEMAND_DATA.corridors = corridors;
+        }
 
         let html = '';
         corridors.forEach((c, idx) => {
-          const b24 = c.batches;
+          const b24 = c.batches !== undefined ? c.batches : (c.demand_24h || 0);
           const bCurrent = Math.round(b24 * multiplier);
           const b12 = Math.round(b24 / 2);
           const pct = ((b24 / total) * 100).toFixed(2);
@@ -1717,7 +1767,7 @@
             tierBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/30">🔥 特大宗</span>';
           } else if (b24 >= 300) {
             tierBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">⚡ 大宗動脈</span>';
-          } else if (c.from.includes('嘉晶') || c.to.includes('嘉晶')) {
+          } else if (c.from.includes('嘉晶') || c.to.includes('嘉晶') || c.from.includes('研') || c.to.includes('研')) {
             tierBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">🌐 外廠長途</span>';
           } else {
             tierBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-700 text-slate-300">🌿 區域走廊</span>';
@@ -4857,7 +4907,19 @@
       });
     }
 
-        function parseExcelDemandClientSide(arrayBuffer) {
+        function normalizeFabName(raw) {
+      const s = String(raw || '').trim();
+      if (s.includes('8AB')) return 'FAB8AB';
+      if (s.includes('8CD')) return 'FAB8CD';
+      if (s.includes('8E')) return 'FAB8E';
+      if (s.includes('8F')) return 'FAB8F';
+      if (s.includes('8S')) return 'FAB8S';
+      if (s.includes('研新') || s.includes('篤行')) return '嘉晶 (篤行)';
+      if (s.includes('研發') || s.includes('創新')) return '嘉晶 (創新)';
+      return '';
+    }
+
+    function parseExcelDemandClientSide(arrayBuffer) {
       if (typeof XLSX === 'undefined') {
         throw new Error('SheetJS 程式庫尚未載入');
       }
@@ -4866,59 +4928,45 @@
       const ws = wb.Sheets[sheetName];
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: 0, blankrows: false });
       
-      const standardFabs = ['FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S', '研新 (研發)', '研發 (研發)'];
+      const standardFabs = ['FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S', '嘉晶 (篤行)', '嘉晶 (創新)'];
       
       let headerRowIdx = -1;
       let colMap = {};
-      for (let r = 0; r < rows.length; r++) {
+      for (let r = 0; r < Math.min(15, rows.length); r++) {
         const row = rows[r];
         if (!Array.isArray(row)) continue;
+        let matched = {};
         for (let c = 0; c < row.length; c++) {
-          const val = String(row[c] || '').trim();
-          if (val === 'FAB8AB' || val === 'FAB8CD' || val === 'FAB8E' || val.includes('FAB8')) {
-            headerRowIdx = r;
-            break;
-          }
+          const norm = normalizeFabName(row[c]);
+          if (norm) matched[c] = norm;
         }
-        if (headerRowIdx !== -1) break;
+        if (Object.keys(matched).length >= 3) {
+          headerRowIdx = r;
+          colMap = matched;
+          break;
+        }
       }
       
       if (headerRowIdx === -1) {
         throw new Error('Excel 格式不符合規範：未找到廠區標題欄 (FAB8AB, FAB8CD, FAB8E 等)');
       }
       
-      const headerRow = rows[headerRowIdx];
-      const fabCols = [];
-      for (let c = 0; c < headerRow.length; c++) {
-        const val = String(headerRow[c] || '').trim();
-        if (val && !['To', 'From', 'Sum', '合計', '總計'].includes(val)) {
-          let cleanVal = val;
-          if (cleanVal.includes('研新')) cleanVal = '研新 (研發)';
-          else if (cleanVal.includes('研發')) cleanVal = '研發 (研發)';
-          colMap[c] = cleanVal;
-          fabCols.push(cleanVal);
-        }
-      }
-      
-      const activeFabs = fabCols.length > 0 ? fabCols : standardFabs;
       const matrix = {};
-      activeFabs.forEach(f => {
+      standardFabs.forEach(f => {
         matrix[f] = {};
-        activeFabs.forEach(t => { matrix[f][t] = 0; });
+        standardFabs.forEach(t => { matrix[f][t] = 0; });
       });
       
       for (let r = headerRowIdx + 1; r < rows.length; r++) {
         const row = rows[r];
         if (!Array.isArray(row)) continue;
         let fromFab = '';
-        for (let c = 0; c < 3 && c < row.length; c++) {
-          const cell = String(row[c] || '').trim();
-          if (activeFabs.includes(cell)) {
-            fromFab = cell;
+        for (let c = 0; c < Math.min(4, row.length); c++) {
+          const norm = normalizeFabName(row[c]);
+          if (norm && standardFabs.includes(norm)) {
+            fromFab = norm;
             break;
           }
-          if (cell.includes('研新')) { fromFab = '研新 (研發)'; break; }
-          if (cell.includes('研發')) { fromFab = '研發 (研發)'; break; }
         }
         
         if (!fromFab || !matrix[fromFab]) continue;
@@ -4931,18 +4979,18 @@
           if (typeof cellVal === 'number') {
             num = Math.max(0, Math.round(cellVal));
           } else if (typeof cellVal === 'string') {
-            const parsed = parseInt(cellVal.replace(/[^\d.-]/g, ''), 10);
+            const parsed = parseInt(cellVal.replace(/[^\\d.-]/g, ''), 10);
             if (!isNaN(parsed)) num = Math.max(0, parsed);
           }
           matrix[fromFab][toFab] = num;
         }
       }
       
-      // Symmetrize if upper/lower triangle zero
-      for (let i = 0; i < activeFabs.length; i++) {
-        for (let j = 0; j < activeFabs.length; j++) {
-          const f1 = activeFabs[i];
-          const f2 = activeFabs[j];
+      // Symmetrize if one direction filled and reverse direction is 0 (as in standard triangle sheets)
+      for (let i = 0; i < standardFabs.length; i++) {
+        for (let j = 0; j < standardFabs.length; j++) {
+          const f1 = standardFabs[i];
+          const f2 = standardFabs[j];
           if (f1 === f2) continue;
           if (matrix[f1][f2] === 0 && matrix[f2][f1] > 0) {
             matrix[f1][f2] = matrix[f2][f1];
@@ -4954,24 +5002,22 @@
       
       const rowSums = {};
       const colSums = {};
-      activeFabs.forEach(f => { rowSums[f] = 0; colSums[f] = 0; });
+      standardFabs.forEach(f => { rowSums[f] = 0; colSums[f] = 0; });
       let totalSum = 0;
       const corridorsList = [];
-      const seenCorridors = new Set();
       
-      activeFabs.forEach(f => {
-        activeFabs.forEach(t => {
-          const d = matrix[f][t] || 0;
-          rowSums[f] += d;
-          colSums[t] += d;
-          totalSum += d;
-          if (d > 0) {
-            const pairKey = [f, t].sort().join(' <-> ');
-            if (!seenCorridors.has(pairKey)) {
-              seenCorridors.add(pairKey);
+      standardFabs.forEach(f => {
+        standardFabs.forEach(t => {
+          if (f !== t) {
+            const d = matrix[f][t] || 0;
+            rowSums[f] += d;
+            colSums[t] += d;
+            totalSum += d;
+            if (d > 0) {
               corridorsList.push({
                 from: f,
                 to: t,
+                batches: d,
                 demand_24h: d,
                 demand_shift: Math.round(d / 2),
                 bidirectional_24h: d * 2,
@@ -4982,7 +5028,7 @@
         });
       });
       
-      corridorsList.sort((a, b) => b.demand_24h - a.demand_24h);
+      corridorsList.sort((a, b) => b.batches - a.batches);
       
       const avgUtilP2 = Math.min(99.0, Math.max(45.0, (totalSum / 6888 * 100))).toFixed(1);
       const maxUtilP2 = Math.min(99.9, (parseFloat(avgUtilP2) * 1.35)).toFixed(1);
@@ -5011,7 +5057,7 @@
           }
         },
         grid_data: {
-          fabs: activeFabs,
+          fabs: standardFabs,
           matrix: matrix,
           row_sums: rowSums,
           col_sums: colSums,
@@ -5019,6 +5065,163 @@
           total_sum: totalSum
         }
       };
+    }
+
+    function showCustomDemandBanner(total) {
+      let banner = document.getElementById('customDemandBanner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'customDemandBanner';
+        banner.className = 'bg-gradient-to-r from-emerald-900/80 via-teal-900/80 to-slate-850 border border-emerald-500/50 rounded-2xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-3 transition-all mb-4';
+        const container = document.getElementById('demand-view-container');
+        if (container) {
+          container.insertBefore(banner, container.firstChild);
+        }
+      }
+      banner.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 text-lg">
+            <i class="fa-solid fa-file-circle-check"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white text-sm">自訂運輸需求模式已生效</span>
+              <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-500/30 text-emerald-200 border border-emerald-400/40">${Number(total).toLocaleString()} 批/天</span>
+            </div>
+            <p class="text-xs text-slate-300 mt-0.5">全廠區熱力圖、22 條 OD 走廊供需與戰情室指標已依最新上傳矩陣即時重算並持久化保存。</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openDemandUploadModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-600 transition flex items-center gap-1.5 shadow">
+            <i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i> 上傳新檔案
+          </button>
+          <button onclick="resetDemandToDefault()" class="px-3 py-1.5 rounded-xl bg-amber-600/30 hover:bg-amber-600/50 text-xs font-bold text-amber-200 border border-amber-500/40 transition flex items-center gap-1.5 shadow">
+            <i class="fa-solid fa-rotate-left text-amber-400"></i> 恢復官方預設 (5,742 批)
+          </button>
+        </div>
+      `;
+      banner.classList.remove('hidden');
+    }
+
+    function removeCustomDemandBanner() {
+      const banner = document.getElementById('customDemandBanner');
+      if (banner) banner.remove();
+    }
+
+    function applyDemandUpdateToWarRoom(data) {
+      const resultData = data || window.LATEST_RECOMPUTE_RESULT;
+      if (!resultData || !resultData.grid_data) {
+        alert('尚未有新計算之需求數據，請先上傳 Excel 檔案！');
+        return;
+      }
+      
+      const g = resultData.grid_data;
+      const total = g.total_sum || (resultData.summary && resultData.summary.total_demand_24h) || 5742;
+
+      // 1. Save to localStorage for permanent persistence
+      try {
+        localStorage.setItem('LOGISTICS_DEMAND_OVERRIDE', JSON.stringify(resultData));
+      } catch (e) {
+        console.warn('無法寫入 localStorage:', e);
+      }
+
+      // 2. Update global in-memory RAW_DEMAND_DATA
+      RAW_DEMAND_DATA = g;
+      window.RAW_DEMAND_DATA = g;
+
+      // 3. Sync to DEFAULT_DEMAND_24H & fallbackData for Tab 5 Summary
+      if (g.matrix) {
+        for (const [fromFab, toMap] of Object.entries(g.matrix)) {
+          for (const [toFab, val] of Object.entries(toMap)) {
+            const k1 = `${fromFab}->${toFab}`;
+            const k2 = `${fromFab.replace(/[\s()]/g, '')}->${toFab.replace(/[\s()]/g, '')}`;
+            if (typeof DEFAULT_DEMAND_24H !== 'undefined') {
+              DEFAULT_DEMAND_24H[k1] = val;
+              DEFAULT_DEMAND_24H[k2] = val;
+            }
+          }
+        }
+      }
+
+      if (typeof fallbackData !== 'undefined' && fallbackData && g.corridors) {
+        fallbackData.demand_matrix = g.corridors.map(c => ({
+          from_fab: c.from,
+          to_fab: c.to,
+          demand_batches: c.batches || c.demand_24h
+        }));
+      }
+
+      // 4. Update Tab 1 (Demand Matrix)
+      if (typeof renderDemandView === 'function') {
+        renderDemandView();
+      }
+
+      // 5. Update Tab 5 (OD Matrix & Summary)
+      if (typeof renderODMatrix === 'function') {
+        renderODMatrix();
+      }
+      if (typeof renderSummaryReport === 'function') {
+        renderSummaryReport();
+      }
+
+      // 6. Show Banner
+      showCustomDemandBanner(total);
+
+      // 7. Close Modal
+      closeDemandUploadModal();
+
+      // 8. Toast notification
+      showToastNotification(`🎉 已成功套用新上傳運輸需求（共 ${total.toLocaleString()} 批/天），戰情室全域數據已即時更新完成！`);
+    }
+
+    function showToastNotification(msg) {
+      let toast = document.getElementById('globalToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'globalToast';
+        toast.className = 'fixed bottom-6 right-6 z-50 bg-slate-900/95 border border-emerald-500/60 text-emerald-300 px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 text-sm font-bold transition-all transform translate-y-20 opacity-0';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i><span>${msg}</span>`;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 4000);
+    }
+
+    function initDemandStateFromStorage() {
+      try {
+        const stored = localStorage.getItem('LOGISTICS_DEMAND_OVERRIDE');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.grid_data) {
+            console.log('載入已持久化儲存之自訂運輸需求:', parsed.grid_data.total_sum);
+            RAW_DEMAND_DATA = parsed.grid_data;
+            window.RAW_DEMAND_DATA = parsed.grid_data;
+            window.LATEST_RECOMPUTE_RESULT = parsed;
+
+            if (parsed.grid_data.matrix && typeof DEFAULT_DEMAND_24H !== 'undefined') {
+              for (const [fromFab, toMap] of Object.entries(parsed.grid_data.matrix)) {
+                for (const [toFab, val] of Object.entries(toMap)) {
+                  const k1 = `${fromFab}->${toFab}`;
+                  const k2 = `${fromFab.replace(/[\s()]/g, '')}->${toFab.replace(/[\s()]/g, '')}`;
+                  DEFAULT_DEMAND_24H[k1] = val;
+                  DEFAULT_DEMAND_24H[k2] = val;
+                }
+              }
+            }
+
+            setTimeout(() => {
+              if (typeof renderDemandView === 'function') renderDemandView();
+              showCustomDemandBanner(parsed.grid_data.total_sum);
+            }, 100);
+          }
+        }
+      } catch (e) {
+        console.warn('讀取儲存需求發生錯誤:', e);
+      }
     }
 
     function downloadDemandTemplate() {
@@ -5034,6 +5237,10 @@
       if (!confirm('確認要恢復預設官方基準運輸需求 (5,742 批/天) 並依演算法重新計算方案二與方案三排程嗎？')) {
         return;
       }
+      localStorage.removeItem('LOGISTICS_DEMAND_OVERRIDE');
+      window.LATEST_RECOMPUTE_RESULT = null;
+      removeCustomDemandBanner();
+
       openDemandUploadModal();
       const progSec = document.getElementById('demandProgressSection');
       const stepText = document.getElementById('demandProgressStepText');
@@ -5050,28 +5257,41 @@
         body: JSON.stringify({})
       })
       .then(res => {
-        if (!res.ok) throw new Error('API 回應狀態碼: ' + res.status);
+        if (!res.ok) throw new Error('API 狀態碼: ' + res.status);
         const ct = res.headers.get('content-type') || '';
-        if (!ct.includes('application/json')) throw new Error('非 JSON 回應 (靜態託管環境)');
+        if (!ct.includes('application/json')) throw new Error('非 JSON 回應');
         return res.json();
       })
       .then(data => {
         if (data.success) {
           if (bar) bar.style.width = '100%';
           if (pct) pct.textContent = '100%';
-          if (stepText) stepText.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i><span>重置與排程重算成功完成！</span>';
+          if (stepText) stepText.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i><span>已恢復預設官方基準需求 (5,742 批/天)！</span>';
           displayRecomputeResults(data);
+          applyDemandUpdateToWarRoom(data);
         } else {
           throw new Error(data.error || '重置失敗');
         }
       })
       .catch(err => {
-        // Fallback for GitHub Pages static environment
-        console.log('API 不可用，採用前端預設基準重置:', err.message);
+        console.log('離線或靜態託管環境，採用內建標準基準恢復:', err.message);
         if (bar) bar.style.width = '100%';
         if (pct) pct.textContent = '100%';
-        if (stepText) stepText.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i><span>已恢復預設基準需求 (5,742 批/天)！</span>';
-        
+        if (stepText) stepText.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i><span>已恢復預設官方基準需求 (5,742 批/天)！</span>';
+
+        const defaultFabs = ['FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S', '嘉晶 (篤行)', '嘉晶 (創新)'];
+        const defaultMatrix = {
+          'FAB8AB': { 'FAB8AB': 0, 'FAB8CD': 0, 'FAB8E': 302, 'FAB8F': 532, 'FAB8S': 74, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 },
+          'FAB8CD': { 'FAB8AB': 0, 'FAB8CD': 0, 'FAB8E': 373, 'FAB8F': 439, 'FAB8S': 61, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 },
+          'FAB8E':  { 'FAB8AB': 302, 'FAB8CD': 373, 'FAB8E': 0, 'FAB8F': 45, 'FAB8S': 43, '嘉晶 (篤行)': 96, '嘉晶 (創新)': 48 },
+          'FAB8F':  { 'FAB8AB': 532, 'FAB8CD': 439, 'FAB8E': 45, 'FAB8F': 0, 'FAB8S': 858, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 },
+          'FAB8S':  { 'FAB8AB': 74, 'FAB8CD': 61, 'FAB8E': 43, 'FAB8F': 858, 'FAB8S': 0, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 },
+          '嘉晶 (篤行)': { 'FAB8AB': 0, 'FAB8CD': 0, 'FAB8E': 96, 'FAB8F': 0, 'FAB8S': 0, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 },
+          '嘉晶 (創新)': { 'FAB8AB': 0, 'FAB8CD': 0, 'FAB8E': 48, 'FAB8F': 0, 'FAB8S': 0, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 }
+        };
+        const defaultRowSums = { 'FAB8AB': 908, 'FAB8CD': 873, 'FAB8E': 907, 'FAB8F': 1874, 'FAB8S': 1036, '嘉晶 (篤行)': 96, '嘉晶 (創新)': 48 };
+        const defaultColSums = { 'FAB8AB': 908, 'FAB8CD': 873, 'FAB8E': 907, 'FAB8F': 1874, 'FAB8S': 1036, '嘉晶 (篤行)': 96, '嘉晶 (創新)': 48 };
+
         const defaultData = {
           success: true,
           summary: {
@@ -5079,9 +5299,17 @@
             active_corridors_count: 22,
             plan2: { score: 99.0, status: 'PASS', max_utilization: 87.5, avg_utilization: 62.4, weighted_avg_wait_mins: 14.8 },
             plan3: { score: 100.0, status: 'PASS', max_utilization: 83.3, avg_utilization: 58.2, weighted_avg_wait_mins: 11.2 }
+          },
+          grid_data: {
+            fabs: defaultFabs,
+            matrix: defaultMatrix,
+            row_sums: defaultRowSums,
+            col_sums: defaultColSums,
+            total_sum: 5742
           }
         };
         displayRecomputeResults(defaultData);
+        applyDemandUpdateToWarRoom(defaultData);
       });
     }
 
@@ -5122,7 +5350,6 @@
         if (bar) bar.style.width = '65%';
         if (pct) pct.textContent = '65%';
 
-        // Convert to base64 for optional server call
         let binary = '';
         const bytes = new Uint8Array(arrayBuffer);
         const len = bytes.byteLength;
@@ -5142,7 +5369,7 @@
         .then(r => {
           if (!r.ok) throw new Error('API 回應狀態碼: ' + r.status);
           const ct = r.headers.get('content-type') || '';
-          if (!ct.includes('application/json')) throw new Error('非 JSON 回應 (靜態託管環境)');
+          if (!ct.includes('application/json')) throw new Error('非 JSON 回應');
           return r.json();
         })
         .then(res => {
@@ -5150,7 +5377,9 @@
             if (stepText) stepText.innerHTML = '<i class="fa-solid fa-shield-halved text-emerald-400"></i><span>步驟 3/3: 獨立約束驗收與全網同步完成！</span>';
             if (bar) bar.style.width = '100%';
             if (pct) pct.textContent = '100%';
+            window.LATEST_RECOMPUTE_RESULT = res;
             displayRecomputeResults(res);
+            applyDemandUpdateToWarRoom(res);
           } else {
             throw new Error(res.error || '後端運算失敗');
           }
@@ -5161,7 +5390,9 @@
             if (stepText) stepText.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i><span>步驟 3/3: Excel 解析成功（靜態 GitHub Pages 前端即時重算）！</span>';
             if (bar) bar.style.width = '100%';
             if (pct) pct.textContent = '100%';
+            window.LATEST_RECOMPUTE_RESULT = clientParsedResult;
             displayRecomputeResults(clientParsedResult);
+            applyDemandUpdateToWarRoom(clientParsedResult);
           } else {
             alert('上傳解析失敗: ' + (clientParsedResult ? '資料校驗未通過' : err.message));
           }
@@ -5177,52 +5408,60 @@
     }
 
     function displayRecomputeResults(data) {
+      window.LATEST_RECOMPUTE_RESULT = data;
       const card = document.getElementById('demandResultCard');
       if (!card) return;
       card.classList.remove('hidden');
 
       const s = data.summary;
-      document.getElementById('resTotalDemandBadge').textContent = `總需求: ${s.total_demand_24h.toLocaleString()} 批 (${s.active_corridors_count} 走廊)`;
+      const badge = document.getElementById('resTotalDemandBadge');
+      if (badge) badge.textContent = `總需求: ${s.total_demand_24h.toLocaleString()} 批 (${s.active_corridors_count} 走廊)`;
 
       // P2
-      document.getElementById('resP2Status').textContent = `${s.plan2.score} 分 (${s.plan2.status})`;
-      document.getElementById('resP2MaxUtil').textContent = `${s.plan2.max_utilization}%`;
-      document.getElementById('resP2AvgUtil').textContent = `${s.plan2.avg_utilization}%`;
-      document.getElementById('resP2Wait').textContent = `${s.plan2.weighted_avg_wait_mins} 分`;
+      const elP2S = document.getElementById('resP2Status');
+      if (elP2S) elP2S.textContent = `${s.plan2.score} 分 (${s.plan2.status})`;
+      const elP2M = document.getElementById('resP2MaxUtil');
+      if (elP2M) elP2M.textContent = `${s.plan2.max_utilization}%`;
+      const elP2A = document.getElementById('resP2AvgUtil');
+      if (elP2A) elP2A.textContent = `${s.plan2.avg_utilization}%`;
+      const elP2W = document.getElementById('resP2Wait');
+      if (elP2W) elP2W.textContent = `${s.plan2.weighted_avg_wait_mins} 分`;
 
       // P3
-      document.getElementById('resP3Status').textContent = `${s.plan3.score} 分 (${s.plan3.status})`;
-      document.getElementById('resP3MaxUtil').textContent = `${s.plan3.max_utilization}%`;
-      document.getElementById('resP3AvgUtil').textContent = `${s.plan3.avg_utilization}%`;
-      document.getElementById('resP3Wait').textContent = `${s.plan3.weighted_avg_wait_mins} 分`;
-
-      // Auto update RAW_DEMAND_DATA if available
-      if (data.grid_data && typeof RAW_DEMAND_DATA !== 'undefined') {
-        RAW_DEMAND_DATA = data.grid_data;
-        if (typeof renderDemandView === 'function') {
-          renderDemandView();
-        }
-      }
+      const elP3S = document.getElementById('resP3Status');
+      if (elP3S) elP3S.textContent = `${s.plan3.score} 分 (${s.plan3.status})`;
+      const elP3M = document.getElementById('resP3MaxUtil');
+      if (elP3M) elP3M.textContent = `${s.plan3.max_utilization}%`;
+      const elP3A = document.getElementById('resP3AvgUtil');
+      if (elP3A) elP3A.textContent = `${s.plan3.avg_utilization}%`;
+      const elP3W = document.getElementById('resP3Wait');
+      if (elP3W) elP3W.textContent = `${s.plan3.weighted_avg_wait_mins} 分`;
     }
 
     function applyAndSwitchPlan(planTable) {
+      if (window.LATEST_RECOMPUTE_RESULT) {
+        applyDemandUpdateToWarRoom(window.LATEST_RECOMPUTE_RESULT);
+      }
       if (typeof setGlobalPlan === 'function') {
         setGlobalPlan(planTable);
       }
       closeDemandUploadModal();
       if (typeof switchTab === 'function') {
-        switchTab('tab-plans');
-      } else {
-        window.location.reload();
+        switchTab('tab-demand');
       }
     }
 
-    // Initialize dropzone on load
+    // Initialize dropzone & custom demand on load
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', setupDemandDropzone);
+      document.addEventListener('DOMContentLoaded', () => {
+        setupDemandDropzone();
+        initDemandStateFromStorage();
+      });
     } else {
       setupDemandDropzone();
+      initDemandStateFromStorage();
     }
+
 
 </script>
 
@@ -5366,8 +5605,8 @@
             <button type="button" onclick="applyAndSwitchPlan('schedules_plan3')" class="flex-1 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/40 text-xs font-bold transition">
               檢視方案三
             </button>
-            <button type="button" onclick="window.location.reload()" class="flex-1 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow">
-              刷新全戰情室
+            <button type="button" onclick="applyDemandUpdateToWarRoom()" class="flex-1 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-arrows-rotate text-emerald-300"></i> 更新整個戰情室
             </button>
           </div>
         </div>
