@@ -516,7 +516,7 @@ class ScheduleValidator:
                 'id': 'CHK-R01',
                 'name': 'Code Review (程式碼品質、標準命名與資料同步審查)',
                 'status': 'PASS' if code_review_pass else 'FAIL',
-                'desc': '驗證 AST 語法結構、廠區標準命名規範（「晶圓 8AB/8CD/8E/8F/8S 廠」，零舊版「晶圓八廠 X 區」殘留）及 logistics.db / db_export.json / db_data.js / plans.html 100% 同步。',
+                'desc': '驗證 AST 語法結構、廠區標準命名規範（「8AB/8CD/8E/8F/8S 廠」，零舊版「晶圓八廠 X 區」殘留）及 logistics.db / db_export.json / db_data.js / plans.html 100% 同步。',
                 'details': f"廠區標準命名違規: {legacy_naming_cnt} 件 ｜ 核心模組 AST 語法與跨表結構: 100% 通過"
             },
             'security_review': {
@@ -530,7 +530,7 @@ class ScheduleValidator:
                 'id': 'CHK-R03',
                 'name': 'UI & UX Review (視覺階層、響應式互動與防呆體驗審查)',
                 'status': 'PASS' if code_review_pass else 'WARN',
-                'desc': '驗證深色玻璃擬態對比度、三方案/日夜班零延遲切換、離線 db_data.js 與連線 API 雙模無縫降級、「晶圓 8XX 廠」與「專屬停車區不佔泊位」語意標籤清晰度及頂部快速導覽列。',
+                'desc': '驗證深色玻璃擬態對比度、三方案/日夜班零延遲切換、離線 db_data.js 與連線 API 雙模無縫降級、「8XX 廠」與「專屬停車區不佔泊位」語意標籤清晰度及頂部快速導覽列。',
                 'details': '廠區/停車區標籤語意: 100% 清晰 ｜ 響應式導覽與雙模快取: 100% 正常'
             }
         }
@@ -864,7 +864,7 @@ class ScheduleValidator:
             ('CHK-S01', '軟性條件', '碼頭進站時間間隔 ≥ 10 分鐘 (泊位互斥防塞車)', '|t_arr(c1) - t_arr(c2)| ≥ 10m', report['rules']['soft_1_dock_headway']['status'], f"碼頭進站衝突警示 {report['rules']['soft_1_dock_headway']['warnings_count']} 件"),
             ('CHK-S02', '軟性條件', '從廠區出發的車輛，下一個目的地不要連續兩班都相同', 'dest(f, m) ≠ dest(f, m+1)', report['rules']['soft_2_dest_diversity']['status'], f"連續同向發車警示 {report['rules']['soft_2_dest_diversity']['warnings_count']} 件" + (' (跨車微創交換 100% 根除)' if is_plan3 else '')),
             ('CHK-A01', '兩階段算法', 'Stage 1 雙層歐拉閉迴路拓撲與 MILP 運能配置 + Stage 2 CP-SAT 時空排程與微創鄰域搜尋', 'min ∑Slack & min ∑(Wait×Demand)', 'PASS' if is_optimized else 'FAIL', f"Slack = {sm['total_slack_mins']} 分 ｜ 加權平均等候 = {sm['weighted_avg_wait_mins']} 分 ({sm['weighted_wait_batch_mins']:,} 批·分)"),
-            ('CHK-R01', 'Code Review', '程式碼品質、廠區標準命名規範 (晶圓 8XX 廠) 與跨檔資料同步審查', 'AST 0 錯誤 & 舊命名 0 殘留', report['engineering_review']['code_review']['status'], report['engineering_review']['code_review']['details']),
+            ('CHK-R01', 'Code Review', '程式碼品質、廠區標準命名規範 (8XX 廠) 與跨檔資料同步審查', 'AST 0 錯誤 & 舊命名 0 殘留', report['engineering_review']['code_review']['status'], report['engineering_review']['code_review']['details']),
             ('CHK-R02', '資安審查', 'Security Review：SQL 參數化查詢、表單白名單、路徑防護與零硬編碼金鑰審查', '0 資安弱點 / 100% 參數化', report['engineering_review']['security_review']['status'], report['engineering_review']['security_review']['details']),
             ('CHK-R03', 'UI/UX 審查', 'UI & UX Review：廠區與專屬停車區語意標籤、響應式排版與雙模零延遲切換體驗', 'WCAG 對比達標 & 互動流暢', report['engineering_review']['ui_ux_review']['status'], report['engineering_review']['ui_ux_review']['details'])
         ]
@@ -894,7 +894,7 @@ class ScheduleValidator:
           <i class="fa-solid fa-clipboard-check text-emerald-400"></i>
           <span>專案驗收與合規審查檢核表 (Project Review Checklist — 含 Code / 資安 / UI & UX 強制審查共 15 項)</span>
         </h2>
-        <span class="text-xs font-mono text-emerald-300 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-500/30">Review Checklist v3.0 (含「晶圓 8XX 廠」規格與每次更動三維審查程序)</span>
+        <span class="text-xs font-mono text-emerald-300 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-500/30">Review Checklist v3.0 (含「8XX 廠」規格與每次更動三維審查程序)</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">

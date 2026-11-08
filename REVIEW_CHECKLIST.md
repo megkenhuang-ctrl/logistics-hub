@@ -51,10 +51,10 @@
 | :--- | :--- | :--- | :---: | :--- |
 | **CHK-R01** | **Code Review<br>(程式碼與命名規範)** | 1. Python 模組 AST 語法與結構完整性<br>2. **廠區標準命名規範**：統一為 **`晶圓 8AB 廠`**、**`晶圓 8CD 廠`**、**`晶圓 8E 廠`**、**`晶圓 8F 廠`**、**`晶圓 8S 廠`**（0 舊版 `晶圓八廠 X 區` 殘留）<br>3. `logistics.db`、`db_export.json`、`db_data.js` 與 `plans.html` 100% 同步 | ✅ PASS | 全庫與前端 0 處舊版 `晶圓八廠 X 區` 殘留；4 大核心腳本與靜態快取 100% 自動同步更新。 |
 | **CHK-R02** | **Security Review<br>(資安防護審查)** | 1. **SQL Injection 防護**：`server.py` 與 `optimizer_*.py` 100% 採用 `?` 參數化查詢與 `ALLOWED_TABLES` 白名單<br>2. **路徑遍歷防護**：靜態檔案與 REST API 限制於授權範圍<br>3. **零硬編碼機密與 XSS 防護**：無外部 API Key 外洩或腳本注入風險 | ✅ PASS | 100% 參數化 SQL 查詢、表單白名單驗證已啟用、0 資安弱點與 0 敏感憑證外洩。 |
-| **CHK-R03** | **UI & UX Review<br>(視覺與操作體驗審查)** | 1. **語意清晰度**：清楚顯示 `晶圓 8XX 廠碼頭` 與 `專屬停車區／司機休息室旁（不佔據碼頭裝卸作業泊位）`<br>2. **零延遲互動體驗**：三方案 (`原方案/方案二/方案三`) 與班別 (`日班/夜班/24H`) 即時切換<br>3. **雙模高可用性**：支援 `http://localhost:5000` API 與 `file://` 離線快取 (`db_data.js`) 無縫運作 | ✅ PASS | 深色高對比戰情介面、三色合規徽章 (`PASS`/`WARN`/`FAIL`) 與頂部快速導覽列 100% 驗證通過。 |
+| **CHK-R03** | **UI & UX Review<br>(視覺與操作體驗審查)** | 1. **語意清晰度**：清楚顯示 `8XX 廠碼頭` 與 `停車區`<br>2. **零延遲互動體驗**：三方案 (`原方案/方案二/方案三`) 與班別 (`日班/夜班/24H`) 即時切換<br>3. **雙模高可用性**：支援 `http://localhost:5000` API 與 `file://` 離線快取 (`db_data.js`) 無縫運作 | ✅ PASS | 深色高對比戰情介面、三色合規徽章 (`PASS`/`WARN`/`FAIL`) 與頂部快速導覽列 100% 驗證通過。 |
 
 
-- [x] **SQLite 資料庫 (`logistics.db`)**：包含 `schedules` (198 筆)、`schedules_plan2` (198 筆)、`schedules_plan3` (198 筆)，所有 `is_break = 1` 紀錄均已標註「專屬停車區／司機休息室旁（不佔據碼頭裝卸作業泊位）」。
+- [x] **SQLite 資料庫 (`logistics.db`)**：包含 `schedules` (198 筆)、`schedules_plan2` (198 筆)、`schedules_plan3` (198 筆)，所有 `is_break = 1` 紀錄均已標註「停車區」。
 - [x] **靜態與動態資料匯出 (`db_export.json`、`db_data.js`)**：與 `logistics.db` 及 `validator.py` 稽核結果 100% 同步。
 - [x] **獨立稽核報告 (`audit_report.html`、`audit_report_plan2.html`、`audit_report_plan3.html`)**：內建三方案對照表、八大法規檢核、**12 項 Review Checklist 檢核表**與 22 條 OD 走廊明細。
 - [x] **系統規範與算法手冊 (`spec.html`)**：完整記載「車輛用餐／休息移至專屬停車區不佔碼頭泊位」規範、**兩階段混合整數與限制規劃演算法詳解（Stage 1 & Stage 2 數學模型與虛擬碼）**及 **Review Checklist**。

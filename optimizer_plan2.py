@@ -28,11 +28,11 @@ if hasattr(sys.stdout, 'reconfigure'):
 MIN_TRANSIT = ScheduleValidator.MIN_TRANSIT_MINS
 
 FAB_META = {
-    'FAB8AB': ('8AB', '晶圓 8AB 廠大廳'),
-    'FAB8CD': ('8CD', '晶圓 8CD 廠碼頭'),
-    'FAB8E':  ('8E',  '晶圓 8E 廠大廳'),
-    'FAB8F':  ('8F',  '晶圓 8F 廠代工碼頭'),
-    'FAB8S':  ('8S',  '晶圓 8S 廠大廳/FAB'),
+    'FAB8AB': ('8AB', '8AB 廠大廳'),
+    'FAB8CD': ('8CD', '8CD 廠碼頭'),
+    'FAB8E':  ('8E',  '8E 廠大廳'),
+    'FAB8F':  ('8F',  '8F 廠代工碼頭'),
+    'FAB8S':  ('8S',  '8S 廠大廳'),
     '嘉晶創新': ('嘉晶創新', '嘉晶電子創新廠區碼頭'),
     '嘉晶篤行': ('嘉晶篤行', '嘉晶電子篤行廠區碼頭')
 }
@@ -165,7 +165,7 @@ def build_plan_rows(state_data):
                         'shift_label': shift_label,
                         'fab_code': fab,
                         'station_raw': f"{st_raw} (專屬停車區/休息室)",
-                        'station_location': f"{st_raw} 專屬停車區／司機休息室旁（不佔據碼頭裝卸作業泊位）",
+                        'station_location': f"{st_raw} 停車區",
                         'mode': '休息',
                         'od_flow': '休息交接',
                         'origin_fab': fab,
@@ -223,7 +223,7 @@ def build_plan_rows(state_data):
                         'shift_label': shift_label,
                         'fab_code': fab,
                         'station_raw': f"{st_raw} (母港專屬停車區)",
-                        'station_location': f"{st_raw} 母港專屬停車區／司機休息室旁（不佔據碼頭裝卸作業泊位）",
+                        'station_location': f"{st_raw} 停車區",
                         'mode': '休息',
                         'od_flow': '休息交接',
                         'origin_fab': fab,

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-11-08 13:24:12",
+  "timestamp": "2026-11-08 15:38:14",
   "db_path": "logistics.db",
   "table_name": "schedules_plan2",
   "plan_label": "方案二 (CP-SAT 雙層路網優化)",
@@ -470,7 +470,7 @@
       "id": "CHK-R01",
       "name": "Code Review (程式碼品質、標準命名與資料同步審查)",
       "status": "PASS",
-      "desc": "驗證 AST 語法結構、廠區標準命名規範（「晶圓 8AB/8CD/8E/8F/8S 廠」，零舊版「晶圓八廠 X 區」殘留）及 logistics.db / db_export.json / db_data.js / plans.html 100% 同步。",
+      "desc": "驗證 AST 語法結構、廠區標準命名規範（「8AB/8CD/8E/8F/8S 廠」，零舊版「晶圓八廠 X 區」殘留）及 logistics.db / db_export.json / db_data.js / plans.html 100% 同步。",
       "details": "廠區標準命名違規: 0 件 ｜ 核心模組 AST 語法與跨表結構: 100% 通過"
     },
     "security_review": {
@@ -484,7 +484,7 @@
       "id": "CHK-R03",
       "name": "UI & UX Review (視覺階層、響應式互動與防呆體驗審查)",
       "status": "PASS",
-      "desc": "驗證深色玻璃擬態對比度、三方案/日夜班零延遲切換、離線 db_data.js 與連線 API 雙模無縫降級、「晶圓 8XX 廠」與「專屬停車區不佔泊位」語意標籤清晰度及頂部快速導覽列。",
+      "desc": "驗證深色玻璃擬態對比度、三方案/日夜班零延遲切換、離線 db_data.js 與連線 API 雙模無縫降級、「8XX 廠」與「專屬停車區不佔泊位」語意標籤清晰度及頂部快速導覽列。",
       "details": "廠區/停車區標籤語意: 100% 清晰 ｜ 響應式導覽與雙模快取: 100% 正常"
     }
   }
