@@ -17,8 +17,9 @@ if hasattr(sys.stdout, 'reconfigure'):
     except Exception:
         pass
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PORT = int(os.environ.get('PORT', 5000))
-DB_PATH = 'logistics.db'
+DB_PATH = os.path.join(BASE_DIR, 'logistics.db')
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -79,12 +80,34 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == '/api/open_ppt':
             try:
-                ppt_path = os.path.abspath('半導體廠區物流排程優化_高階主管報告與演算法規格.pptx')
+                ppt_path = os.path.join(BASE_DIR, '半導體廠區物流排程優化_高階主管報告與演算法規格.pptx')
                 if not os.path.exists(ppt_path):
-                    ppt_path = os.path.abspath('現況診斷與運籌痛點分析_可編輯簡報.pptx')
+                    ppt_path = os.path.join(BASE_DIR, '現況診斷與運籌痛點分析_可編輯簡報.pptx')
                 if os.name == 'nt' and hasattr(os, 'startfile') and os.path.exists(ppt_path):
                     os.startfile(ppt_path)
                 return self.send_json({'status': 'opened', 'path': ppt_path})
+            except Exception as e:
+                return self.send_json({'error': str(e)}, status=500)
+
+        elif path == '/api/download_ppt':
+            try:
+                ppt_path = os.path.join(BASE_DIR, '半導體廠區物流排程優化_高階主管報告與演算法規格.pptx')
+                if not os.path.exists(ppt_path):
+                    ppt_path = os.path.join(BASE_DIR, '現況診斷與運籌痛點分析_可編輯簡報.pptx')
+                if not os.path.exists(ppt_path):
+                    self.send_error(404, "File not found")
+                    return
+                with open(ppt_path, 'rb') as f:
+                    content = f.read()
+                filename = os.path.basename(ppt_path)
+                quoted_filename = urllib.parse.quote(filename)
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.presentationml.presentation')
+                self.send_header('Content-Disposition', f'attachment; filename="{quoted_filename}"; filename*=UTF-8\'\'{quoted_filename}')
+                self.send_header('Content-Length', str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+                return
             except Exception as e:
                 return self.send_json({'error': str(e)}, status=500)
 
