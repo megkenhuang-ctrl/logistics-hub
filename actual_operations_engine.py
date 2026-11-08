@@ -312,3 +312,99 @@ def get_actual_schedules(db_path=DB_PATH, date_str='2026-11-01', shift=None, car
             filtered_rows.append(d)
             
     return filtered_rows
+
+
+def get_actual_fab_analysis(db_path=DB_PATH, date_str='2026-11-08', fab_code='ALL', shift='all', base_table='schedules_plan3'):
+    """依據指定日期的真實出勤，動態計算特定廠區或全網各廠區之班次進站與時序間隔 (包含 Car U，剔除停駛車次)"""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    
+    roster_rows = conn.execute("SELECT * FROM driver_roster WHERE date = ?", [date_str]).fetchall()
+    active_shift_cars = { (r['car_id'], r['shift'].lower()) for r in roster_rows if r['status'] == '執勤' }
+    roster_info = { (r['car_id'], r['shift'].lower()): r for r in roster_rows }
+    
+    query = f"SELECT * FROM {base_table} WHERE is_break = 0"
+    args = []
+    if fab_code != 'ALL':
+        query += " AND fab_code = ?"
+        args.append(fab_code)
+    if shift != 'all':
+        query += " AND shift = ?"
+        args.append(shift)
+        
+    if shift == 'day':
+        query += ' ORDER BY arr_min ASC'
+    elif shift == 'night':
+        query += ' ORDER BY (arr_min - 1175 + 1440) % 1440 ASC'
+    else:
+        query += ' ORDER BY (CASE WHEN shift="day" THEN arr_min WHEN shift="night" AND arr_min >= 455 THEN arr_min ELSE arr_min + 1440 END) ASC'
+        
+    raw_visits = [dict(r) for r in conn.execute(query, args).fetchall()]
+    conn.close()
+    
+    visits = []
+    for v in raw_visits:
+        key = (v['car_id'], v['shift'].lower())
+        if key in active_shift_cars:
+            r = roster_info.get(key)
+            if r:
+                v['driver_name'] = r['driver']
+                v['plate_no'] = r['plate']
+            visits.append(v)
+            
+    def get_timeline_pos(v):
+        if v['shift'] == 'day':
+            return v['arr_min']
+        return v['arr_min'] if v['arr_min'] >= 455 else v['arr_min'] + 1440
+
+    headways = []
+    for i in range(1, len(visits)):
+        curr_t = get_timeline_pos(visits[i])
+        prev_t = get_timeline_pos(visits[i-1])
+        diff = curr_t - prev_t
+        if diff >= 0:
+            headways.append({
+                'from_car': visits[i-1]['car_name'],
+                'to_car': visits[i]['car_name'],
+                'headway_min': diff,
+                'time': visits[i]['arr_time']
+            })
+            visits[i]['headway_from_prev'] = diff
+        else:
+            visits[i]['headway_from_prev'] = 0
+
+    if visits:
+        visits[0]['headway_from_prev'] = 0
+
+    avg_hw = round(sum(h['headway_min'] for h in headways) / len(headways), 1) if headways else 0
+    min_hw = min((h['headway_min'] for h in headways), default=0)
+    max_hw = max((h['headway_min'] for h in headways), default=0)
+
+    cars_count = {}
+    for v in visits:
+        cars_count[v['car_name']] = cars_count.get(v['car_name'], 0) + 1
+
+    mode_count = {}
+    for v in visits:
+        m = '專車' if '專車' in v['mode'] else ('環廠' if '環廠' in v['mode'] or '小環' in v['mode'] else '外廠/其他')
+        mode_count[m] = mode_count.get(m, 0) + 1
+
+    total_cap = sum(v['capacity_batches'] for v in visits)
+    destinations = list(set(v['dest_fab'] for v in visits if v['dest_fab']))
+
+    return {
+        'fab_code': fab_code,
+        'shift': shift,
+        'date': date_str,
+        'total_visits': len(visits),
+        'visits': visits,
+        'headways': headways,
+        'avg_headway_min': avg_hw,
+        'expected_wait_min': round(avg_hw / 2, 1) if avg_hw > 0 else 0,
+        'min_headway_min': min_hw,
+        'max_headway_min': max_hw,
+        'total_capacity': total_cap,
+        'cars_count': cars_count,
+        'mode_count': mode_count,
+        'destinations': destinations
+    }

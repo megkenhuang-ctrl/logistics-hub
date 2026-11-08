@@ -9,7 +9,7 @@ import sys
 import urllib.parse
 from datetime import datetime
 from validator import ScheduleValidator, parse_od_pairs
-from actual_operations_engine import evaluate_actual_operations, get_actual_cars, get_actual_schedules
+from actual_operations_engine import evaluate_actual_operations, get_actual_cars, get_actual_schedules, get_actual_fab_analysis
 
 # Safe UTF-8 console output on Windows
 if hasattr(sys.stdout, 'reconfigure'):
@@ -197,12 +197,24 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             return self.send_json([dict(r) for r in rows])
 
         elif path == '/api/fab_analysis':
-            conn = get_db_connection()
             tbl = params.get('table', ['schedules'])[0]
-            if tbl not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
-                tbl = 'schedules'
             fab_code = params.get('fab', ['FAB8F'])[0]
             shift = params.get('shift', ['day'])[0]
+
+            if tbl == 'actual':
+                date_str = params.get('date', ['2026-11-08'])[0]
+                result = get_actual_fab_analysis(
+                    DB_PATH,
+                    date_str=date_str,
+                    fab_code=fab_code,
+                    shift=shift,
+                    base_table='schedules_plan3'
+                )
+                return self.send_json(result)
+
+            conn = get_db_connection()
+            if tbl not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+                tbl = 'schedules'
 
             query = f"SELECT * FROM {tbl} WHERE is_break = 0 AND car_id != 'Car_U'"
             args = []

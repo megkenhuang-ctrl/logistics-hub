@@ -180,10 +180,10 @@
           <button id="btnPlan2" onclick="setGlobalPlan('schedules_plan2')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 text-slate-400 hover:text-white">
             <span>🟡 方案二</span>
           </button>
-          <button id="btnPlan3" onclick="setGlobalPlan('schedules_plan3')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 bg-emerald-600 text-white shadow">
+          <button id="btnPlan3" onclick="setGlobalPlan('schedules_plan3')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 text-slate-400 hover:text-white">
             <span>🟢 方案三 (100%驗收 ★)</span>
           </button>
-          <button id="btnPlanActual" onclick="setGlobalPlan('actual')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 text-slate-400 hover:text-white" title="依據司機真實每日出勤計算產能，納入 Car U 並即時預警路線 Overloading">
+          <button id="btnPlanActual" onclick="setGlobalPlan('actual')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30 font-bold" title="依據司機真實每日出勤計算產能，納入 Car U 並即時預警路線 Overloading">
             <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
             <span>🟣 實際營運出勤</span>
           </button>
@@ -272,7 +272,7 @@
     </div>
   </header>
   <!-- Top Global Actual Operations Bar (切換為「實際營運出勤」時於最上層浮現) -->
-  <div id="topActualOpsBar" class="hidden bg-slate-900 border-b border-purple-500/40 px-4 lg:px-8 py-2.5 shadow-xl transition-all">
+  <div id="topActualOpsBar" class="bg-slate-900 border-b border-purple-500/40 px-4 lg:px-8 py-2.5 shadow-xl transition-all">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
       <div class="flex flex-wrap items-center gap-3">
         <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-200 border border-purple-500/40 font-bold">
@@ -282,7 +282,7 @@
         <!-- Date Selector -->
         <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
           <span class="text-slate-400 font-medium">營運日期:</span>
-          <input type="date" id="topActualDateInput" min="2026-11-01" max="2026-11-30" value="2026-11-01" onchange="onTopActualDateChange(this.value)" class="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-white font-mono focus:border-purple-500 focus:outline-none text-xs">
+          <input type="date" id="topActualDateInput" min="2026-11-01" max="2026-11-30" value="2026-11-08" onchange="onTopActualDateChange(this.value)" class="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-white font-mono focus:border-purple-500 focus:outline-none text-xs">
         </div>
         <!-- Quick Dates -->
         <div class="hidden sm:flex items-center gap-1 text-[11px]">
@@ -391,7 +391,7 @@
             </span>
             <div class="flex items-center gap-1.5">
               <label class="text-slate-400 font-medium">排班日期：</label>
-              <input type="date" id="rosterWidgetDate" value="2026-11-01" min="2026-11-01" max="2026-11-30" onchange="onRosterDateChange(this.value)" class="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-slate-200 text-xs font-mono outline-none focus:border-amber-400">
+              <input type="date" id="rosterWidgetDate" value="2026-11-08" min="2026-11-01" max="2026-11-30" onchange="onRosterDateChange(this.value)" class="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-slate-200 text-xs font-mono outline-none focus:border-amber-400">
             </div>
           </div>
           <div id="rosterWidgetDriverInfo" class="flex flex-wrap items-center gap-3 text-xs">
@@ -908,7 +908,7 @@
                 <span class="text-slate-400 font-semibold flex items-center gap-1.5">
                   <i class="fa-regular fa-calendar text-indigo-400"></i> 營運日期:
                 </span>
-                <input type="date" id="actualOpsDateInput" min="2026-11-01" max="2026-11-30" value="2026-11-01" onchange="onActualOpsDateChange(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono focus:border-indigo-500 focus:outline-none">
+                <input type="date" id="actualOpsDateInput" min="2026-11-01" max="2026-11-30" value="2026-11-08" onchange="onActualOpsDateChange(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono focus:border-indigo-500 focus:outline-none">
               </div>
 
               <!-- Shift Selector -->
@@ -1364,7 +1364,7 @@
               <button onclick="stepRosterDate(-1)" class="px-2.5 py-1.5 hover:bg-slate-800 text-slate-300 rounded text-xs transition" title="前一天">
                 <i class="fa-solid fa-chevron-left"></i>
               </button>
-              <input type="date" id="rosterMainDate" value="2026-11-01" min="2026-11-01" max="2026-11-30" onchange="renderDriverRosterView()" class="bg-transparent text-white font-mono text-xs px-2 py-1 outline-none font-bold">
+              <input type="date" id="rosterMainDate" value="2026-11-08" min="2026-11-01" max="2026-11-30" onchange="renderDriverRosterView()" class="bg-transparent text-white font-mono text-xs px-2 py-1 outline-none font-bold">
               <button onclick="stepRosterDate(1)" class="px-2.5 py-1.5 hover:bg-slate-800 text-slate-300 rounded text-xs transition" title="後一天">
                 <i class="fa-solid fa-chevron-right"></i>
               </button>
@@ -1381,7 +1381,7 @@
           </div>
 
           <div class="flex items-center gap-2 text-xs text-slate-400 font-mono">
-            <span id="rosterDateLabel" class="text-amber-400 font-bold text-sm">2026-11-01 (週日)</span>
+            <span id="rosterDateLabel" class="text-amber-400 font-bold text-sm">2026-11-08 (週日)</span>
             <span class="text-slate-600">|</span>
             <span id="rosterShiftSummaryBadge" class="bg-slate-900 px-2.5 py-1 rounded border border-slate-700 text-slate-300">執勤車輛：5 輛</span>
           </div>
@@ -1702,7 +1702,7 @@
 
     <!-- Demand Data Engine & Script -->
     <script>
-      let RAW_DEMAND_DATA = {"fabs": ["FAB8AB", "FAB8CD", "FAB8E", "FAB8F", "FAB8S", "嘉晶 (篤行)", "嘉晶 (創新)"], "matrix": {"FAB8AB": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 302, "FAB8F": 532, "FAB8S": 74, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8CD": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 473, "FAB8F": 439, "FAB8S": 61, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8E": {"FAB8AB": 302, "FAB8CD": 473, "FAB8E": 0, "FAB8F": 45, "FAB8S": 43, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "FAB8F": {"FAB8AB": 532, "FAB8CD": 439, "FAB8E": 45, "FAB8F": 0, "FAB8S": 658, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8S": {"FAB8AB": 74, "FAB8CD": 61, "FAB8E": 43, "FAB8F": 658, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "嘉晶 (篤行)": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 96, "FAB8F": 0, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "嘉晶 (創新)": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 48, "FAB8F": 0, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}}, "row_sums": {"FAB8AB": 908, "FAB8CD": 973, "FAB8E": 1007, "FAB8F": 1674, "FAB8S": 836, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "col_sums": {"FAB8AB": 908, "FAB8CD": 973, "FAB8E": 1007, "FAB8F": 1674, "FAB8S": 836, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "total_sum": 5542};
+      let RAW_DEMAND_DATA = {"fabs": ["FAB8AB", "FAB8CD", "FAB8E", "FAB8F", "FAB8S", "嘉晶 (篤行)", "嘉晶 (創新)"], "matrix": {"FAB8AB": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 302, "FAB8F": 532, "FAB8S": 74, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8CD": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 373, "FAB8F": 439, "FAB8S": 61, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8E": {"FAB8AB": 302, "FAB8CD": 373, "FAB8E": 0, "FAB8F": 45, "FAB8S": 43, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "FAB8F": {"FAB8AB": 532, "FAB8CD": 439, "FAB8E": 45, "FAB8F": 0, "FAB8S": 858, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8S": {"FAB8AB": 74, "FAB8CD": 61, "FAB8E": 43, "FAB8F": 858, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "嘉晶 (篤行)": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 96, "FAB8F": 0, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "嘉晶 (創新)": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 48, "FAB8F": 0, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}}, "row_sums": {"FAB8AB": 908, "FAB8CD": 873, "FAB8E": 907, "FAB8F": 1874, "FAB8S": 1036, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "col_sums": {"FAB8AB": 908, "FAB8CD": 873, "FAB8E": 907, "FAB8F": 1874, "FAB8S": 1036, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "total_sum": 5742};
       let currentDemandMode = '24h'; // '24h' | '12h'
 
       function switchDemandTimeView(mode) {
@@ -2130,9 +2130,18 @@
   <!-- Application Logic -->
   <script>
     // --- Global State ---
+    const TODAY_ACTUAL_DATE = (() => {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const s = `${year}-${month}-${day}`;
+      if (s >= '2026-11-01' && s <= '2026-11-30') return s;
+      return '2026-11-08';
+    })();
     let currentTab = 'tab-cars';
     let currentShift = 'day'; // 'day', 'night', 'all'
-    let currentPlanTable = 'schedules_plan3'; // 'schedules' (原方案), 'schedules_plan2' (方案二), 'schedules_plan3' (方案三 100% PASS)
+    let currentPlanTable = 'actual'; // 預設實際營運出勤模式 (動態綁定司機真實出勤與U車)
     let selectedCar = 'Car_B';
     let selectedFab = 'FAB8F';
     let isLiveServer = false;
@@ -2152,6 +2161,12 @@
 
     function setGlobalPlan(planTable) {
       currentPlanTable = planTable;
+      if (typeof timelineCarFilters !== 'undefined') {
+        timelineCarFilters['Car U'] = (planTable === 'actual');
+        if (typeof renderTimelineCarToggles === 'function') {
+          renderTimelineCarToggles();
+        }
+      }
 
       // Update Header Plan Buttons
       const b1 = document.getElementById('btnPlan1');
@@ -2426,10 +2441,7 @@
       checkAuthStatus();
       startLiveClock();
       await checkServerConnection();
-      renderCarSchedules();
-      renderFabAnalysis();
-      renderSummaryReport();
-      renderODMatrix();
+      setGlobalPlan('actual');
     });
 
     function startLiveClock() {
@@ -3172,7 +3184,11 @@
 
     async function fetchFabAnalysis(fabCode, shift) {
       if (isLiveServer) {
-        const res = await fetch(`/api/fab_analysis?fab=${encodeURIComponent(fabCode)}&shift=${shift}&table=${currentPlanTable}`);
+        let url = `/api/fab_analysis?fab=${encodeURIComponent(fabCode)}&shift=${shift}&table=${currentPlanTable}`;
+        if (currentPlanTable === 'actual') {
+          url += `&date=${encodeURIComponent(currentActualDate || TODAY_ACTUAL_DATE)}`;
+        }
+        const res = await fetch(url);
         return await res.json();
       }
 
@@ -3327,14 +3343,14 @@
         let timelineViewMode = 'swimlane'; // 'swimlane' or 'compact'
     let lastRenderedVisits = [];
 
-    // Timeline Car Visibility Filter (Default: Car U is false, others true)
+    // Timeline Car Visibility Filter (Default: Car U is true in actual mode)
     let timelineCarFilters = {
       'Car A': true,
       'Car B': true,
       'Car C': true,
       'Car D': true,
       'Car E': true,
-      'Car U': false  // default: U 車不顯示
+      'Car U': true  // default: 實際營運模式顯示 Car U
     };
 
     function toggleTimelineCar(carName) {
@@ -3356,7 +3372,7 @@
         'Car C': true,
         'Car D': true,
         'Car E': true,
-        'Car U': false
+        'Car U': (currentPlanTable === 'actual')
       };
       renderTimelineCarToggles();
       renderVisualTimeline(lastRenderedVisits);
@@ -3374,15 +3390,23 @@
         { name: 'Car U', border: 'border-purple-400', bg: 'bg-purple-600', dot: 'bg-purple-400' }
       ];
 
+      const carVisitCounts = {};
+      (lastRenderedVisits || []).forEach(v => {
+        carVisitCounts[v.car_name] = (carVisitCounts[v.car_name] || 0) + 1;
+      });
+
       container.innerHTML = cars.map(c => {
         const isShown = timelineCarFilters[c.name] === true;
+        const vCount = carVisitCounts[c.name] || 0;
+        const isSuspended = (lastRenderedVisits.length > 0 && vCount === 0);
+
         if (isShown) {
           return `
             <button onclick="toggleTimelineCar('${c.name}')" 
-              class="px-2 py-0.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${c.bg} text-white ${c.border} shadow-sm ring-1 ring-white/20 hover:brightness-110"
-              title="點擊隱藏 ${c.name}">
-              <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-              <span>✓ ${c.name}</span>
+              class="px-2 py-0.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${c.bg} text-white ${c.border} shadow-sm ring-1 ring-white/20 hover:brightness-110 ${isSuspended ? 'opacity-40 line-through' : ''}"
+              title="${isSuspended ? c.name + ' 本班次無營運/停駛' : '點擊隱藏 ' + c.name}">
+              <span class="w-1.5 h-1.5 rounded-full ${isSuspended ? 'bg-slate-400' : 'bg-white'}"></span>
+              <span>✓ ${c.name}${isSuspended ? ' (停駛)' : ''}</span>
             </button>
           `;
         } else {
@@ -4610,7 +4634,7 @@
     // ==========================================
     // 6. DRIVER & FLEET ROSTER JAVASCRIPT LOGIC
     // ==========================================
-    let currentRosterDate = '2026-11-01';
+    let currentRosterDate = (typeof TODAY_ACTUAL_DATE !== 'undefined') ? TODAY_ACTUAL_DATE : '2026-11-08';
     let currentRosterShift = 'Day';
 
     function setRosterDateToday() {
@@ -6080,7 +6104,7 @@
   // Actual Operations Mode (實際營運出勤模式與司機班表聯動)
   // =========================================================================
   let isActualOpsMode = false;
-  let currentActualDate = '2026-11-01';
+  let currentActualDate = (typeof TODAY_ACTUAL_DATE !== 'undefined') ? TODAY_ACTUAL_DATE : '2026-11-08';
   let currentActualShift = 'all';
   let filterOnlyOverload = false;
   let actualOpsCachedData = null;
@@ -6378,6 +6402,9 @@
     }
     if (typeof renderCarSchedules === 'function') {
       renderCarSchedules();
+    }
+    if (typeof renderFabAnalysis === 'function') {
+      renderFabAnalysis();
     }
     if (typeof renderSummaryReport === 'function') {
       renderSummaryReport();
