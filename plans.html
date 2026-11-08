@@ -116,6 +116,7 @@
   </div>
 
   <main class="max-w-7xl mx-auto p-4 lg:p-8 space-y-12">
+    <div id="plansCustomDemandBannerContainer"></div>
 
     <!-- Hero Banner -->
     <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-800 via-slate-850 to-indigo-950/60 p-6 lg:p-10 border border-slate-700 shadow-2xl">
@@ -132,16 +133,20 @@
           跨越至 <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">全日 7,776 批剛性運能與 100% 零衝突滿分驗收</span>？
         </h2>
         <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-          本報告嚴格依據最新 <code>問題敘述_限制條件.txt</code> 與 <code>Demand_from_to.xlsx</code>（全日 <b>5,742 批</b>、單班 <b>2,871 批</b>），針對廠區 5 部常態貨車（Car A～E，<b>Car U 不納入規劃</b>），維持總站次 <b>198 站</b>（單班 99 站、84 趟載貨），全面對比<b>「原方案 (Baseline)」</b>、<b>「方案二 (CP-SAT 雙層優化)」</b>與<b>「方案三 (100% 剛性合規滿分版)」</b>之運能、走廊利用率（全數 ≤84.7%）、雙目標函數（Slack=0 分、加權平均等候 75.7 分）與實務驗收結果。
+          本報告嚴格依據最新 <code>問題敘述_限制條件.txt</code> 與 <code>Demand_from_to.xlsx</code>（<span id="plans-demand-desc-total">全日 <b>5,742 批</b>、單班 <b>2,871 批</b></span>），針對廠區 5 部常態貨車（Car A～E，<b>Car U 不納入規劃</b>），維持總站次 <b>198 站</b>（單班 99 站、84 趟載貨），全面對比<b>「原方案 (Baseline)」</b>、<b>「方案二 (CP-SAT 雙層優化)」</b>與<b>「方案三 (100% 剛性合規滿分版)」</b>之運能、走廊利用率（全數 ≤84.7%）、雙目標函數（Slack=0 分、加權平均等候 75.7 分）與實務驗收結果。
         </p>
       </div>
 
       <!-- Quick KPI Strip (3-Way Comparison) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-700/80">
-        <div class="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/60">
-          <div class="text-xs text-slate-400 mb-1">全日 24H 基準需求 (單班 12H)</div>
-          <div class="text-xl sm:text-2xl font-black text-white font-mono">5,742 <span class="text-xs font-normal text-slate-400">批 (2,871/班)</span></div>
+        <div class="bg-slate-900/50 rounded-2xl p-4 border border-slate-700/60 relative overflow-hidden">
+          <div class="text-xs text-slate-400 mb-1 flex items-center justify-between">
+            <span>全日 24H 基準需求 (單班 12H)</span>
+            <span id="plans-custom-demand-indicator" class="hidden text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">自訂中</span>
+          </div>
+          <div id="plans-kpi-demand-total" class="text-xl sm:text-2xl font-black text-white font-mono">5,742 <span class="text-xs font-normal text-slate-400">批 (2,871/班)</span></div>
           <div class="text-[11px] text-slate-400 mt-1">22 條跨廠 OD 走廊 (Car U 排除)</div>
+          <div id="plans-kpi-bar" class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
         </div>
         <div class="bg-slate-900/50 rounded-2xl p-4 border border-rose-500/40 bg-rose-950/15">
           <div class="text-xs text-rose-300 mb-1">原基準方案 (schedules)</div>
@@ -959,7 +964,7 @@
           <tfoot>
             <tr class="bg-slate-850 font-bold text-white border-t-2 border-slate-700">
               <td class="p-3 font-sans">全系統 22 條需求走廊合計 (Total)</td>
-              <td class="p-3 text-right text-amber-400 font-mono">5,742 批</td>
+              <td id="plans-od-table-total-demand" class="p-3 text-right text-amber-400 font-mono">5,742 批</td>
               <td class="p-3 text-center font-mono">206筆 / 6,000批</td>
               <td class="p-3 text-center font-mono text-rose-400">平均 95.7% (最高200%)</td>
               <td class="p-3 text-center font-mono text-slate-300">加權 74.1 分</td>
@@ -1290,7 +1295,7 @@
               <tr class="hover:bg-slate-700/20">
                 <td class="px-4 py-3 font-mono font-bold text-teal-400">S1</td>
                 <td class="px-4 py-3 font-semibold text-white">走廊需求滿足率 100%</td>
-                <td class="px-4 py-3 text-slate-300">全廠 22 條 OD 走廊全履約，日總運能滿足 5,742 批以上需求，各走廊利用率維持在安全警戒值（≤ 85%）。</td>
+                <td class="px-4 py-3 text-slate-300">全廠 22 條 OD 走廊全履約，日總運能滿足 <span id="plans-audit-s1-demand-num">5,742 批</span>以上需求，各走廊利用率維持在安全警戒值（≤ 85%）。</td>
                 <td class="px-4 py-3 font-mono font-bold text-emerald-400">22 / 22 條全履約 (100%)</td>
                 <td class="px-4 py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">🟢 PASS</span></td>
               </tr>
@@ -2689,36 +2694,173 @@
       }, 4000);
     }
 
+    function updatePlansWithDemandData(totalSum, matrix, corridors) {
+      // 1. Update Card 1
+      const kpiEl = document.getElementById('plans-kpi-demand-total');
+      if (kpiEl) {
+        kpiEl.innerHTML = `${Number(totalSum).toLocaleString()} <span class="text-xs font-normal text-slate-400">批 (${Math.round(totalSum / 2).toLocaleString()}/班)</span>`;
+      }
+      const indicator = document.getElementById('plans-custom-demand-indicator');
+      if (indicator) {
+        if (totalSum !== 5742) indicator.classList.remove('hidden');
+        else indicator.classList.add('hidden');
+      }
+      const bar = document.getElementById('plans-kpi-bar');
+      if (bar) {
+        if (totalSum !== 5742) bar.className = 'absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-400';
+        else bar.className = 'absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500';
+      }
+
+      // 2. Update Intro description
+      const descEl = document.getElementById('plans-demand-desc-total');
+      if (descEl) {
+        descEl.innerHTML = `全日 <b>${Number(totalSum).toLocaleString()} 批</b>、單班 <b>${Math.round(totalSum / 2).toLocaleString()} 批</b>`;
+      }
+
+      // 3. Update 22 OD table footer
+      const footerEl = document.getElementById('plans-od-table-total-demand');
+      if (footerEl) {
+        footerEl.textContent = `${Number(totalSum).toLocaleString()} 批`;
+      }
+
+      // 4. Update Audit S1 text
+      const s1NumEl = document.getElementById('plans-audit-s1-demand-num');
+      if (s1NumEl) {
+        s1NumEl.textContent = `${Number(totalSum).toLocaleString()} 批`;
+      }
+
+      // 5. Update OD_DATA array
+      if (matrix && typeof OD_DATA !== 'undefined' && Array.isArray(OD_DATA)) {
+        OD_DATA.forEach(row => {
+          const fromF = row.from;
+          const toF = row.to;
+          let d = null;
+
+          if (matrix[fromF] && matrix[fromF][toF] !== undefined) {
+            d = matrix[fromF][toF];
+          } else {
+            // Fuzzy normalize
+            const clean = s => s.replace(/[\s()（）]/g, '');
+            for (const [mf, toMap] of Object.entries(matrix)) {
+              if (clean(mf) === clean(fromF) || clean(mf).includes(clean(fromF)) || clean(fromF).includes(clean(mf))) {
+                for (const [mt, val] of Object.entries(toMap)) {
+                  if (clean(mt) === clean(toF) || clean(mt).includes(clean(toF)) || clean(toF).includes(clean(mt))) {
+                    d = val;
+                    break;
+                  }
+                }
+              }
+              if (d !== null) break;
+            }
+          }
+
+          if (d !== null && d > 0) {
+            row.req = d;
+            if (row.b_c > 0) row.b_util = ((row.req / row.b_c) * 100).toFixed(1);
+            if (row.p2_c > 0) row.p2_util = ((row.req / row.p2_c) * 100).toFixed(1);
+            if (row.p3_c > 0) row.p3_util = ((row.req / row.p3_c) * 100).toFixed(1);
+          }
+        });
+
+        if (typeof renderODTable === 'function') {
+          renderODTable();
+        }
+      }
+    }
+
+    function showCustomDemandBannerInPlans(totalSum) {
+      const container = document.getElementById('plansCustomDemandBannerContainer');
+      if (!container) return;
+      if (totalSum === 5742) {
+        container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = `
+        <div class="bg-gradient-to-r from-emerald-950/80 via-teal-950/80 to-slate-850 border border-emerald-500/50 rounded-2xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-3 transition-all mb-2">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 text-lg">
+              <i class="fa-solid fa-file-circle-check"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-white text-sm">自訂運輸需求模式已生效</span>
+                <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-500/30 text-emerald-200 border border-emerald-400/40">${Number(totalSum).toLocaleString()} 批/天</span>
+              </div>
+              <p class="text-xs text-slate-300 mt-0.5">優化方案全景報告已同步套用您最新上傳之需求數據，全日 22 條走廊供需與裝載利用率已完成即時重算。</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openDemandUploadModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-600 transition flex items-center gap-1.5 shadow">
+              <i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i> 上傳新檔案
+            </button>
+            <button onclick="resetDemandToDefault()" class="px-3 py-1.5 rounded-xl bg-amber-600/30 hover:bg-amber-600/50 text-xs font-bold text-amber-200 border border-amber-500/40 transition flex items-center gap-1.5 shadow">
+              <i class="fa-solid fa-rotate-left text-amber-400"></i> 恢復官方預設 (5,742 批)
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function removeCustomDemandBannerInPlans() {
+      const container = document.getElementById('plansCustomDemandBannerContainer');
+      if (container) container.innerHTML = '';
+    }
+
+    function applyDemandUpdateToWarRoom(data) {
+      const resultData = data || window.LATEST_RECOMPUTE_RESULT;
+      if (!resultData || !resultData.grid_data) {
+        alert('尚未有新計算之需求數據，請先上傳 Excel 檔案！');
+        return;
+      }
+      
+      const g = resultData.grid_data;
+      const total = g.total_sum || (resultData.summary && resultData.summary.total_demand_24h) || 5742;
+
+      try {
+        localStorage.setItem('LOGISTICS_DEMAND_OVERRIDE', JSON.stringify(resultData));
+      } catch (e) {
+        console.warn('無法寫入 localStorage:', e);
+      }
+
+      updatePlansWithDemandData(total, g.matrix, g.corridors);
+      showCustomDemandBannerInPlans(total);
+      closeDemandUploadModal();
+      showToastNotification(`🎉 優化方案報告已成功同步最新運輸需求（共 ${total.toLocaleString()} 批/天）！`);
+    }
+
+    function showToastNotification(msg) {
+      let toast = document.getElementById('plansGlobalToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'plansGlobalToast';
+        toast.className = 'fixed bottom-6 right-6 z-50 bg-slate-900/95 border border-emerald-500/60 text-emerald-300 px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 text-sm font-bold transition-all transform translate-y-20 opacity-0';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i><span>${msg}</span>`;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 4000);
+    }
+
     function initDemandStateFromStorage() {
       try {
         const stored = localStorage.getItem('LOGISTICS_DEMAND_OVERRIDE');
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed && parsed.grid_data) {
-            console.log('載入已持久化儲存之自訂運輸需求:', parsed.grid_data.total_sum);
-            RAW_DEMAND_DATA = parsed.grid_data;
-            window.RAW_DEMAND_DATA = parsed.grid_data;
+            const g = parsed.grid_data;
+            const total = g.total_sum || (parsed.summary && parsed.summary.total_demand_24h) || 5742;
+            console.log('plans.html: 載入已持久化儲存之自訂運輸需求:', total);
             window.LATEST_RECOMPUTE_RESULT = parsed;
-
-            if (parsed.grid_data.matrix && typeof DEFAULT_DEMAND_24H !== 'undefined') {
-              for (const [fromFab, toMap] of Object.entries(parsed.grid_data.matrix)) {
-                for (const [toFab, val] of Object.entries(toMap)) {
-                  const k1 = `${fromFab}->${toFab}`;
-                  const k2 = `${fromFab.replace(/[\s()]/g, '')}->${toFab.replace(/[\s()]/g, '')}`;
-                  DEFAULT_DEMAND_24H[k1] = val;
-                  DEFAULT_DEMAND_24H[k2] = val;
-                }
-              }
-            }
-
-            setTimeout(() => {
-              if (typeof renderDemandView === 'function') renderDemandView();
-              showCustomDemandBanner(parsed.grid_data.total_sum);
-            }, 100);
+            updatePlansWithDemandData(total, g.matrix, g.corridors);
+            showCustomDemandBannerInPlans(total);
           }
         }
       } catch (e) {
-        console.warn('讀取儲存需求發生錯誤:', e);
+        console.warn('plans.html 讀取需求資料發生錯誤:', e);
       }
     }
 
@@ -2737,7 +2879,8 @@
       }
       localStorage.removeItem('LOGISTICS_DEMAND_OVERRIDE');
       window.LATEST_RECOMPUTE_RESULT = null;
-      removeCustomDemandBanner();
+      updatePlansWithDemandData(5742, null, null);
+      removeCustomDemandBannerInPlans();
 
       openDemandUploadModal();
       const progSec = document.getElementById('demandProgressSection');
@@ -2777,37 +2920,9 @@
         if (pct) pct.textContent = '100%';
         if (stepText) stepText.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i><span>已恢復預設官方基準需求 (5,742 批/天)！</span>';
 
-        const defaultFabs = ['FAB8AB', 'FAB8CD', 'FAB8E', 'FAB8F', 'FAB8S', '嘉晶 (篤行)', '嘉晶 (創新)'];
-        const defaultMatrix = {
-          'FAB8AB': { 'FAB8AB': 0, 'FAB8CD': 0, 'FAB8E': 302, 'FAB8F': 532, 'FAB8S': 74, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 },
-          'FAB8CD': { 'FAB8AB': 0, 'FAB8CD': 0, 'FAB8E': 373, 'FAB8F': 439, 'FAB8S': 61, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 },
-          'FAB8E':  { 'FAB8AB': 302, 'FAB8CD': 373, 'FAB8E': 0, 'FAB8F': 45, 'FAB8S': 43, '嘉晶 (篤行)': 96, '嘉晶 (創新)': 48 },
-          'FAB8F':  { 'FAB8AB': 532, 'FAB8CD': 439, 'FAB8E': 45, 'FAB8F': 0, 'FAB8S': 858, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 },
-          'FAB8S':  { 'FAB8AB': 74, 'FAB8CD': 61, 'FAB8E': 43, 'FAB8F': 858, 'FAB8S': 0, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 },
-          '嘉晶 (篤行)': { 'FAB8AB': 0, 'FAB8CD': 0, 'FAB8E': 96, 'FAB8F': 0, 'FAB8S': 0, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 },
-          '嘉晶 (創新)': { 'FAB8AB': 0, 'FAB8CD': 0, 'FAB8E': 48, 'FAB8F': 0, 'FAB8S': 0, '嘉晶 (篤行)': 0, '嘉晶 (創新)': 0 }
-        };
-        const defaultRowSums = { 'FAB8AB': 908, 'FAB8CD': 873, 'FAB8E': 907, 'FAB8F': 1874, 'FAB8S': 1036, '嘉晶 (篤行)': 96, '嘉晶 (創新)': 48 };
-        const defaultColSums = { 'FAB8AB': 908, 'FAB8CD': 873, 'FAB8E': 907, 'FAB8F': 1874, 'FAB8S': 1036, '嘉晶 (篤行)': 96, '嘉晶 (創新)': 48 };
-
-        const defaultData = {
-          success: true,
-          summary: {
-            total_demand_24h: 5742,
-            active_corridors_count: 22,
-            plan2: { score: 99.0, status: 'PASS', max_utilization: 87.5, avg_utilization: 62.4, weighted_avg_wait_mins: 14.8 },
-            plan3: { score: 100.0, status: 'PASS', max_utilization: 83.3, avg_utilization: 58.2, weighted_avg_wait_mins: 11.2 }
-          },
-          grid_data: {
-            fabs: defaultFabs,
-            matrix: defaultMatrix,
-            row_sums: defaultRowSums,
-            col_sums: defaultColSums,
-            total_sum: 5742
-          }
-        };
-        displayRecomputeResults(defaultData);
-        applyDemandUpdateToWarRoom(defaultData);
+        updatePlansWithDemandData(5742, null, null);
+        removeCustomDemandBannerInPlans();
+        closeDemandUploadModal();
       });
     }
 
@@ -2915,7 +3030,6 @@
       const badge = document.getElementById('resTotalDemandBadge');
       if (badge) badge.textContent = `總需求: ${s.total_demand_24h.toLocaleString()} 批 (${s.active_corridors_count} 走廊)`;
 
-      // P2
       const elP2S = document.getElementById('resP2Status');
       if (elP2S) elP2S.textContent = `${s.plan2.score} 分 (${s.plan2.status})`;
       const elP2M = document.getElementById('resP2MaxUtil');
@@ -2925,7 +3039,6 @@
       const elP2W = document.getElementById('resP2Wait');
       if (elP2W) elP2W.textContent = `${s.plan2.weighted_avg_wait_mins} 分`;
 
-      // P3
       const elP3S = document.getElementById('resP3Status');
       if (elP3S) elP3S.textContent = `${s.plan3.score} 分 (${s.plan3.status})`;
       const elP3M = document.getElementById('resP3MaxUtil');
@@ -2940,16 +3053,10 @@
       if (window.LATEST_RECOMPUTE_RESULT) {
         applyDemandUpdateToWarRoom(window.LATEST_RECOMPUTE_RESULT);
       }
-      if (typeof setGlobalPlan === 'function') {
-        setGlobalPlan(planTable);
-      }
       closeDemandUploadModal();
-      if (typeof switchTab === 'function') {
-        switchTab('tab-demand');
-      }
     }
 
-    // Initialize dropzone & custom demand on load
+    // Initialize dropzone & custom demand on load in plans.html
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
         setupDemandDropzone();
@@ -2959,9 +3066,7 @@
       setupDemandDropzone();
       initDemandStateFromStorage();
     }
-
-
-</script>
+    </script>
 
   <!-- Modal: Upload Demand Excel & Dynamic Recompute -->
   <div id="demandUploadModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 transition-opacity">
