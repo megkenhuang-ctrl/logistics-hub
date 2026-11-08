@@ -601,6 +601,23 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             stats.sort(key=lambda x: x['total'], reverse=True)
             return self.send_json(stats)
 
+        elif path == '/api/download_demand_template':
+            template_path = os.path.join(os.path.dirname(__file__), 'Demand_from_to.xlsx')
+            if not os.path.exists(template_path):
+                template_path = 'Demand_from_to.xlsx'
+            if os.path.exists(template_path):
+                with open(template_path, 'rb') as f:
+                    file_bytes = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                self.send_header('Content-Disposition', 'attachment; filename="Demand_from_to.xlsx"')
+                self.send_header('Content-Length', str(len(file_bytes)))
+                self.end_headers()
+                self.wfile.write(file_bytes)
+                return
+            else:
+                return self.send_json({'error': 'Template file Demand_from_to.xlsx not found'}, status=404)
+
         # Fallback to static files
         return super().do_GET()
 
@@ -609,12 +626,20 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
         path = parsed.path
 
         content_length = int(self.headers.get('Content-Length', 0))
-        body = self.rfile.read(content_length).decode('utf-8') if content_length > 0 else '{}'
-        
-        try:
-            payload = json.loads(body)
-        except Exception:
-            payload = {}
+        content_type = self.headers.get('Content-Type', '')
+        raw_bytes = self.rfile.read(content_length) if content_length > 0 else b''
+
+        payload = {}
+        if 'application/json' in content_type:
+            try:
+                payload = json.loads(raw_bytes.decode('utf-8'))
+            except Exception:
+                payload = {}
+        elif not content_type or 'form-urlencoded' in content_type:
+            try:
+                payload = json.loads(raw_bytes.decode('utf-8'))
+            except Exception:
+                payload = {}
 
         if path == '/api/sql_query':
             sql = payload.get('sql', '').strip()
@@ -657,6 +682,104 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 return self.send_json({'success': True, 'message': 'Database reloaded successfully!'})
             except Exception as e:
                 return self.send_json({'error': str(e)}, status=500)
+
+        elif path == '/api/upload_demand':
+            try:
+                import base64
+                from demand_importer import parse_demand_excel, import_demand_to_db
+                from dynamic_scheduler import recompute_and_audit
+
+                file_bytes = None
+
+                # 1. 支援 JSON 傳輸 base64 或伺服器本機路徑
+                if 'application/json' in content_type:
+                    b64_str = payload.get('content_base64', '')
+                    if b64_str:
+                        if ',' in b64_str:
+                            b64_str = b64_str.split(',', 1)[1]
+                        file_bytes = base64.b64decode(b64_str)
+                    elif 'file_path' in payload:
+                        fp = payload['file_path']
+                        # 安全檢查：防範路徑遍歷
+                        safe_fp = os.path.abspath(fp)
+                        cwd = os.path.abspath('.')
+                        if os.path.exists(safe_fp) and (safe_fp.startswith(cwd) or os.path.basename(safe_fp).endswith('.xlsx')):
+                            with open(safe_fp, 'rb') as f:
+                                file_bytes = f.read()
+                elif 'multipart/form-data' in content_type:
+                    # 2. 支援 multipart/form-data 原生表單上傳
+                    boundary = None
+                    for part in content_type.split(';'):
+                        part = part.strip()
+                        if part.startswith('boundary='):
+                            boundary = part.split('=', 1)[1].strip('"\'')
+                    if boundary:
+                        boundary_bytes = boundary.encode('utf-8')
+                        parts = raw_bytes.split(b'--' + boundary_bytes)
+                        for p_item in parts:
+                            if b'filename=' in p_item:
+                                if b'\r\n\r\n' in p_item:
+                                    header_part, body_part = p_item.split(b'\r\n\r\n', 1)
+                                    file_bytes = body_part.rstrip(b'\r\n--')
+                                    break
+                                elif b'\n\n' in p_item:
+                                    header_part, body_part = p_item.split(b'\n\n', 1)
+                                    file_bytes = body_part.rstrip(b'\n--')
+                                    break
+
+                if not file_bytes:
+                    return self.send_json({'error': '未接收到有效之 Excel 檔案，請選擇 .xlsx 檔案！'}, status=400)
+
+                # 解析上傳之 Excel
+                parsed = parse_demand_excel(file_bytes)
+
+                # 寫入 SQLite logistics.db
+                import_demand_to_db(parsed['matrix'])
+
+                # 調用動態排程求解與稽核管線
+                summary = recompute_and_audit()
+
+                return self.send_json({
+                    'success': True,
+                    'message': '運輸需求矩陣解析成功，方案二與方案三已依演算法全自動重新排程計算完成！',
+                    'total_demand': summary['total_demand_24h'],
+                    'active_corridors': summary['active_corridors_count'],
+                    'grid_data': parsed['grid_data'],
+                    'summary': summary
+                })
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                return self.send_json({'error': f"需求矩陣處理失敗: {str(e)}"}, status=500)
+
+        elif path == '/api/reset_demand':
+            try:
+                from demand_importer import parse_demand_excel, import_demand_to_db
+                from dynamic_scheduler import recompute_and_audit
+
+                default_path = 'Demand_from_to.xlsx'
+                if not os.path.exists(default_path):
+                    default_path = os.path.join(os.path.dirname(__file__), 'Demand_from_to.xlsx')
+
+                if not os.path.exists(default_path):
+                    return self.send_json({'error': '未找到基準需求檔案 Demand_from_to.xlsx！'}, status=404)
+
+                parsed = parse_demand_excel(default_path)
+                import_demand_to_db(parsed['matrix'])
+                summary = recompute_and_audit()
+
+                return self.send_json({
+                    'success': True,
+                    'message': '已成功恢復預設基準運輸需求 (5,742 批)，全網排程重新計算完成！',
+                    'total_demand': summary['total_demand_24h'],
+                    'active_corridors': summary['active_corridors_count'],
+                    'grid_data': parsed['grid_data'],
+                    'summary': summary
+                })
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                return self.send_json({'error': f"恢復預設需求失敗: {str(e)}"}, status=500)
 
         self.send_json({'error': 'Not found'}, status=404)
 

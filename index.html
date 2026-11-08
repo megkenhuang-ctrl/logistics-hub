@@ -183,6 +183,12 @@
           </button>
         </div>
 
+                <!-- Demand Upload Recompute Quick Button -->
+        <button onclick="openDemandUploadModal()" title="上傳需求矩陣 Excel 並重新求解運能與排程" class="px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-gradient-to-r from-indigo-600/40 to-blue-600/40 hover:from-indigo-600 hover:to-blue-600 text-indigo-200 hover:text-white border border-indigo-500/40 font-bold text-xs shadow cursor-pointer">
+          <i class="fa-solid fa-cloud-arrow-up text-indigo-400"></i>
+          <span class="hidden md:inline">上傳需求重算</span>
+        </button>
+
         <!-- Shift Selector -->
         <div class="bg-slate-900/90 border border-slate-700 rounded-lg p-1 flex items-center text-xs font-medium">
           <button id="btnShiftDay" onclick="setGlobalShift('day')" class="px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-blue-600 text-white shadow">
@@ -1398,8 +1404,24 @@
             </button>
           </div>
 
-          <a href="https://docs.google.com/spreadsheets/d/1VujchvWL4E75W2_xx48gGvJzPcWwOuzJ/edit?usp=sharing&ouid=105026712656586958579&rtpof=true&sd=true" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/80 text-xs font-bold text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1.5 shadow-md">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i> Google 試算表原檔
+          <!-- Dynamic Demand Recomputation Buttons -->
+          <button onclick="openDemandUploadModal()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-xs font-bold text-white transition flex items-center gap-1.5 shadow-lg shadow-indigo-600/30 cursor-pointer">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>上傳需求 Excel (重算方案)</span>
+          </button>
+
+          <button onclick="downloadDemandTemplate()" class="px-3 py-1.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/80 text-xs font-bold text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1.5 shadow-md cursor-pointer" title="下載官方標準 Demand_from_to.xlsx 範本">
+            <i class="fa-solid fa-download text-emerald-400"></i>
+            <span>下載範本</span>
+          </button>
+
+          <button onclick="resetDemandToDefault()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700 transition flex items-center gap-1.5 shadow-md cursor-pointer" title="一鍵恢復官方預設 5,742 批基準需求">
+            <i class="fa-solid fa-rotate-left text-amber-400"></i>
+            <span>恢復預設</span>
+          </button>
+
+          <a href="https://docs.google.com/spreadsheets/d/1VujchvWL4E75W2_xx48gGvJzPcWwOuzJ/edit?usp=sharing&ouid=105026712656586958579&rtpof=true&sd=true" target="_blank" class="px-3 py-1.5 rounded-xl bg-slate-850 hover:bg-slate-800 text-xs font-bold text-slate-400 hover:text-slate-200 border border-slate-700 transition flex items-center gap-1.5 shadow-md">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Google 試算表
           </a>
 
           <button onclick="exportDemandCSV()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-600 transition flex items-center gap-1.5 shadow-md">
@@ -1559,7 +1581,7 @@
 
     <!-- Demand Data Engine & Script -->
     <script>
-      const RAW_DEMAND_DATA = {"fabs": ["FAB8AB", "FAB8CD", "FAB8E", "FAB8F", "FAB8S", "嘉晶 (篤行)", "嘉晶 (創新)"], "matrix": {"FAB8AB": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 302, "FAB8F": 532, "FAB8S": 74, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8CD": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 373, "FAB8F": 439, "FAB8S": 61, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8E": {"FAB8AB": 302, "FAB8CD": 373, "FAB8E": 0, "FAB8F": 45, "FAB8S": 43, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "FAB8F": {"FAB8AB": 532, "FAB8CD": 439, "FAB8E": 45, "FAB8F": 0, "FAB8S": 858, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8S": {"FAB8AB": 74, "FAB8CD": 61, "FAB8E": 43, "FAB8F": 858, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "嘉晶 (篤行)": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 96, "FAB8F": 0, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "嘉晶 (創新)": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 48, "FAB8F": 0, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}}, "row_sums": {"FAB8AB": 908, "FAB8CD": 873, "FAB8E": 907, "FAB8F": 1874, "FAB8S": 1036, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "col_sums": {"FAB8AB": 908, "FAB8CD": 873, "FAB8E": 907, "FAB8F": 1874, "FAB8S": 1036, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "total_sum": 5742, "total_sum_12h": 2871, "corridors": [{"from": "FAB8F", "to": "FAB8S", "batches": 858}, {"from": "FAB8S", "to": "FAB8F", "batches": 858}, {"from": "FAB8AB", "to": "FAB8F", "batches": 532}, {"from": "FAB8F", "to": "FAB8AB", "batches": 532}, {"from": "FAB8CD", "to": "FAB8F", "batches": 439}, {"from": "FAB8F", "to": "FAB8CD", "batches": 439}, {"from": "FAB8CD", "to": "FAB8E", "batches": 373}, {"from": "FAB8E", "to": "FAB8CD", "batches": 373}, {"from": "FAB8AB", "to": "FAB8E", "batches": 302}, {"from": "FAB8E", "to": "FAB8AB", "batches": 302}, {"from": "FAB8E", "to": "嘉晶 (篤行)", "batches": 96}, {"from": "嘉晶 (篤行)", "to": "FAB8E", "batches": 96}, {"from": "FAB8AB", "to": "FAB8S", "batches": 74}, {"from": "FAB8S", "to": "FAB8AB", "batches": 74}, {"from": "FAB8CD", "to": "FAB8S", "batches": 61}, {"from": "FAB8S", "to": "FAB8CD", "batches": 61}, {"from": "FAB8E", "to": "嘉晶 (創新)", "batches": 48}, {"from": "嘉晶 (創新)", "to": "FAB8E", "batches": 48}, {"from": "FAB8E", "to": "FAB8F", "batches": 45}, {"from": "FAB8F", "to": "FAB8E", "batches": 45}, {"from": "FAB8E", "to": "FAB8S", "batches": 43}, {"from": "FAB8S", "to": "FAB8E", "batches": 43}], "active_corridors_count": 22, "source_file": "Demand_from_to.xlsx", "source_url": "https://docs.google.com/spreadsheets/d/1VujchvWL4E75W2_xx48gGvJzPcWwOuzJ/edit?usp=sharing&ouid=105026712656586958579&rtpof=true&sd=true"};
+      let RAW_DEMAND_DATA = {"fabs": ["FAB8AB", "FAB8CD", "FAB8E", "FAB8F", "FAB8S", "嘉晶 (篤行)", "嘉晶 (創新)"], "matrix": {"FAB8AB": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 302, "FAB8F": 532, "FAB8S": 74, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8CD": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 373, "FAB8F": 439, "FAB8S": 61, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8E": {"FAB8AB": 302, "FAB8CD": 373, "FAB8E": 0, "FAB8F": 45, "FAB8S": 43, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "FAB8F": {"FAB8AB": 532, "FAB8CD": 439, "FAB8E": 45, "FAB8F": 0, "FAB8S": 858, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "FAB8S": {"FAB8AB": 74, "FAB8CD": 61, "FAB8E": 43, "FAB8F": 858, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "嘉晶 (篤行)": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 96, "FAB8F": 0, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}, "嘉晶 (創新)": {"FAB8AB": 0, "FAB8CD": 0, "FAB8E": 48, "FAB8F": 0, "FAB8S": 0, "嘉晶 (篤行)": 0, "嘉晶 (創新)": 0}}, "row_sums": {"FAB8AB": 908, "FAB8CD": 873, "FAB8E": 907, "FAB8F": 1874, "FAB8S": 1036, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "col_sums": {"FAB8AB": 908, "FAB8CD": 873, "FAB8E": 907, "FAB8F": 1874, "FAB8S": 1036, "嘉晶 (篤行)": 96, "嘉晶 (創新)": 48}, "total_sum": 5742};
       let currentDemandMode = '24h'; // '24h' | '12h'
 
       function switchDemandTimeView(mode) {
@@ -4769,6 +4791,395 @@
       updateTab1DriverWidget();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    // --- Dynamic Demand Upload & Recomputation Client Logic ---
+    let selectedDemandFile = null;
+
+    function openDemandUploadModal() {
+      const m = document.getElementById('demandUploadModal');
+      if (!m) return;
+      m.classList.remove('hidden');
+      resetDemandModalState();
+    }
+
+    function closeDemandUploadModal() {
+      const m = document.getElementById('demandUploadModal');
+      if (m) m.classList.add('hidden');
+    }
+
+    function resetDemandModalState() {
+      selectedDemandFile = null;
+      const fInput = document.getElementById('demandFileInput');
+      if (fInput) fInput.value = '';
+      const preview = document.getElementById('demandFilePreview');
+      if (preview) preview.classList.add('hidden');
+      const progSec = document.getElementById('demandProgressSection');
+      if (progSec) progSec.classList.add('hidden');
+      const resCard = document.getElementById('demandResultCard');
+      if (resCard) resCard.classList.add('hidden');
+      const btn = document.getElementById('btnStartUploadDemand');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-play"></i><span>開始上傳並重新計算 (Recompute)</span>';
+      }
+    }
+
+    function handleDemandFileChange(input) {
+      if (input.files && input.files[0]) {
+        selectedDemandFile = input.files[0];
+        showSelectedDemandFile(selectedDemandFile);
+      }
+    }
+
+    function showSelectedDemandFile(file) {
+      const preview = document.getElementById('demandFilePreview');
+      const nameEl = document.getElementById('demandFileName');
+      const sizeEl = document.getElementById('demandFileSize');
+      if (preview && nameEl && sizeEl) {
+        nameEl.textContent = file.name;
+        sizeEl.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+        preview.classList.remove('hidden');
+      }
+    }
+
+    function setupDemandDropzone() {
+      const dz = document.getElementById('demandDropzone');
+      if (!dz) return;
+      ['dragenter', 'dragover'].forEach(name => {
+        dz.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dz.classList.add('border-indigo-400', 'bg-indigo-950/30');
+        });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        dz.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dz.classList.remove('border-indigo-400', 'bg-indigo-950/30');
+        });
+      });
+      dz.addEventListener('drop', (e) => {
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          selectedDemandFile = e.dataTransfer.files[0];
+          showSelectedDemandFile(selectedDemandFile);
+        }
+      });
+    }
+
+    function downloadDemandTemplate() {
+      window.location.href = '/api/download_demand_template';
+    }
+
+    function resetDemandToDefault() {
+      if (!confirm('確認要恢復預設官方基準運輸需求 (5,742 批/天) 並依演算法重新計算方案二與方案三排程嗎？')) {
+        return;
+      }
+      openDemandUploadModal();
+      const progSec = document.getElementById('demandProgressSection');
+      const stepText = document.getElementById('demandProgressStepText');
+      const bar = document.getElementById('demandProgressBar');
+      const pct = document.getElementById('demandProgressPct');
+      if (progSec) progSec.classList.remove('hidden');
+      if (stepText) stepText.innerHTML = '<i class="fa-solid fa-rotate fa-spin text-amber-400"></i><span>正在重置為預設基準需求 (5,742 批) 並重算...</span>';
+      if (bar) bar.style.width = '50%';
+      if (pct) pct.textContent = '50%';
+
+      fetch('/api/reset_demand', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          if (bar) bar.style.width = '100%';
+          if (pct) pct.textContent = '100%';
+          if (stepText) stepText.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i><span>重置與排程重算成功完成！</span>';
+          displayRecomputeResults(data);
+        } else {
+          alert('重置失敗: ' + (data.error || '未知錯誤'));
+        }
+      })
+      .catch(err => {
+        alert('重置請求發生錯誤: ' + err.message);
+      });
+    }
+
+    function startDemandRecomputation() {
+      if (!selectedDemandFile) {
+        alert('請先選擇或拖曳欲上傳的需求矩陣 Excel 檔案 (.xlsx / .xls)！');
+        return;
+      }
+
+      const btn = document.getElementById('btnStartUploadDemand');
+      const progSec = document.getElementById('demandProgressSection');
+      const stepText = document.getElementById('demandProgressStepText');
+      const bar = document.getElementById('demandProgressBar');
+      const pct = document.getElementById('demandProgressPct');
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>正在運算中...</span>';
+      }
+      if (progSec) progSec.classList.remove('hidden');
+
+      if (stepText) stepText.innerHTML = '<i class="fa-solid fa-file-excel fa-spin text-indigo-400"></i><span>步驟 1/3: 解析 Excel 走廊數值與資料校驗...</span>';
+      if (bar) bar.style.width = '30%';
+      if (pct) pct.textContent = '30%';
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64Data = e.target.result;
+
+        if (stepText) stepText.innerHTML = '<i class="fa-solid fa-gears fa-spin text-blue-400"></i><span>步驟 2/3: 執行兩階段求解 (MILP + CP-SAT 排程與微創)...</span>';
+        if (bar) bar.style.width = '65%';
+        if (pct) pct.textContent = '65%';
+
+        fetch('/api/upload_demand', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: selectedDemandFile.name,
+            content_base64: base64Data
+          })
+        })
+        .then(r => r.json())
+        .then(res => {
+          if (res.success) {
+            if (stepText) stepText.innerHTML = '<i class="fa-solid fa-shield-halved text-emerald-400"></i><span>步驟 3/3: 獨立約束驗收與全網同步完成！</span>';
+            if (bar) bar.style.width = '100%';
+            if (pct) pct.textContent = '100%';
+            displayRecomputeResults(res);
+          } else {
+            alert('運算失敗: ' + (res.error || '請確認 Excel 格式'));
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fa-solid fa-play"></i><span>重試</span>';
+            }
+          }
+        })
+        .catch(err => {
+          alert('上傳與計算發生錯誤: ' + err.message);
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-play"></i><span>重試</span>';
+          }
+        });
+      };
+      reader.readAsDataURL(selectedDemandFile);
+    }
+
+    function displayRecomputeResults(data) {
+      const card = document.getElementById('demandResultCard');
+      if (!card) return;
+      card.classList.remove('hidden');
+
+      const s = data.summary;
+      document.getElementById('resTotalDemandBadge').textContent = `總需求: ${s.total_demand_24h.toLocaleString()} 批 (${s.active_corridors_count} 走廊)`;
+
+      // P2
+      document.getElementById('resP2Status').textContent = `${s.plan2.score} 分 (${s.plan2.status})`;
+      document.getElementById('resP2MaxUtil').textContent = `${s.plan2.max_utilization}%`;
+      document.getElementById('resP2AvgUtil').textContent = `${s.plan2.avg_utilization}%`;
+      document.getElementById('resP2Wait').textContent = `${s.plan2.weighted_avg_wait_mins} 分`;
+
+      // P3
+      document.getElementById('resP3Status').textContent = `${s.plan3.score} 分 (${s.plan3.status})`;
+      document.getElementById('resP3MaxUtil').textContent = `${s.plan3.max_utilization}%`;
+      document.getElementById('resP3AvgUtil').textContent = `${s.plan3.avg_utilization}%`;
+      document.getElementById('resP3Wait').textContent = `${s.plan3.weighted_avg_wait_mins} 分`;
+
+      // Auto update RAW_DEMAND_DATA if available
+      if (data.grid_data && typeof RAW_DEMAND_DATA !== 'undefined') {
+        RAW_DEMAND_DATA = data.grid_data;
+        if (typeof renderDemandView === 'function') {
+          renderDemandView();
+        }
+      }
+    }
+
+    function applyAndSwitchPlan(planTable) {
+      if (typeof setGlobalPlan === 'function') {
+        setGlobalPlan(planTable);
+      }
+      closeDemandUploadModal();
+      if (typeof switchTab === 'function') {
+        switchTab('tab-plans');
+      } else {
+        window.location.reload();
+      }
+    }
+
+    // Initialize dropzone on load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupDemandDropzone);
+    } else {
+      setupDemandDropzone();
+    }
+
 </script>
+
+  <!-- Modal: Upload Demand Excel & Dynamic Recompute -->
+  <div id="demandUploadModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 transition-opacity">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <!-- Header -->
+      <div class="px-6 py-4 bg-gradient-to-r from-slate-850 via-slate-800 to-indigo-950/60 border-b border-slate-750 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <i class="fa-solid fa-file-excel text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span>上傳運輸需求矩陣 (Demand_from_to.xlsx)</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">兩階段演算法重算</span>
+            </h3>
+            <p class="text-xs text-slate-400">自動執行 Stage 1 (MILP 趟數拓撲) + Stage 2 (CP-SAT 時序求解) 並生成方案 2、方案 3</p>
+          </div>
+        </div>
+        <button onclick="closeDemandUploadModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-6 space-y-5 overflow-y-auto">
+        <!-- Guidance Note -->
+        <div class="bg-indigo-950/30 border border-indigo-500/25 rounded-xl p-3.5 flex items-start gap-3 text-xs text-indigo-200/90 leading-relaxed">
+          <i class="fa-solid fa-circle-info text-indigo-400 mt-0.5 shrink-0 text-sm"></i>
+          <div>
+            <b>使用說明：</b>支援上傳 Excel 檔案（.xlsx / .xls，格式同 <code>Demand_from_to.xlsx</code>）。系統自動解析 7 大廠區 (8AB/8CD/8E/8F/8S/嘉晶篤行/嘉晶創新) 走廊搬運量，即時啟動獨立驗證引擎 (Validator) 稽核 6 大硬約束與 2 大軟約束，並即刻更新戰情室畫面。
+          </div>
+        </div>
+
+        <!-- Dropzone -->
+        <div id="demandDropzone" onclick="document.getElementById('demandFileInput').click()" class="border-2 border-dashed border-slate-600 hover:border-indigo-500 hover:bg-indigo-950/10 rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2 group">
+          <input type="file" id="demandFileInput" accept=".xlsx,.xls" class="hidden" onchange="handleDemandFileChange(this)">
+          <div class="w-14 h-14 rounded-2xl bg-slate-800 group-hover:bg-indigo-600/20 text-slate-400 group-hover:text-indigo-400 flex items-center justify-center text-2xl transition">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <div class="text-sm font-bold text-slate-200 group-hover:text-white transition">
+            點擊此處選擇檔案，或直接將檔案拖曳至此
+          </div>
+          <p class="text-xs text-slate-400">支援 .xlsx, .xls 格式（預設推薦檔名：<code>Demand_from_to.xlsx</code>）</p>
+        </div>
+
+        <!-- Selected File Preview -->
+        <div id="demandFilePreview" class="hidden bg-slate-800/80 border border-slate-700 rounded-xl p-3.5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <i class="fa-solid fa-file-lines"></i>
+            </div>
+            <div>
+              <div id="demandFileName" class="text-xs font-bold text-white truncate max-w-xs">Demand_from_to.xlsx</div>
+              <div id="demandFileSize" class="text-[11px] text-slate-400 font-mono">10.3 KB</div>
+            </div>
+          </div>
+          <span class="px-2.5 py-1 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">待重新計算</span>
+        </div>
+
+        <!-- Fast Actions (Template & Reset) -->
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+          <span class="text-slate-400">快捷操作：</span>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="downloadDemandTemplate()" class="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 hover:underline">
+              <i class="fa-solid fa-download"></i> 下載當前標準範本
+            </button>
+            <span class="text-slate-600">|</span>
+            <button type="button" onclick="resetDemandToDefault()" class="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 hover:underline">
+              <i class="fa-solid fa-rotate-left"></i> 恢復預設 (5,742 批)
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress Section (Dynamic Solving) -->
+        <div id="demandProgressSection" class="hidden space-y-3 bg-slate-850 border border-slate-750 rounded-xl p-4">
+          <div class="flex items-center justify-between text-xs">
+            <span id="demandProgressStepText" class="font-bold text-indigo-300 flex items-center gap-2">
+              <i class="fa-solid fa-gear fa-spin text-indigo-400"></i>
+              <span>演算法求解與驗證進行中...</span>
+            </span>
+            <span id="demandProgressPct" class="font-mono text-slate-300 font-bold">30%</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden">
+            <div id="demandProgressBar" class="h-full bg-gradient-to-r from-indigo-500 via-blue-500 to-emerald-500 transition-all duration-300" style="width: 30%"></div>
+          </div>
+          <div class="text-[11px] text-slate-400 flex items-center justify-between font-mono">
+            <span>Stage 1: MILP 趟數分配</span>
+            <span>➔</span>
+            <span>Stage 2: CP-SAT 時序求解</span>
+            <span>➔</span>
+            <span>Stage 3: 獨立稽核</span>
+          </div>
+        </div>
+
+        <!-- Recomputation Results (Success Summary Card) -->
+        <div id="demandResultCard" class="hidden bg-slate-850/90 border border-emerald-500/40 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-xs font-bold text-white">重新計算與排程求解完成</span>
+            </div>
+            <span id="resTotalDemandBadge" class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">總需求: 5,742 批</span>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <!-- Plan 2 Summary -->
+            <div class="bg-slate-900/80 border border-amber-500/30 rounded-lg p-2.5 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-amber-300 flex items-center gap-1">
+                  <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> 方案二 (CP-SAT 雙層)
+                </span>
+                <span id="resP2Status" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300">97.6 分</span>
+              </div>
+              <div class="text-[11px] text-slate-300 space-y-0.5">
+                <div>最高利用率: <b id="resP2MaxUtil" class="text-emerald-400 font-mono">84.7%</b> (avg <span id="resP2AvgUtil">73.8%</span>)</div>
+                <div>加權等候: <b id="resP2Wait" class="text-slate-200 font-mono">75.7 分</b> ｜ Slack: <b class="text-emerald-400 font-mono">0 分</b></div>
+              </div>
+            </div>
+
+            <!-- Plan 3 Summary -->
+            <div class="bg-slate-900/80 border border-emerald-500/30 rounded-lg p-2.5 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-emerald-300 flex items-center gap-1">
+                  <i class="fa-solid fa-circle-check text-emerald-400"></i> 方案三 (剛性100%合規)
+                </span>
+                <span id="resP3Status" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">100.0 分</span>
+              </div>
+              <div class="text-[11px] text-slate-300 space-y-0.5">
+                <div>最高利用率: <b id="resP3MaxUtil" class="text-emerald-400 font-mono">84.7%</b> (avg <span id="resP3AvgUtil">73.8%</span>)</div>
+                <div>加權等候: <b id="resP3Wait" class="text-cyan-300 font-mono">44.3 分</b> ｜ Slack: <b class="text-emerald-400 font-mono">0 分</b></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 pt-1">
+            <button type="button" onclick="applyAndSwitchPlan('schedules_plan2')" class="flex-1 py-1.5 rounded-lg bg-amber-600/30 hover:bg-amber-600/50 text-amber-200 border border-amber-500/40 text-xs font-bold transition">
+              檢視方案二
+            </button>
+            <button type="button" onclick="applyAndSwitchPlan('schedules_plan3')" class="flex-1 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/40 text-xs font-bold transition">
+              檢視方案三
+            </button>
+            <button type="button" onclick="window.location.reload()" class="flex-1 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow">
+              刷新全戰情室
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-3.5 bg-slate-850 border-t border-slate-750 flex items-center justify-between">
+        <button type="button" onclick="closeDemandUploadModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition">
+          關閉
+        </button>
+        <button type="button" id="btnStartUploadDemand" onclick="startDemandRecomputation()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs font-bold transition shadow-lg shadow-indigo-600/30 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fa-solid fa-play"></i>
+          <span>開始上傳並重新計算 (Recompute)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

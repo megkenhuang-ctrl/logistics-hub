@@ -15575,154 +15575,154 @@
   ],
   "demand_matrix": [
     {
-      "id": 23,
+      "id": 111,
       "from_fab": "FAB8F",
       "to_fab": "FAB8S",
       "demand_batches": 858,
       "demand_shift_batches": 429
     },
     {
-      "id": 24,
+      "id": 112,
       "from_fab": "FAB8S",
       "to_fab": "FAB8F",
       "demand_batches": 858,
       "demand_shift_batches": 429
     },
     {
-      "id": 25,
+      "id": 113,
       "from_fab": "FAB8AB",
       "to_fab": "FAB8F",
       "demand_batches": 532,
       "demand_shift_batches": 266
     },
     {
-      "id": 26,
+      "id": 114,
       "from_fab": "FAB8F",
       "to_fab": "FAB8AB",
       "demand_batches": 532,
       "demand_shift_batches": 266
     },
     {
-      "id": 27,
+      "id": 115,
       "from_fab": "FAB8CD",
       "to_fab": "FAB8F",
       "demand_batches": 439,
       "demand_shift_batches": 220
     },
     {
-      "id": 28,
+      "id": 116,
       "from_fab": "FAB8F",
       "to_fab": "FAB8CD",
       "demand_batches": 439,
       "demand_shift_batches": 220
     },
     {
-      "id": 29,
+      "id": 117,
       "from_fab": "FAB8CD",
       "to_fab": "FAB8E",
       "demand_batches": 373,
-      "demand_shift_batches": 186
+      "demand_shift_batches": 187
     },
     {
-      "id": 30,
+      "id": 118,
       "from_fab": "FAB8E",
       "to_fab": "FAB8CD",
       "demand_batches": 373,
-      "demand_shift_batches": 186
+      "demand_shift_batches": 187
     },
     {
-      "id": 31,
+      "id": 119,
       "from_fab": "FAB8AB",
       "to_fab": "FAB8E",
       "demand_batches": 302,
       "demand_shift_batches": 151
     },
     {
-      "id": 32,
+      "id": 120,
       "from_fab": "FAB8E",
       "to_fab": "FAB8AB",
       "demand_batches": 302,
       "demand_shift_batches": 151
     },
     {
-      "id": 33,
+      "id": 121,
       "from_fab": "FAB8E",
       "to_fab": "嘉晶篤行",
       "demand_batches": 96,
       "demand_shift_batches": 48
     },
     {
-      "id": 34,
+      "id": 122,
       "from_fab": "嘉晶篤行",
       "to_fab": "FAB8E",
       "demand_batches": 96,
       "demand_shift_batches": 48
     },
     {
-      "id": 35,
+      "id": 123,
       "from_fab": "FAB8AB",
       "to_fab": "FAB8S",
       "demand_batches": 74,
       "demand_shift_batches": 37
     },
     {
-      "id": 36,
+      "id": 124,
       "from_fab": "FAB8S",
       "to_fab": "FAB8AB",
       "demand_batches": 74,
       "demand_shift_batches": 37
     },
     {
-      "id": 37,
+      "id": 125,
       "from_fab": "FAB8CD",
       "to_fab": "FAB8S",
       "demand_batches": 61,
-      "demand_shift_batches": 30
+      "demand_shift_batches": 31
     },
     {
-      "id": 38,
+      "id": 126,
       "from_fab": "FAB8S",
       "to_fab": "FAB8CD",
       "demand_batches": 61,
-      "demand_shift_batches": 30
+      "demand_shift_batches": 31
     },
     {
-      "id": 39,
+      "id": 127,
       "from_fab": "FAB8E",
       "to_fab": "嘉晶創新",
       "demand_batches": 48,
       "demand_shift_batches": 24
     },
     {
-      "id": 40,
+      "id": 128,
       "from_fab": "嘉晶創新",
       "to_fab": "FAB8E",
       "demand_batches": 48,
       "demand_shift_batches": 24
     },
     {
-      "id": 41,
+      "id": 129,
       "from_fab": "FAB8E",
       "to_fab": "FAB8F",
       "demand_batches": 45,
-      "demand_shift_batches": 22
+      "demand_shift_batches": 23
     },
     {
-      "id": 42,
+      "id": 130,
       "from_fab": "FAB8F",
       "to_fab": "FAB8E",
       "demand_batches": 45,
-      "demand_shift_batches": 22
+      "demand_shift_batches": 23
     },
     {
-      "id": 43,
+      "id": 131,
       "from_fab": "FAB8E",
       "to_fab": "FAB8S",
       "demand_batches": 43,
       "demand_shift_batches": 22
     },
     {
-      "id": 44,
+      "id": 132,
       "from_fab": "FAB8S",
       "to_fab": "FAB8E",
       "demand_batches": 43,
@@ -20773,7 +20773,7 @@
   ],
   "audit_reports": {
     "schedules": {
-      "timestamp": "2026-11-08 15:38:16",
+      "timestamp": "2026-11-08 16:04:58",
       "db_path": "logistics.db",
       "table_name": "schedules",
       "plan_label": "原方案 (Baseline 原始基準)",
@@ -22163,7 +22163,7 @@
       }
     },
     "schedules_plan2": {
-      "timestamp": "2026-11-08 15:38:16",
+      "timestamp": "2026-11-08 16:04:58",
       "db_path": "logistics.db",
       "table_name": "schedules_plan2",
       "plan_label": "方案二 (CP-SAT 雙層路網優化)",
@@ -22654,7 +22654,7 @@
       }
     },
     "schedules_plan3": {
-      "timestamp": "2026-11-08 15:38:16",
+      "timestamp": "2026-11-08 16:04:58",
       "db_path": "logistics.db",
       "table_name": "schedules_plan3",
       "plan_label": "方案三 (100% 剛性合規落地版)",
@@ -23104,5 +23104,5 @@
       }
     }
   },
-  "exported_at": "2026-11-08T15:38:16.159120"
+  "exported_at": "2026-11-08T16:04:58.223032"
 }
