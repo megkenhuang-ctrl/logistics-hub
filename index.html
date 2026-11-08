@@ -826,6 +826,99 @@
         </div>
       </div>
 
+      <!-- Actual Operations Mode Controller (實際營運模式控制中心) -->
+      <div id="actualOpsCard" class="bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-indigo-500/40 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-700/60 pb-3.5">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-xl border border-indigo-500/30 shrink-0 shadow-inner">
+              <i class="fa-solid fa-truck-ramp-box"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <h3 class="font-extrabold text-sm sm:text-base text-white tracking-wide">實際營運出勤模式 (Actual Operations & Driver Rostering)</h3>
+                <span id="actualOpsActiveBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-300 border border-slate-600 font-mono">
+                  靜態理論排程
+                </span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1">
+                串聯司機每日班表 (<code class="text-cyan-300 font-mono">driver_roster</code>)，動態納入 <b>Car U 備援車運能</b>，即時評估當日/當班車隊缺勤與路線 Overloading 斷料風險。
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <!-- Mode Toggle Switch -->
+            <div class="inline-flex rounded-xl bg-slate-950 p-1 border border-slate-700 text-xs shadow-inner">
+              <button id="btnModeTheoretical" onclick="setActualOpsMode(false)" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-calculator"></i>
+                <span>理論排程基準</span>
+              </button>
+              <button id="btnModeActual" onclick="setActualOpsMode(true)" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-bold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-id-badge text-emerald-400"></i>
+                <span>實際營運出勤</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls under Actual Operations Mode -->
+        <div id="actualOpsControls" class="hidden space-y-3.5 pt-1">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-3">
+              <!-- Date Picker -->
+              <div class="flex items-center gap-2 text-xs bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+                <span class="text-slate-400 font-semibold flex items-center gap-1.5">
+                  <i class="fa-regular fa-calendar text-indigo-400"></i> 營運日期:
+                </span>
+                <input type="date" id="actualOpsDateInput" min="2026-11-01" max="2026-11-30" value="2026-11-01" onchange="onActualOpsDateChange(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono focus:border-indigo-500 focus:outline-none">
+              </div>
+
+              <!-- Shift Selector -->
+              <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+                <button id="btnActShiftAll" onclick="setActualOpsShift('all')" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold transition">全日 24H</button>
+                <button id="btnActShiftDay" onclick="setActualOpsShift('day')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition">☀️ 日班 (Day)</button>
+                <button id="btnActShiftNight" onclick="setActualOpsShift('night')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition">🌙 夜班 (Night)</button>
+              </div>
+
+              <!-- Quick Date Tags -->
+              <div class="hidden sm:flex items-center gap-1.5 text-[11px]">
+                <span class="text-slate-500">快選:</span>
+                <button onclick="setActualOpsDateQuick('2026-11-01')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">11/01 (夜班U車)</button>
+                <button onclick="setActualOpsDateQuick('2026-11-05')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">11/05</button>
+                <button onclick="setActualOpsDateQuick('2026-11-15')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">11/15</button>
+              </div>
+            </div>
+
+            <!-- Overload Quick Filter -->
+            <div class="flex items-center gap-2">
+              <button id="btnFilterOnlyOverload" onclick="toggleOnlyOverloadFilter()" class="text-xs px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/40 font-bold transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="filterOverloadBtnLabel">僅顯示 Overloading 走廊</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Fleet and Driver Strip -->
+          <div>
+            <div class="text-[11px] font-bold text-slate-400 mb-1.5 flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <i class="fa-solid fa-id-card text-blue-400"></i>
+                <span>當班車隊司機出勤名錄 (Active Fleet & Drivers)</span>
+              </span>
+              <span id="fleetActiveCountLabel" class="font-mono text-cyan-300 text-xs">出勤 5 / 6 部車</span>
+            </div>
+            <div id="actualOpsFleetStrip" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Actual Ops KPI Summary Strip -->
+          <div id="actualOpsKpiStrip" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 text-xs">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
       <!-- OD From-To Matrix Heatmap -->
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
         <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
@@ -5915,5 +6008,248 @@
     </div>
   </div>
 
+<script>
+  // =========================================================================
+  // Actual Operations Mode (實際營運出勤模式與司機班表聯動)
+  // =========================================================================
+  let isActualOpsMode = false;
+  let currentActualDate = '2026-11-01';
+  let currentActualShift = 'all';
+  let filterOnlyOverload = false;
+  let actualOpsCachedData = null;
+
+  async function fetchActualOperationsData(date, shift, plan) {
+    try {
+      const res = await fetch(`/api/actual_operations?date=${date}&shift=${shift}&table=${plan}`);
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn("Actual operations API offline, using client calculation fallback", e);
+    }
+    return null;
+  }
+
+  async function setActualOpsMode(active) {
+    isActualOpsMode = active;
+    const btnTheo = document.getElementById('btnModeTheoretical');
+    const btnAct = document.getElementById('btnModeActual');
+    const controls = document.getElementById('actualOpsControls');
+    const badge = document.getElementById('actualOpsActiveBadge');
+
+    if (active) {
+      btnTheo.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-bold transition flex items-center gap-1.5';
+      btnAct.className = 'px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-600/30';
+      controls.classList.remove('hidden');
+      badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono animate-pulse';
+      badge.textContent = '🟢 實際營運出勤模式已啟用';
+      await updateActualOperationsView();
+    } else {
+      btnAct.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-bold transition flex items-center gap-1.5';
+      btnTheo.className = 'px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold transition flex items-center gap-1.5 shadow';
+      controls.classList.add('hidden');
+      badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-300 border border-slate-600 font-mono';
+      badge.textContent = '靜態理論排程';
+      // 回復原本理論矩陣
+      if (typeof renderODMatrix === 'function') {
+        renderODMatrix();
+      }
+    }
+  }
+
+  function setActualOpsShift(shift) {
+    currentActualShift = shift;
+    ['All', 'Day', 'Night'].forEach(s => {
+      const btn = document.getElementById('btnActShift' + s);
+      if (!btn) return;
+      if (s.toLowerCase() === shift) {
+        btn.className = 'px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold transition shadow';
+      } else {
+        btn.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition';
+      }
+    });
+    updateActualOperationsView();
+  }
+
+  function onActualOpsDateChange(newDate) {
+    currentActualDate = newDate;
+    updateActualOperationsView();
+  }
+
+  function setActualOpsDateQuick(quickDate) {
+    currentActualDate = quickDate;
+    const inp = document.getElementById('actualOpsDateInput');
+    if (inp) inp.value = quickDate;
+    updateActualOperationsView();
+  }
+
+  function toggleOnlyOverloadFilter() {
+    filterOnlyOverload = !filterOnlyOverload;
+    const btn = document.getElementById('btnFilterOnlyOverload');
+    const label = document.getElementById('filterOverloadBtnLabel');
+    if (filterOnlyOverload) {
+      btn.className = 'text-xs px-3.5 py-1.5 rounded-xl bg-rose-600 text-white font-bold transition flex items-center gap-1.5 shadow-lg shadow-rose-600/30';
+      label.textContent = '顯示全部 22 條走廊';
+    } else {
+      btn.className = 'text-xs px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/40 font-bold transition flex items-center gap-1.5 shadow-sm';
+      label.textContent = '僅顯示 Overloading 走廊';
+    }
+    renderActualCorridorTable(actualOpsCachedData);
+  }
+
+  async function updateActualOperationsView() {
+    const data = await fetchActualOperationsData(currentActualDate, currentActualShift, currentGlobalPlan || 'schedules_plan3');
+    actualOpsCachedData = data;
+    if (!data) return;
+
+    renderActualFleetStrip(data);
+    renderActualKpiStrip(data);
+    renderActualCorridorTable(data);
+  }
+
+  function renderActualFleetStrip(data) {
+    const strip = document.getElementById('actualOpsFleetStrip');
+    const countLabel = document.getElementById('fleetActiveCountLabel');
+    if (!strip) return;
+
+    if (countLabel) {
+      countLabel.textContent = `在勤 ${data.total_active_cars} / 6 部車${data.u_car_active ? ' (含 U 車投入)' : ''}`;
+    }
+
+    const allCars = ['Car_A', 'Car_B', 'Car_C', 'Car_D', 'Car_E', 'Car_U'];
+    strip.innerHTML = allCars.map(cid => {
+      const info = data.car_roster[cid] || { car_name: cid, driver: '未排班', plate: '—', status: '無班次' };
+      const isActive = info.status === '執勤';
+      const isU = cid === 'Car_U';
+
+      let borderCol = isActive ? (isU ? 'border-purple-500/60 bg-purple-950/30' : 'border-emerald-500/40 bg-emerald-950/20') : 'border-slate-800 bg-slate-950/60 opacity-60';
+      let titleCol = isU ? 'text-purple-300' : 'text-white';
+      let statusBadge = isActive
+        ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${isU ? 'bg-purple-500/30 text-purple-200' : 'bg-emerald-500/20 text-emerald-300'}">執勤中</span>`
+        : `<span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">${info.status || '無班次'}</span>`;
+
+      let uBoostHtml = (isU && isActive) ? `<div class="text-[10px] text-purple-300 font-bold mt-1">★ 額外增加 ${data.u_boost_batches} 批運能</div>` : '';
+
+      return `
+        <div class="p-2.5 rounded-xl border ${borderCol} transition-all">
+          <div class="flex items-center justify-between">
+            <span class="font-bold ${titleCol}">${info.car_name || cid}</span>
+            ${statusBadge}
+          </div>
+          <div class="text-[11px] text-slate-300 mt-1 font-medium truncate">${info.driver || '無司機'}</div>
+          <div class="text-[10px] text-slate-400 font-mono">${info.plate || '—'}</div>
+          ${uBoostHtml}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderActualKpiStrip(data) {
+    const strip = document.getElementById('actualOpsKpiStrip');
+    if (!strip) return;
+
+    const isOver = data.overloaded_count > 0;
+    const overCol = isOver ? 'text-rose-400 border-rose-500/40 bg-rose-950/30' : 'text-emerald-400 border-emerald-500/40 bg-emerald-950/30';
+    const overText = isOver ? `${data.overloaded_count} 條走廊超載 (斷料預警)` : '0 條超載 (全網安全)';
+
+    strip.innerHTML = `
+      <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-700/80">
+        <div class="text-[10px] text-slate-400">當日出勤總運能 (Capacity)</div>
+        <div class="text-base font-extrabold text-cyan-300 font-mono mt-0.5">${data.total_capacity.toLocaleString()} 批</div>
+        <div class="text-[10px] text-slate-400 mt-0.5">需求: ${data.total_demand.toLocaleString()} 批 (滿足率 ${(data.total_capacity / (data.total_demand || 1) * 100).toFixed(1)}%)</div>
+      </div>
+      <div class="p-3 rounded-xl bg-slate-900/80 border ${data.u_car_active ? 'border-purple-500/50 bg-purple-950/20' : 'border-slate-700/80'}">
+        <div class="text-[10px] ${data.u_car_active ? 'text-purple-300 font-bold' : 'text-slate-400'}">U 車動態支援產能 (U Boost)</div>
+        <div class="text-base font-extrabold ${data.u_car_active ? 'text-purple-300' : 'text-slate-500'} font-mono mt-0.5">
+          ${data.u_car_active ? `+${data.u_boost_batches} 批` : '0 批 (未出勤)'}
+        </div>
+        <div class="text-[10px] text-slate-400 mt-0.5">${data.u_car_active ? '已疊加至全網走廊' : '處於待命備援'}</div>
+      </div>
+      <div class="p-3 rounded-xl ${overCol} border">
+        <div class="text-[10px] opacity-80">Overloading 走廊警戒</div>
+        <div class="text-base font-extrabold font-mono mt-0.5">${overText}</div>
+        <div class="text-[10px] opacity-80 mt-0.5">最高使用率: ${data.max_utilization}%</div>
+      </div>
+      <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-700/80">
+        <div class="text-[10px] text-slate-400">走廊平均利用率 (Avg Utilization)</div>
+        <div class="text-base font-extrabold text-amber-300 font-mono mt-0.5">${data.avg_utilization}%</div>
+        <div class="text-[10px] text-slate-400 mt-0.5">正常: ${data.normal_count} 條 ｜ 緊繃: ${data.tight_count} 條</div>
+      </div>
+    `;
+  }
+
+  function renderActualCorridorTable(data) {
+    const detailBody = document.getElementById('odSegmentDetailTableBody');
+    if (!detailBody || !data) return;
+
+    let rows = data.corridors;
+    if (filterOnlyOverload) {
+      rows = rows.filter(c => c.is_overloaded);
+    }
+
+    if (rows.length === 0) {
+      detailBody.innerHTML = `
+        <tr>
+          <td colspan="12" class="py-8 text-center text-slate-400 font-sans">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-2xl mb-2"></i>
+            <div>${filterOnlyOverload ? '太棒了！當前班別無任何 Overloading 超載走廊，全網安全運行。' : '無走廊數據'}</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    detailBody.innerHTML = rows.map((c, idx) => {
+      let statusBadge = '';
+      let rowBg = '';
+
+      if (c.status === 'OVERLOADED') {
+        rowBg = 'bg-rose-950/30 hover:bg-rose-900/40 border-l-4 border-l-rose-500';
+        statusBadge = `<span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold border border-rose-500/40">🔴 超載 Overloaded (-${c.shortfall}批)</span>`;
+      } else if (c.status === 'TIGHT') {
+        rowBg = 'bg-amber-950/20 hover:bg-amber-900/30 border-l-4 border-l-amber-500';
+        statusBadge = `<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40">🟡 緊繃 (${c.utilization}%)</span>`;
+      } else {
+        rowBg = 'hover:bg-slate-800/40';
+        statusBadge = `<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">🟢 充裕 (${c.utilization}%)</span>`;
+      }
+
+      let uContribHtml = c.u_contrib > 0
+        ? `<span class="ml-1 px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 text-[10px] font-bold" title="Car U 支援運能">+U ${c.u_contrib}</span>`
+        : '';
+
+      const fulfillVal = c.demand > 0 ? ((c.capacity / c.demand) * 100).toFixed(1) : '100.0';
+
+      return `
+        <tr class="transition-colors ${rowBg}">
+          <td class="py-2.5 px-3 text-center text-slate-500">${idx + 1}</td>
+          <td class="py-2.5 px-3 font-bold text-white whitespace-nowrap">
+            ${c.corridor}
+            ${c.is_overloaded ? '<i class="fa-solid fa-triangle-exclamation text-rose-400 ml-1"></i>' : ''}
+          </td>
+          <td class="py-2.5 px-3 text-center text-amber-300 font-bold">${c.demand} 批</td>
+          <td class="py-2.5 px-3 text-center text-blue-300 font-bold">—</td>
+          <td class="py-2.5 px-3 text-center text-cyan-300 font-bold">
+            ${c.capacity} 批
+            ${uContribHtml}
+          </td>
+          <td class="py-2.5 px-3 text-center">
+            ${statusBadge}
+          </td>
+          <td class="py-2.5 px-3 text-center ${c.capacity >= c.demand ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}">
+            ${fulfillVal}%
+          </td>
+          <td class="py-2.5 px-3 text-center text-slate-400">—</td>
+          <td class="py-2.5 px-3 text-center text-slate-400">—</td>
+          <td class="py-2.5 px-3 text-center text-slate-400">—</td>
+          <td class="py-2.5 px-3 text-center text-slate-400">—</td>
+          <td class="py-2.5 px-3 text-xs text-slate-300">
+            ${c.u_contrib > 0 ? `<span class="text-purple-300 font-bold">Car U 專車投入支援 +${c.u_contrib} 批</span>` : '依實際出勤車輛供給'}
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+</script>
 </body>
 </html>
