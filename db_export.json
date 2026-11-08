@@ -20773,7 +20773,7 @@
   ],
   "audit_reports": {
     "schedules": {
-      "timestamp": "2026-11-08 17:59:02",
+      "timestamp": "2026-11-08 18:27:15",
       "db_path": "logistics.db",
       "table_name": "schedules",
       "plan_label": "原方案 (Baseline 原始基準)",
@@ -22171,7 +22171,7 @@
       }
     },
     "schedules_plan2": {
-      "timestamp": "2026-11-08 17:59:02",
+      "timestamp": "2026-11-08 18:27:15",
       "db_path": "logistics.db",
       "table_name": "schedules_plan2",
       "plan_label": "方案二 (CP-SAT 雙層路網優化)",
@@ -22671,7 +22671,7 @@
       }
     },
     "schedules_plan3": {
-      "timestamp": "2026-11-08 17:59:02",
+      "timestamp": "2026-11-08 18:27:15",
       "db_path": "logistics.db",
       "table_name": "schedules_plan3",
       "plan_label": "方案三 (100% 剛性合規落地版)",
@@ -23130,5 +23130,5 @@
       }
     }
   },
-  "exported_at": "2026-11-08T17:59:02.228604"
+  "exported_at": "2026-11-08T18:27:16.074505"
 }

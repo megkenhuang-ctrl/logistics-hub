@@ -1312,6 +1312,16 @@
         showToast('無法自動複製，請手動複製檔案路徑。', false);
       });
     }
+
+    // Auto-adjust download PPT links for GitHub Pages vs Localhost
+    document.addEventListener('DOMContentLoaded', () => {
+      const isGitHubPages = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+      const pptFilename = '半導體廠區物流排程優化_高階主管報告與演算法規格.pptx';
+      const pptUrl = isGitHubPages ? ('./' + encodeURIComponent(pptFilename)) : '/api/download_ppt';
+      document.querySelectorAll('a[href="/api/download_ppt"]').forEach(a => {
+        a.href = pptUrl;
+      });
+    });
   </script>
 
 </body>
