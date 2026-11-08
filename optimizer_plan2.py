@@ -28,11 +28,11 @@ if hasattr(sys.stdout, 'reconfigure'):
 MIN_TRANSIT = ScheduleValidator.MIN_TRANSIT_MINS
 
 FAB_META = {
-    'FAB8AB': ('8AB', '晶圓 8AB 廠碼頭'),
+    'FAB8AB': ('8AB', '晶圓 8AB 廠大廳'),
     'FAB8CD': ('8CD', '晶圓 8CD 廠碼頭'),
-    'FAB8E':  ('8E',  '晶圓 8E 廠主樞紐'),
-    'FAB8F':  ('8F',  '晶圓 8F 廠核心碼頭'),
-    'FAB8S':  ('8S',  '晶圓 8S 廠碼頭'),
+    'FAB8E':  ('8E',  '晶圓 8E 廠大廳'),
+    'FAB8F':  ('8F',  '晶圓 8F 廠代工碼頭'),
+    'FAB8S':  ('8S',  '晶圓 8S 廠大廳/FAB'),
     '嘉晶創新': ('嘉晶創新', '嘉晶電子創新廠區碼頭'),
     '嘉晶篤行': ('嘉晶篤行', '嘉晶電子篤行廠區碼頭')
 }
