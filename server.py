@@ -6,7 +6,11 @@ import sqlite3
 import os
 import re
 import sys
+import os
 import urllib.parse
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 from datetime import datetime
 from validator import ScheduleValidator, parse_od_pairs
 from actual_operations_engine import evaluate_actual_operations, get_actual_cars, get_actual_schedules, get_actual_fab_analysis

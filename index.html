@@ -183,9 +183,10 @@
           <button id="btnPlan3" onclick="setGlobalPlan('schedules_plan3')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 text-slate-400 hover:text-white">
             <span>🟢 方案三 (100%驗收 ★)</span>
           </button>
-          <button id="btnPlanActual" onclick="setGlobalPlan('actual')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30 font-bold" title="依據司機真實每日出勤計算產能，納入 Car U 並即時預警路線 Overloading">
+          <button id="btnPlanActual" onclick="setGlobalPlan('actual')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30 font-bold" title="依據司機真實每日出勤計算產能，納入 Car U 並即時預警路線 Overloading">
             <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
             <span>🟣 實際營運出勤</span>
+            <span id="topPlanActualDateLabel" class="font-mono text-purple-200 bg-purple-950/70 px-1.5 py-0.5 rounded text-[10px] border border-purple-400/50">11/08 (今日)</span>
           </button>
         </div>
 
@@ -195,15 +196,15 @@
           <span class="hidden md:inline">上傳需求重算</span>
         </button>
 
-        <!-- Shift Selector -->
+        <!-- Shift Selector (預設 24H 全日) -->
         <div class="bg-slate-900/90 border border-slate-700 rounded-lg p-1 flex items-center text-xs font-medium">
-          <button id="btnShiftDay" onclick="setGlobalShift('day')" class="px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-blue-600 text-white shadow">
+          <button id="btnShiftDay" onclick="setGlobalShift('day')" class="px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
             <span>☀️</span><span>日班 (07:35~19:35)</span>
           </button>
           <button id="btnShiftNight" onclick="setGlobalShift('night')" class="px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
             <span>🌙</span><span>夜班 (19:35~07:35)</span>
           </button>
-          <button id="btnShiftAll" onclick="setGlobalShift('all')" class="px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+          <button id="btnShiftAll" onclick="setGlobalShift('all')" class="px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-indigo-600 text-white shadow font-bold">
             <span>🕒</span><span>24H 全日</span>
           </button>
         </div>
@@ -271,25 +272,15 @@
       </a>
     </div>
   </header>
-  <!-- Top Global Actual Operations Bar (切換為「實際營運出勤」時於最上層浮現) -->
+  <!-- Top Global Actual Operations Bar (切換為「實際營運出勤」時於最上層浮現，自動綁定今日) -->
   <div id="topActualOpsBar" class="bg-slate-900 border-b border-purple-500/40 px-4 lg:px-8 py-2.5 shadow-xl transition-all">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
       <div class="flex flex-wrap items-center gap-3">
-        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-200 border border-purple-500/40 font-bold">
+        <div class="flex items-center gap-2 px-3 py-1 rounded-lg bg-purple-500/20 text-purple-200 border border-purple-500/40 font-bold">
           <i class="fa-solid fa-truck-fast text-purple-400"></i>
-          <span>實際出勤模式</span>
-        </div>
-        <!-- Date Selector -->
-        <div class="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
-          <span class="text-slate-400 font-medium">營運日期:</span>
-          <input type="date" id="topActualDateInput" min="2026-11-01" max="2026-11-30" value="2026-11-08" onchange="onTopActualDateChange(this.value)" class="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-white font-mono focus:border-purple-500 focus:outline-none text-xs">
-        </div>
-        <!-- Quick Dates -->
-        <div class="hidden sm:flex items-center gap-1 text-[11px]">
-          <span class="text-slate-500">快選:</span>
-          <button onclick="setTopActualDateQuick('2026-11-01')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">11/01 (夜班U車)</button>
-          <button onclick="setTopActualDateQuick('2026-11-02')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">11/02</button>
-          <button onclick="setTopActualDateQuick('2026-11-08')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">今日 (11/08)</button>
+          <span>實際營運出勤看板</span>
+          <span class="text-slate-500">|</span>
+          <span class="font-mono text-purple-300 font-semibold" id="topActualBarDateBadge">2026-11-08 (今日)</span>
         </div>
       </div>
 
@@ -903,27 +894,18 @@
         <div id="actualOpsControls" class="hidden space-y-3.5 pt-1">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex flex-wrap items-center gap-3">
-              <!-- Date Picker -->
-              <div class="flex items-center gap-2 text-xs bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
-                <span class="text-slate-400 font-semibold flex items-center gap-1.5">
-                  <i class="fa-regular fa-calendar text-indigo-400"></i> 營運日期:
-                </span>
-                <input type="date" id="actualOpsDateInput" min="2026-11-01" max="2026-11-30" value="2026-11-08" onchange="onActualOpsDateChange(this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono focus:border-indigo-500 focus:outline-none">
+              <!-- Fixed Today Badge -->
+              <div class="flex items-center gap-2 text-xs bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-purple-200">
+                <i class="fa-regular fa-calendar-check text-purple-400"></i>
+                <span class="text-slate-400">營運基準:</span>
+                <span class="font-mono font-bold text-white" id="tab4ActualDateBadge">2026-11-08 (今日)</span>
               </div>
 
-              <!-- Shift Selector -->
+              <!-- Shift Selector (Default: 24H) -->
               <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
                 <button id="btnActShiftAll" onclick="setActualOpsShift('all')" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold transition">全日 24H</button>
                 <button id="btnActShiftDay" onclick="setActualOpsShift('day')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition">☀️ 日班 (Day)</button>
                 <button id="btnActShiftNight" onclick="setActualOpsShift('night')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition">🌙 夜班 (Night)</button>
-              </div>
-
-              <!-- Quick Date Tags -->
-              <div class="hidden sm:flex items-center gap-1.5 text-[11px]">
-                <span class="text-slate-500">快選:</span>
-                <button onclick="setActualOpsDateQuick('2026-11-01')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">11/01 (夜班U車)</button>
-                <button onclick="setActualOpsDateQuick('2026-11-05')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">11/05</button>
-                <button onclick="setActualOpsDateQuick('2026-11-15')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono transition">11/15</button>
               </div>
             </div>
 
@@ -2139,8 +2121,20 @@
       if (s >= '2026-11-01' && s <= '2026-11-30') return s;
       return '2026-11-08';
     })();
+    
+    function syncAllActualDateLabels() {
+      const labelStr = (typeof TODAY_ACTUAL_DATE !== 'undefined') ? TODAY_ACTUAL_DATE : '2026-11-08';
+      const shortStr = labelStr.slice(5).replace('-', '/') + ' (今日)';
+      const pLabel = document.getElementById('topPlanActualDateLabel');
+      if (pLabel) pLabel.innerText = shortStr;
+      const bBadge = document.getElementById('topActualBarDateBadge');
+      if (bBadge) bBadge.innerText = `${labelStr} (今日)`;
+      const t4Badge = document.getElementById('tab4ActualDateBadge');
+      if (t4Badge) t4Badge.innerText = `${labelStr} (今日)`;
+    }
+
     let currentTab = 'tab-cars';
-    let currentShift = 'day'; // 'day', 'night', 'all'
+    let currentShift = 'all'; // 'day', 'night', 'all'
     let currentPlanTable = 'actual'; // 預設實際營運出勤模式 (動態綁定司機真實出勤與U車)
     let selectedCar = 'Car_B';
     let selectedFab = 'FAB8F';
@@ -2441,6 +2435,8 @@
       checkAuthStatus();
       startLiveClock();
       await checkServerConnection();
+      syncAllActualDateLabels();
+      setGlobalShift('all');
       setGlobalPlan('actual');
     });
 
@@ -6162,17 +6158,9 @@
     updateActualOperationsView();
   }
 
-  function onActualOpsDateChange(newDate) {
-    currentActualDate = newDate;
-    updateActualOperationsView();
-  }
+  function onActualOpsDateChange(newDate) {}
 
-  function setActualOpsDateQuick(quickDate) {
-    currentActualDate = quickDate;
-    const inp = document.getElementById('actualOpsDateInput');
-    if (inp) inp.value = quickDate;
-    updateActualOperationsView();
-  }
+  function setActualOpsDateQuick(quickDate) {}
 
   function toggleOnlyOverloadFilter() {
     filterOnlyOverload = !filterOnlyOverload;
@@ -6344,21 +6332,9 @@
 </script>
 <script>
   // Top Global Actual Operations Helpers
-  function onTopActualDateChange(newDate) {
-    currentActualDate = newDate;
-    const inp = document.getElementById('actualOpsDateInput');
-    if (inp) inp.value = newDate;
-    refreshAllForActualOps();
-  }
+  function onTopActualDateChange(newDate) {}
 
-  function setTopActualDateQuick(quickDate) {
-    currentActualDate = quickDate;
-    const topInp = document.getElementById('topActualDateInput');
-    if (topInp) topInp.value = quickDate;
-    const mainInp = document.getElementById('actualOpsDateInput');
-    if (mainInp) mainInp.value = quickDate;
-    refreshAllForActualOps();
-  }
+  function setTopActualDateQuick(quickDate) {}
 
   async function updateTopActualOpsBar() {
     const shift = (typeof currentShift !== 'undefined') ? currentShift : 'all';
