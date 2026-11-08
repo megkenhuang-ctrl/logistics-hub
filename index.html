@@ -3231,15 +3231,16 @@
     function normalizeDestFab(v) {
       const raw = (v.dest_fab || '').trim();
       const od = (v.od_flow || '').trim();
-      if (raw.startsWith('8F')) return { key: 'FAB8F', short: '8F', label: '➔ FAB8F', badgeColor: 'text-amber-300 border-amber-500/40 bg-amber-500/10' };
-      if (raw.startsWith('8CD')) return { key: 'FAB8CD', short: 'CD', label: '➔ FAB8CD', badgeColor: 'text-emerald-300 border-emerald-500/40 bg-emerald-500/10' };
-      if (raw.startsWith('8AB')) return { key: 'FAB8AB', short: 'AB', label: '➔ FAB8AB', badgeColor: 'text-blue-300 border-blue-500/40 bg-blue-500/10' };
-      if (raw.startsWith('8E')) return { key: 'FAB8E', short: '8E', label: '➔ FAB8E', badgeColor: 'text-purple-300 border-purple-500/40 bg-purple-500/10' };
-      if (raw.startsWith('8S')) return { key: 'FAB8S', short: '8S', label: '➔ FAB8S', badgeColor: 'text-red-300 border-red-500/40 bg-red-500/10' };
-      if (raw.includes('篤行')) return { key: '嘉晶篤行', short: '篤行', label: '➔ 嘉晶篤行', badgeColor: 'text-cyan-300 border-cyan-500/40 bg-cyan-500/10' };
-      if (raw.includes('創新')) return { key: '嘉晶創新', short: '創新', label: '➔ 嘉晶創新', badgeColor: 'text-teal-300 border-teal-500/40 bg-teal-500/10' };
-      if (od.includes('清空') || od.includes('卸')) return { key: 'UNLOAD', short: '卸清', label: '終點全卸清空', badgeColor: 'text-slate-300 border-slate-600 bg-slate-800' };
-      return { key: 'OTHER', short: raw || '—', label: raw ? `➔ ${raw}` : '終點卸清', badgeColor: 'text-slate-300 border-slate-600 bg-slate-800' };
+      const clean = raw.replace(/^FAB/, '');
+      if (clean.startsWith('8F')) return { key: 'FAB8F', short: '8F', label: '➔ FAB8F', badgeColor: 'text-amber-300 border-amber-500/40 bg-amber-500/10' };
+      if (clean.startsWith('8CD')) return { key: 'FAB8CD', short: 'CD', label: '➔ FAB8CD', badgeColor: 'text-emerald-300 border-emerald-500/40 bg-emerald-500/10' };
+      if (clean.startsWith('8AB')) return { key: 'FAB8AB', short: 'AB', label: '➔ FAB8AB', badgeColor: 'text-blue-300 border-blue-500/40 bg-blue-500/10' };
+      if (clean.startsWith('8E')) return { key: 'FAB8E', short: '8E', label: '➔ FAB8E', badgeColor: 'text-purple-300 border-purple-500/40 bg-purple-500/10' };
+      if (clean.startsWith('8S')) return { key: 'FAB8S', short: '8S', label: '➔ FAB8S', badgeColor: 'text-red-300 border-red-500/40 bg-red-500/10' };
+      if (raw.includes('篤行') || clean.includes('篤行')) return { key: '嘉晶篤行', short: '篤行', label: '➔ 嘉晶篤行', badgeColor: 'text-cyan-300 border-cyan-500/40 bg-cyan-500/10' };
+      if (raw.includes('創新') || clean.includes('創新')) return { key: '嘉晶創新', short: '創新', label: '➔ 嘉晶創新', badgeColor: 'text-teal-300 border-teal-500/40 bg-teal-500/10' };
+      if (od.includes('清空') || od.includes('卸') || raw.includes('HUB') || raw.includes('回廠')) return { key: 'UNLOAD', short: '卸清', label: '終點全卸清空', badgeColor: 'text-slate-300 border-slate-600 bg-slate-800' };
+      return { key: 'OTHER', short: clean || '—', label: raw ? `➔ ${raw}` : '終點卸清', badgeColor: 'text-slate-300 border-slate-600 bg-slate-800' };
     }
 
     function getCarStyle(carName) {
@@ -3463,7 +3464,12 @@
       const data = await fetchFabAnalysis(selectedFab, currentShift);
       if (!data) return;
 
-      const matching = data.visits.filter(v => v.dest_fab && v.dest_fab.includes(dest));
+      const shortDest = dest.replace('FAB', '');
+      const matching = data.visits.filter(v => {
+        if (!v.dest_fab) return false;
+        if (dest === '嘉晶外廠') return v.dest_fab.includes('嘉晶') || v.dest_fab.includes('篤行') || v.dest_fab.includes('創新');
+        return v.dest_fab.includes(dest) || v.dest_fab.includes(shortDest);
+      });
       if (matching.length === 0) {
         resContainer.innerHTML = `<div class="col-span-3 text-center text-xs text-slate-400 py-3 bg-slate-900/60 rounded-xl border border-slate-800">當前時段暫無直達 ${dest} 的專車或環廠班次（可透過母港轉運）。</div>`;
         return;
