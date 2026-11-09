@@ -192,7 +192,7 @@
             </button>
             <div class="flex items-center gap-1 px-1.5">
               <input type="date" id="topOpsDateInput" min="2026-11-01" max="2026-11-30" value="2026-11-09" onchange="changeGlobalOpsDate(this.value)" class="bg-purple-900/60 hover:bg-purple-900 text-purple-100 border border-purple-400/50 hover:border-purple-300 rounded px-1.5 py-0.5 text-xs font-mono font-bold outline-none cursor-pointer" title="自由選擇出勤營運日期 (2026-11-01 ~ 2026-11-30)">
-              <span id="topOpsTodayBadge" class="font-mono text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded text-[10px] border border-amber-500/40 font-bold whitespace-nowrap">今日</span>
+              <span id="topOpsTodayBadge" onclick="changeGlobalOpsDate(TODAY_ACTUAL_DATE)" class="font-mono text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded text-[10px] border border-amber-500/40 font-bold whitespace-nowrap cursor-pointer hover:bg-amber-900 transition-all" title="點擊快速切換為今日 (2026-11-09)">今日</span>
             </div>
           </div>
         </div>
@@ -2171,9 +2171,31 @@
       if (currentPlanTable !== 'actual') {
         setGlobalPlan('actual');
       } else {
+        // Dynamically evaluate Car U visibility for the newly selected date
+        if (typeof timelineCarFilters !== 'undefined') {
+          const uActive = (fallbackData && fallbackData.driver_roster)
+            ? fallbackData.driver_roster.some(r => r.date === newDate && r.car_id === 'Car_U' && r.status === '執勤')
+            : true;
+          timelineCarFilters['Car U'] = uActive;
+        }
+
         updateTopActualOpsBar();
-        if (typeof renderActualOperationsView === 'function') {
-          renderActualOperationsView();
+        if (typeof updateActualOperationsView === 'function') {
+          updateActualOperationsView();
+        }
+
+        // 核心更新：觸發 Tab 2 (廠區時刻表 & 24H 泳道圖)、Tab 3 (車班時間)、Tab 5 (統計與矩陣) 依新日期重繪
+        if (typeof renderFabAnalysis === 'function') {
+          renderFabAnalysis();
+        }
+        if (typeof renderCarSchedules === 'function') {
+          renderCarSchedules();
+        }
+        if (typeof renderSummaryReport === 'function') {
+          renderSummaryReport();
+        }
+        if (typeof renderODMatrix === 'function') {
+          renderODMatrix();
         }
       }
 
@@ -4872,10 +4894,7 @@
     }
 
     function onRosterDateChange(newDate) {
-      currentRosterDate = newDate;
-      const mainDate = document.getElementById('rosterMainDate');
-      if (mainDate) mainDate.value = newDate;
-      updateTab1DriverWidget();
+      changeGlobalOpsDate(newDate);
     }
 
     async function fetchRosterData(date, shift, carId) {
@@ -6457,9 +6476,13 @@
     updateActualOperationsView();
   }
 
-  function onActualOpsDateChange(newDate) {}
+  function onActualOpsDateChange(newDate) {
+    changeGlobalOpsDate(newDate);
+  }
 
-  function setActualOpsDateQuick(quickDate) {}
+  function setActualOpsDateQuick(quickDate) {
+    changeGlobalOpsDate(quickDate);
+  }
 
   function toggleOnlyOverloadFilter() {
     filterOnlyOverload = !filterOnlyOverload;
@@ -6631,9 +6654,11 @@
 </script>
 <script>
   // Top Global Actual Operations Helpers
-  function onTopActualDateChange(newDate) {}
+  function onTopActualDateChange(newDate) { changeGlobalOpsDate(newDate); }
 
-  function setTopActualDateQuick(quickDate) {}
+  function setTopActualDateQuick(quickDate) {
+    changeGlobalOpsDate(quickDate);
+  }
 
   async function updateTopActualOpsBar() {
     const shift = (typeof currentShift !== 'undefined') ? currentShift : 'all';
