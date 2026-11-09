@@ -3,7 +3,7 @@
     {
       "id": "Car_A",
       "name": "Car A",
-      "title": "外廠門戶與全廠巡迴旗艦",
+      "title": "外廠門戶與全廠巡迴",
       "hub": "FAB8E 1F 大廳",
       "phone": "8644824（0960-717239）",
       "shift_target_cap": "640 批",
@@ -20771,9 +20771,181 @@
       "confidence": 1.0
     }
   ],
+  "driver_stats": [
+    {
+      "driver": "何學禮",
+      "type": "UM",
+      "total": 7,
+      "day": 0,
+      "night": 7,
+      "cars": "Car U(7)",
+      "top_car": "Car U",
+      "hours": 84
+    },
+    {
+      "driver": "何峻哲",
+      "type": "聯倉",
+      "total": 15,
+      "day": 15,
+      "night": 0,
+      "cars": "Car C(15)",
+      "top_car": "Car C",
+      "hours": 180
+    },
+    {
+      "driver": "吳忠信",
+      "type": "UM",
+      "total": 12,
+      "day": 12,
+      "night": 0,
+      "cars": "Car U(12)",
+      "top_car": "Car U",
+      "hours": 144
+    },
+    {
+      "driver": "張立辰",
+      "type": "聯倉",
+      "total": 18,
+      "day": 18,
+      "night": 0,
+      "cars": "Car E(14), Car D(2), Car B(1), Car A(1)",
+      "top_car": "Car E",
+      "hours": 216
+    },
+    {
+      "driver": "李本彬",
+      "type": "聯倉",
+      "total": 16,
+      "day": 16,
+      "night": 0,
+      "cars": "Car C(15), Car B(1)",
+      "top_car": "Car C",
+      "hours": 192
+    },
+    {
+      "driver": "李煒",
+      "type": "聯倉",
+      "total": 18,
+      "day": 18,
+      "night": 0,
+      "cars": "Car D(18)",
+      "top_car": "Car D",
+      "hours": 216
+    },
+    {
+      "driver": "洪志成",
+      "type": "UM",
+      "total": 19,
+      "day": 0,
+      "night": 19,
+      "cars": "Car U(19)",
+      "top_car": "Car U",
+      "hours": 228
+    },
+    {
+      "driver": "王顥鈞",
+      "type": "聯倉",
+      "total": 22,
+      "day": 0,
+      "night": 22,
+      "cars": "Car A(22)",
+      "top_car": "Car A",
+      "hours": 264
+    },
+    {
+      "driver": "葉天誠",
+      "type": "聯倉",
+      "total": 20,
+      "day": 0,
+      "night": 20,
+      "cars": "Car D(19), Car A(1)",
+      "top_car": "Car D",
+      "hours": 240
+    },
+    {
+      "driver": "詹桂榮",
+      "type": "聯倉",
+      "total": 20,
+      "day": 20,
+      "night": 0,
+      "cars": "Car A(20)",
+      "top_car": "Car A",
+      "hours": 240
+    },
+    {
+      "driver": "謝芳羽",
+      "type": "聯倉",
+      "total": 24,
+      "day": 24,
+      "night": 0,
+      "cars": "Car D(10), Car A(9), Car B(4), Car E(1)",
+      "top_car": "Car D",
+      "hours": 288
+    },
+    {
+      "driver": "陳俊宏",
+      "type": "UM",
+      "total": 4,
+      "day": 0,
+      "night": 4,
+      "cars": "Car U(4)",
+      "top_car": "Car U",
+      "hours": 48
+    },
+    {
+      "driver": "陳盈忠",
+      "type": "聯倉",
+      "total": 22,
+      "day": 0,
+      "night": 22,
+      "cars": "Car B(22)",
+      "top_car": "Car B",
+      "hours": 264
+    },
+    {
+      "driver": "陳紹群",
+      "type": "聯倉",
+      "total": 24,
+      "day": 24,
+      "night": 0,
+      "cars": "Car B(24)",
+      "top_car": "Car B",
+      "hours": 288
+    },
+    {
+      "driver": "陳紹豐",
+      "type": "聯倉",
+      "total": 20,
+      "day": 0,
+      "night": 20,
+      "cars": "Car C(20)",
+      "top_car": "Car C",
+      "hours": 240
+    },
+    {
+      "driver": "黃浩銓",
+      "type": "聯倉",
+      "total": 18,
+      "day": 0,
+      "night": 18,
+      "cars": "Car D(6), Car B(6), Car A(3), Car C(3)",
+      "top_car": "Car D",
+      "hours": 216
+    },
+    {
+      "driver": "黃煜程",
+      "type": "聯倉",
+      "total": 16,
+      "day": 0,
+      "night": 16,
+      "cars": "Car C(7), Car A(4), Car D(3), Car B(2)",
+      "top_car": "Car C",
+      "hours": 192
+    }
+  ],
   "audit_reports": {
     "schedules": {
-      "timestamp": "2026-11-09 00:00:15",
+      "timestamp": "2026-11-09 10:19:28",
       "db_path": "logistics.db",
       "table_name": "schedules",
       "plan_label": "原方案 (Baseline 原始基準)",
@@ -22163,7 +22335,7 @@
       }
     },
     "schedules_plan2": {
-      "timestamp": "2026-11-09 00:00:15",
+      "timestamp": "2026-11-09 10:19:28",
       "db_path": "logistics.db",
       "table_name": "schedules_plan2",
       "plan_label": "方案二 (CP-SAT 雙層路網優化)",
@@ -22654,7 +22826,7 @@
       }
     },
     "schedules_plan3": {
-      "timestamp": "2026-11-09 00:00:15",
+      "timestamp": "2026-11-09 10:19:28",
       "db_path": "logistics.db",
       "table_name": "schedules_plan3",
       "plan_label": "方案三 (100% 剛性合規落地版)",
@@ -23104,5 +23276,5 @@
       }
     }
   },
-  "exported_at": "2026-11-09T00:00:15.843370"
+  "exported_at": "2026-11-09T10:19:29.019990"
 }

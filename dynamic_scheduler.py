@@ -22,6 +22,7 @@ import math
 import re
 import sqlite3
 from datetime import datetime
+from collections import Counter
 
 from optimizer_plan2 import build_plan_rows, save_to_database
 from validator import ScheduleValidator
@@ -71,6 +72,22 @@ def sync_db_exports(db_path=DB_PATH):
         'schedules_plan3': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan3 WHERE car_id != 'Car_U'").fetchall()],
         'demand_matrix': [dict(r) for r in conn.execute('SELECT * FROM demand_matrix ORDER BY demand_batches DESC').fetchall()],
         'driver_roster': [dict(r) for r in conn.execute('SELECT * FROM driver_roster').fetchall()],
+        'driver_stats': [
+            {
+                'driver': d,
+                'type': shifts[0]['driver_type'],
+                'total': len(shifts),
+                'day': sum(1 for s in shifts if s['shift'] == 'Day'),
+                'night': sum(1 for s in shifts if s['shift'] == 'Night'),
+                'cars': ', '.join(f"{c}({cnt})" for c, cnt in Counter(s['car_name'] for s in shifts).most_common()),
+                'top_car': Counter(s['car_name'] for s in shifts).most_common(1)[0][0] if shifts else '',
+                'hours': len(shifts) * 12
+            }
+            for d, shifts in [
+                (d, [s for s in [dict(r) for r in conn.execute("SELECT * FROM driver_roster WHERE status = '執勤'").fetchall()] if s['driver'] == d])
+                for d in sorted(set(r['driver'] for r in conn.execute("SELECT DISTINCT driver FROM driver_roster WHERE status = '執勤' AND driver != ''").fetchall()))
+            ]
+        ],
         'audit_reports': {
             'schedules': rep_base,
             'schedules_plan2': rep_p2,

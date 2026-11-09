@@ -15,7 +15,7 @@
   <!-- KaTeX for Math Formulas -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}, {left: '\(', right: '\)', display: false}, {left: '\[', right: '\]', display: true}], throwOnError: false});"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
     body {
@@ -43,6 +43,8 @@
       background-color: #fee2e2;
       color: #b91c1c;
       border: 1px solid #fca5a5;
+      white-space: nowrap;
+      display: inline-block;
     }
     .badge-mode-loop {
       background-color: #dbeafe;
@@ -183,11 +185,16 @@
           <button id="btnPlan3" onclick="setGlobalPlan('schedules_plan3')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 text-slate-400 hover:text-white">
             <span>🟢 方案三 (100%驗收 ★)</span>
           </button>
-          <button id="btnPlanActual" onclick="setGlobalPlan('actual')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30 font-bold" title="依據司機真實每日出勤計算產能，納入 Car U 並即時預警路線 Overloading">
-            <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-            <span>🟣 實際營運出勤</span>
-            <span id="topPlanActualDateLabel" class="font-mono text-purple-200 bg-purple-950/70 px-1.5 py-0.5 rounded text-[10px] border border-purple-400/50">11/08 (今日)</span>
-          </button>
+          <div id="wrapperPlanActual" class="inline-flex items-center rounded-lg p-0.5 transition-all bg-gradient-to-r from-purple-950/90 to-indigo-950/90 border border-purple-500/60 shadow-md">
+            <button id="btnPlanActual" onclick="setGlobalPlan('actual')" class="px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs shadow-md shadow-purple-600/30" title="依據司機真實每日出勤計算產能，納入 Car U 並即時預警路線 Overloading">
+              <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+              <span>🟣 實際營運出勤</span>
+            </button>
+            <div class="flex items-center gap-1 px-1.5">
+              <input type="date" id="topOpsDateInput" min="2026-11-01" max="2026-11-30" value="2026-11-09" onchange="changeGlobalOpsDate(this.value)" class="bg-purple-900/60 hover:bg-purple-900 text-purple-100 border border-purple-400/50 hover:border-purple-300 rounded px-1.5 py-0.5 text-xs font-mono font-bold outline-none cursor-pointer" title="自由選擇出勤營運日期 (2026-11-01 ~ 2026-11-30)">
+              <span id="topOpsTodayBadge" class="font-mono text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded text-[10px] border border-amber-500/40 font-bold whitespace-nowrap">今日</span>
+            </div>
+          </div>
         </div>
 
                 <!-- Demand Upload Recompute Quick Button -->
@@ -673,7 +680,7 @@
                 <th class="py-3 px-4 font-mono text-center">發車時刻 (Departure)</th>
                 <th class="py-3 px-3 text-center">車次編號</th>
                 <th class="py-3 px-3 text-center">前班等候間隔 (班距)</th>
-                <th class="py-3 px-3 text-center">作業型態</th>
+                <th class="py-3 px-3 text-center whitespace-nowrap min-w-[85px]">作業型態</th>
                 <th class="py-3 px-4 text-center">目標目的地 (Destination)</th>
                 <th class="py-3 px-3 text-center">預估行車</th>
                 <th class="py-3 px-3 text-center">承載運能</th>
@@ -982,7 +989,7 @@
               </div>
               <p class="text-xs text-slate-300 leading-relaxed">
                 設該段 OD 需求量為 <code class="text-amber-300 font-mono">D</code>（批）、排程載運量為 <code class="text-cyan-300 font-mono">C</code>（批）：<br>
-                • <strong class="text-white">OD 使用率 (ρ) = 需求量 D ÷ 載運量 C × 100% ≤ 85.0%（硬性條件 4）</strong>：代表該走廊車廂儲位被實際需求填滿之比例（<span class="text-emerald-400">≤85.0% 符合硬性條件4</span>、<span class="text-rose-400">&gt;85.0% 違反硬性條件4超標</span>）。方案二與方案三全數 22 條走廊均壓制於 <b>53.1%~84.7%</b>（平均 76.7%）。<br>
+                • <strong class="text-white">OD 使用率 (ρ) = 需求量 D ÷ 載運量 C × 100% ≤ 85.0%（硬性條件 4）</strong>：代表該走廊車廂儲位被實際需求填滿之比例（<span class="text-emerald-400">≤85.0% 符合硬性條件4</span>、<span class="text-rose-400">&gt;85.0% 違反硬性條件4超標</span>）。<br><span class="text-amber-300 font-semibold">【理論來源：金曼排隊公式 Kingman's Equation】</span>源自工廠物理學排隊論，證明當利用率 ρ &gt; 85% 時，非線性項 \( \frac{\rho}{1-\rho} \) 將進入「曲棍球桿效應（Hockey-Stick）」急遽暴增區間；嚴格鎖定 ρ ≤ 85% 留存 ≥15% 安全抗震裕度，防止晶圓走廊排隊雪崩滯留。方案二與方案三 22 條走廊全數壓制於 <b>53.1%~84.7%</b>（平均 76.7%）。<br>
                 • <strong class="text-white">OD 滿足率 = 載運量 C ÷ 需求量 D × 100%</strong>（使用率之倒數）。
               </p>
             </div>
@@ -1078,7 +1085,7 @@
           <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80 space-y-2">
             <strong class="text-cyan-300 block font-semibold">1.2 多廠區動線與垂直高度差異</strong>
             <p class="text-slate-400 leading-relaxed">
-              各廠作業型態各異：FAB8CD 裝卸碼頭位於 3F（需搭乘大型貨梯換車作業，停留長達 25 分鐘）；FAB8AB 與 8E 為 1F 平面大廳；FAB8S5A 為深層倉庫；嘉晶外廠則跨越園區道路（單趟車程 15 分鐘），具有嚴格的時間與空間約束。
+              各廠作業型態各異：FAB8CD/ 8F 裝卸碼頭位於 3F（司機需搭乘貨梯換推車作業，耗時 25 分鐘）；FAB8AB 與 8E 為 1F 平面大廳；FAB8S 為 1F 大廳；嘉晶外廠則跨越園區道路（單趟車程 15 分鐘），具有嚴格的時間與空間約束。
             </p>
           </div>
           <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/80 space-y-2">
@@ -1104,7 +1111,7 @@
             <strong class="text-blue-400 font-bold block text-sm">Car A (外廠與巡迴)</strong>
             <span class="text-slate-400 text-[11px] block mt-1">母站: 8E 1F大廳</span>
             <span class="text-amber-400 font-mono text-[11px] block">運能: 360 批 (19趟)</span>
-            <p class="text-slate-400 text-[11px] mt-2">外廠門戶旗艦，獨家專營嘉晶外廠（篤行/創新）對開。</p>
+            <p class="text-slate-400 text-[11px] mt-2">外廠門戶，獨家專營嘉晶外廠（篤行/創新）對開。</p>
           </div>
           <div class="bg-slate-900/80 p-3.5 rounded-xl border border-amber-500/30">
             <strong class="text-amber-400 font-bold block text-sm">Car B (代工主動脈)</strong>
@@ -1145,7 +1152,7 @@
                 <div>• FAB8CD: 24.7713, 121.0209</div>
                 <div>• FAB8E: 24.7670, 121.0259</div>
                 <div>• FAB8F: 24.7726, 121.0146</div>
-                <div>• FAB8S: 24.7754, 120.9938</div>
+                <div>• FAB8S: 24.7754, 120.9938 (1F 大廳)</div>
                 <div class="text-teal-300">• 嘉晶創新: 24.7737, 121.0010</div>
                 <div class="text-teal-300 col-span-2">• 嘉晶篤行: 24.7729, 121.0237</div>
               </div>
@@ -1214,7 +1221,7 @@
           <div class="bg-slate-900/90 p-5 rounded-xl border border-slate-700 space-y-2">
             <strong class="text-cyan-400 font-bold block text-sm">4.1 班距 (Headway) 與 平均班距計算</strong>
             <p class="text-slate-400 leading-relaxed">
-              設廠區 $f$ 在指定時段共有 $N$ 班車依序抵達時刻為 $t_1, t_2, \dots, t_N$（單位為分鐘），相鄰班距定義為：
+              設廠區 <span class="font-mono text-cyan-300 font-bold italic text-sm">f</span> 在指定時段共有 <span class="font-mono text-cyan-300 font-bold italic text-sm">N</span> 班車依序抵達時刻為 <span class="font-mono text-cyan-300 font-bold italic text-sm">t<sub>1</sub>, t<sub>2</sub>, …, t<sub>N</sub></span>（單位為分鐘），相鄰班距定義為：
             </p>
             <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-center font-mono text-cyan-300 my-1">
               \( H_i = t_i - t_{i-1}, \quad \forall i \in \{2, \dots, N\} \)
@@ -1274,11 +1281,14 @@
               \( \text{Fulfillment}(o, d) = \frac{\text{Cap}(o, d)}{\text{Demand}(o, d)} \times 100\% \)
             </div>
             <p class="text-slate-400 leading-relaxed mt-1">
-              硬約束利用率公式（利用率 $\le 85.0\%$）：
+              硬約束利用率公式（利用率 $\le 85.0\%$，<strong>理論源自金曼公式 Kingman's Equation</strong>）：
             </p>
             <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 text-center font-mono text-emerald-400 my-1">
               \( \text{Utilization}(o, d) = \frac{\text{Demand}(o, d)}{\text{Cap}(o, d)} \times 100\% \le 85.0\% \)
             </div>
+            <p class="text-[11px] text-amber-300/90 leading-relaxed">
+              依據排隊論金曼公式 \( E[W_q] \approx \frac{c_a^2+c_s^2}{2} \cdot \frac{\rho}{1-\rho} \cdot t_e \)，當 \( \rho > 85\% \) 時排隊時間將呈曲棍球桿指數級暴增；故將 \( \rho \le 85\% \) 確立為系統硬約束，保留 \( \ge 15\% \) 抗震裕度。
+            </p>
           </div>
 
         </div>
@@ -1339,20 +1349,14 @@
           </div>
         </div>
 
-        <!-- Date & Shift Filter Row -->
+        <!-- Shift Filter & Synchronized Date Display (無須重複選擇日期) -->
         <div class="pt-4 border-t border-slate-700/60 flex flex-wrap items-center justify-between gap-4">
           <div class="flex flex-wrap items-center gap-3">
-            <div class="flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-xl p-1">
-              <button onclick="stepRosterDate(-1)" class="px-2.5 py-1.5 hover:bg-slate-800 text-slate-300 rounded text-xs transition" title="前一天">
-                <i class="fa-solid fa-chevron-left"></i>
-              </button>
-              <input type="date" id="rosterMainDate" value="2026-11-08" min="2026-11-01" max="2026-11-30" onchange="renderDriverRosterView()" class="bg-transparent text-white font-mono text-xs px-2 py-1 outline-none font-bold">
-              <button onclick="stepRosterDate(1)" class="px-2.5 py-1.5 hover:bg-slate-800 text-slate-300 rounded text-xs transition" title="後一天">
-                <i class="fa-solid fa-chevron-right"></i>
-              </button>
-              <button onclick="setRosterDateToday()" class="px-2.5 py-1 text-[11px] bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded transition ml-1">
-                首日 (11/01)
-              </button>
+            <input type="hidden" id="rosterMainDate" value="2026-11-09">
+            <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-1.5 text-xs">
+              <span class="text-slate-400"><i class="fa-solid fa-calendar-day text-amber-400 mr-1"></i>排班執勤日期：</span>
+              <span id="tab4ActiveDateDisplay" class="font-bold text-amber-400 font-mono text-sm">2026-11-09 (週一)</span>
+              <span class="text-[10px] text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded border border-purple-500/40 font-semibold">聯動頂端營運日期</span>
             </div>
 
             <div class="flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-xl p-1 text-xs">
@@ -1363,9 +1367,8 @@
           </div>
 
           <div class="flex items-center gap-2 text-xs text-slate-400 font-mono">
-            <span id="rosterDateLabel" class="text-amber-400 font-bold text-sm">2026-11-08 (週日)</span>
-            <span class="text-slate-600">|</span>
-            <span id="rosterShiftSummaryBadge" class="bg-slate-900 px-2.5 py-1 rounded border border-slate-700 text-slate-300">執勤車輛：5 輛</span>
+            <span id="rosterDateLabel" class="text-amber-400 font-bold text-sm hidden">2026-11-09</span>
+            <span id="rosterShiftSummaryBadge" class="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 font-bold">執勤車輛：5 輛</span>
           </div>
         </div>
       </div>
@@ -1622,9 +1625,7 @@
                 </h3>
                 <p class="text-xs text-slate-400 mt-0.5">按日需求量降序排列，提供走廊專車配額決策依據</p>
               </div>
-              <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                Top 4 走廊佔 56.1%
-              </span>
+              <span id="top4CorridorPctBadge" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">Top 4 走廊佔 48.4%</span>
             </div>
 
             <!-- Corridor List Table -->
@@ -1866,6 +1867,18 @@
           });
           corridors.sort((a, b) => (b.batches || b.demand_24h || 0) - (a.batches || a.demand_24h || 0));
           RAW_DEMAND_DATA.corridors = corridors;
+        }
+
+        // 動態計算 Top 4 走廊佔比 (每次依真實數據精準重算)
+        let top4Sum = 0;
+        for (let i = 0; i < Math.min(4, corridors.length); i++) {
+          const b = corridors[i].batches !== undefined ? corridors[i].batches : (corridors[i].demand_24h || 0);
+          top4Sum += b;
+        }
+        const top4Pct = total > 0 ? ((top4Sum / total) * 100).toFixed(1) : '0.0';
+        const top4Badge = document.getElementById('top4CorridorPctBadge');
+        if (top4Badge) {
+          top4Badge.innerText = `Top 4 走廊佔 ${top4Pct}%`;
         }
 
         let html = '';
@@ -2119,18 +2132,78 @@
       const day = String(d.getDate()).padStart(2, '0');
       const s = `${year}-${month}-${day}`;
       if (s >= '2026-11-01' && s <= '2026-11-30') return s;
-      return '2026-11-08';
+      return '2026-11-09';
     })();
+
+    let currentOpsDate = TODAY_ACTUAL_DATE;
+
+    function changeGlobalOpsDate(newDate) {
+      if (!newDate) return;
+      currentOpsDate = newDate;
+      currentRosterDate = newDate;
+      
+      const rInput = document.getElementById('rosterMainDate');
+      if (rInput) rInput.value = newDate;
+
+      const topInput = document.getElementById('topOpsDateInput');
+      if (topInput && topInput.value !== newDate) topInput.value = newDate;
+
+      // Update Today badge in navbar
+      const todayBadge = document.getElementById('topOpsTodayBadge');
+      if (todayBadge) {
+        if (newDate === TODAY_ACTUAL_DATE) {
+          todayBadge.className = 'font-mono text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded text-[10px] border border-amber-500/40 font-bold whitespace-nowrap';
+          todayBadge.innerText = '今日';
+        } else {
+          const weekdayNames = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+          const dt = new Date(newDate);
+          const w = weekdayNames[dt.getDay()];
+          todayBadge.className = 'font-mono text-purple-300 bg-purple-950/60 px-1.5 py-0.5 rounded text-[10px] border border-purple-500/30 font-bold whitespace-nowrap';
+          todayBadge.innerText = w;
+        }
+      }
+
+      // Synchronize all related labels
+      syncAllActualDateLabels();
+
+      // If not in actual plan mode, switch to it
+      if (currentPlanTable !== 'actual') {
+        setGlobalPlan('actual');
+      } else {
+        updateTopActualOpsBar();
+        if (typeof renderActualOperationsView === 'function') {
+          renderActualOperationsView();
+        }
+      }
+
+      // Refresh Roster Tab
+      if (typeof renderDriverRosterView === 'function') {
+        renderDriverRosterView();
+      }
+      if (typeof updateTab1DriverWidget === 'function') {
+        updateTab1DriverWidget();
+      }
+    }
     
     function syncAllActualDateLabels() {
-      const labelStr = (typeof TODAY_ACTUAL_DATE !== 'undefined') ? TODAY_ACTUAL_DATE : '2026-11-08';
-      const shortStr = labelStr.slice(5).replace('-', '/') + ' (今日)';
-      const pLabel = document.getElementById('topPlanActualDateLabel');
-      if (pLabel) pLabel.innerText = shortStr;
+      const dateVal = (typeof currentOpsDate !== 'undefined') ? currentOpsDate : ((typeof TODAY_ACTUAL_DATE !== 'undefined') ? TODAY_ACTUAL_DATE : '2026-11-09');
+      const isToday = (dateVal === TODAY_ACTUAL_DATE);
+      const weekdayNames = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+      const dt = new Date(dateVal);
+      const wStr = weekdayNames[dt.getDay()];
+      const suffix = isToday ? ' (今日)' : ` (${wStr})`;
+
+      const topInput = document.getElementById('topOpsDateInput');
+      if (topInput && topInput.value !== dateVal) topInput.value = dateVal;
+
       const bBadge = document.getElementById('topActualBarDateBadge');
-      if (bBadge) bBadge.innerText = `${labelStr} (今日)`;
-      const t4Badge = document.getElementById('tab4ActualDateBadge');
-      if (t4Badge) t4Badge.innerText = `${labelStr} (今日)`;
+      if (bBadge) bBadge.innerText = `${dateVal}${suffix}`;
+      
+      const t4Display = document.getElementById('tab4ActiveDateDisplay');
+      if (t4Display) t4Display.innerText = `${dateVal} (${wStr})${isToday ? ' [今日]' : ''}`;
+      
+      const rLabel = document.getElementById('rosterDateLabel');
+      if (rLabel) rLabel.innerText = `${dateVal} (${wStr})`;
     }
 
     let currentTab = 'tab-cars';
@@ -2178,10 +2251,15 @@
           ? 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 bg-emerald-600 text-white shadow'
           : 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 text-slate-400 hover:text-white';
       }
+      const wrapActual = document.getElementById('wrapperPlanActual');
       if (b4) {
-        b4.className = planTable === 'actual'
-          ? 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30 font-bold'
-          : 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1 text-slate-400 hover:text-white';
+        if (planTable === 'actual') {
+          b4.className = 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs shadow-md shadow-purple-600/30';
+          if (wrapActual) wrapActual.className = 'inline-flex items-center rounded-lg p-0.5 transition-all bg-gradient-to-r from-purple-950/90 to-indigo-950/90 border border-purple-500/80 shadow-lg shadow-purple-900/50';
+        } else {
+          b4.className = 'px-2.5 py-1.5 rounded-md transition-all flex items-center gap-1.5 text-purple-300 hover:text-white hover:bg-purple-900/40 font-bold text-xs';
+          if (wrapActual) wrapActual.className = 'inline-flex items-center rounded-lg p-0.5 transition-all bg-slate-900/80 border border-slate-700/80';
+        }
       }
 
       // 控制頂層實際營運出勤列
@@ -2251,7 +2329,7 @@
     const CARS_INFO = {
       'Car_A': {
         name: 'Car A',
-        title: 'Car A 車班表（外廠門戶與全廠巡迴旗艦）',
+        title: 'Car A 車班表（外廠門戶與全廠巡迴）',
         hub: 'FAB8E 1F 大廳',
         phone: '8644824（0960-717239）',
         target_cap: '912 批/班 (24H: 1,824批)',
@@ -3131,15 +3209,15 @@
 
     function getModeBadge(mode) {
       if (mode.includes('專車')) {
-        return `<span class="badge-mode-special text-[11px] font-bold px-2.5 py-0.5 rounded-full">專車直達</span>`;
+        return `<span class="badge-mode-special text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap inline-block">專車直達</span>`;
       } else if (mode.includes('環廠')) {
-        return `<span class="badge-mode-loop text-[11px] font-bold px-2.5 py-0.5 rounded-full">全廠巡迴</span>`;
+        return `<span class="badge-mode-loop text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap inline-block">全廠巡迴</span>`;
       } else if (mode.includes('小環')) {
-        return `<span class="badge-mode-small text-[11px] font-bold px-2.5 py-0.5 rounded-full">${mode}</span>`;
+        return `<span class="badge-mode-small text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap inline-block">${mode}</span>`;
       } else if (mode.includes('外廠')) {
-        return `<span class="badge-mode-out text-[11px] font-bold px-2.5 py-0.5 rounded-full">外廠對開</span>`;
+        return `<span class="badge-mode-out text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap inline-block">外廠對開</span>`;
       } else {
-        return `<span class="badge-mode-break text-[11px] font-semibold px-2 py-0.5 rounded-full">${mode}</span>`;
+        return `<span class="badge-mode-break text-[11px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap inline-block">${mode}</span>`;
       }
     }
 
@@ -3316,7 +3394,7 @@
             <td class="py-3 px-3 text-center">
               ${hwText}
             </td>
-            <td class="py-3 px-3 text-center">
+            <td class="py-3 px-3 text-center whitespace-nowrap min-w-[85px]">
               ${modeBadge}
             </td>
             <td class="py-3 px-4 text-center font-bold text-cyan-300 font-mono text-xs">
@@ -4794,7 +4872,7 @@
     }
 
     async function renderDriverRosterView() {
-      const dateVal = document.getElementById('rosterMainDate').value || '2026-11-01';
+      const dateVal = (typeof currentOpsDate !== 'undefined' ? currentOpsDate : (document.getElementById('rosterMainDate') ? document.getElementById('rosterMainDate').value : '2026-11-09'));
       const shiftVal = currentRosterShift;
       
       const weekdayNames = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
@@ -4900,6 +4978,49 @@
       }
       if ((!stats || stats.length === 0) && fallbackData && fallbackData.driver_stats) {
         stats = fallbackData.driver_stats;
+      }
+      // 若快取無預存 stats，則即時自 driver_roster 動態精確計算 17 位司機統計
+      if (!stats || stats.length === 0) {
+        const roster = (fallbackData && fallbackData.driver_roster) ? fallbackData.driver_roster : [];
+        if (roster && roster.length > 0) {
+          const activeRows = roster.filter(r => r.status === '執勤' && r.driver);
+          const driverMap = {};
+          activeRows.forEach(r => {
+            const d = r.driver;
+            if (!driverMap[d]) {
+              driverMap[d] = {
+                driver: d,
+                type: r.driver_type || (r.car_id === 'Car_U' ? 'UM' : '聯倉'),
+                total: 0,
+                day: 0,
+                night: 0,
+                carsCount: {}
+              };
+            }
+            driverMap[d].total++;
+            if (r.shift === 'Day' || r.shift === 'day') driverMap[d].day++;
+            else driverMap[d].night++;
+            const cName = r.car_name || r.car_id;
+            driverMap[d].carsCount[cName] = (driverMap[d].carsCount[cName] || 0) + 1;
+          });
+
+          stats = Object.values(driverMap).map(s => {
+            const sortedCars = Object.entries(s.carsCount).sort((a,b) => b[1] - a[1]);
+            const carsStr = sortedCars.map(([c, cnt]) => `${c}(${cnt})`).join(', ');
+            const topCar = sortedCars.length > 0 ? sortedCars[0][0] : '';
+            return {
+              driver: s.driver,
+              type: s.type,
+              total: s.total,
+              day: s.day,
+              night: s.night,
+              cars: carsStr,
+              top_car: topCar,
+              hours: s.total * 12
+            };
+          });
+          stats.sort((a, b) => b.total - a.total);
+        }
       }
       if (!stats || stats.length === 0) return;
 

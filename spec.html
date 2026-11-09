@@ -11,7 +11,7 @@
   <!-- KaTeX for Math Formulas -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}, {left: '\\(', right: '\\)', display: false}, {left: '\\[', right: '\\]', display: true}], throwOnError: false});"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
     body { font-family: 'Noto Sans TC', sans-serif; }
@@ -140,7 +140,7 @@
         <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800 text-xs space-y-2">
           <strong class="text-blue-400 block font-mono">核心業務痛點分析：</strong>
           <ul class="list-disc list-inside space-y-1 text-slate-400">
-            <li><strong class="text-slate-200">垂直與平面動線差異</strong>：FAB8CD 裝卸碼頭位於 3F（司機需搭乘貨梯換推車作業，耗時 25 分鐘），而 FAB8AB / 8E 則為 1F 大廳平面裝卸，裝卸節奏極度不對稱。</li>
+            <li><strong class="text-slate-200">垂直與平面動線差異</strong>：FAB8CD/ 8F 裝卸碼頭位於 3F（司機需搭乘貨梯換推車作業，耗時 25 分鐘）。</li>
             <li><strong class="text-slate-200">外廠跨境延伸</strong>：除廠內 8AB、8CD、8E、8F、8S 外，尚有嘉晶外廠（篤行廠、創新廠），涉及更長行車時間（15 分鐘）與外廠專屬門禁作業。</li>
             <li><strong class="text-slate-200">日夜班對稱性與生理交接</strong>：日班（07:35~19:35）與夜班（19:35~07:35）需保持精確 12 小時鏡像對稱，且必須預留嚴謹的中午用餐（12:00~13:00）與交接換班窗口。</li>
           </ul>
@@ -189,7 +189,7 @@
                   <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-900/60 border border-blue-600/40 text-blue-300">專車(48批) + 環廠(12+12)</span></td>
                   <td class="p-3 text-center font-mono">20 站/班 (40站/日)</td>
                   <td class="p-3 text-center font-mono font-bold text-amber-400">912 批/班 (24H: 1,824批)<br><span class="text-[10px] text-slate-400">原方案: 640批/班 (1,280批)</span></td>
-                  <td class="p-3 text-slate-300">外廠門戶旗艦，專營嘉晶外廠（篤行/創新）與 8AB/8CD/8E 幹線</td>
+                  <td class="p-3 text-slate-300">外廠門戶，專營嘉晶外廠（篤行/創新）與 8AB/8CD/8E 幹線</td>
                 </tr>
                 <tr class="hover:bg-slate-700/30">
                   <td class="p-3 font-bold text-amber-400">Car B</td>
@@ -288,7 +288,6 @@
               <thead class="bg-slate-900 text-slate-400">
                 <tr class="border-b border-slate-700">
                   <th class="p-2.5 font-sans">節點名稱</th>
-                  <th class="p-2.5 font-sans">節點類型</th>
                   <th class="p-2.5">緯度 (Latitude)</th>
                   <th class="p-2.5">經度 (Longitude)</th>
                   <th class="p-2.5 font-sans">裝卸場站位置</th>
@@ -298,7 +297,6 @@
               <tbody class="divide-y divide-slate-800 text-slate-300">
                 <tr class="hover:bg-slate-800/40">
                   <td class="p-2.5 font-bold text-white font-sans">FAB8AB</td>
-                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-sans">力行核心</span></td>
                   <td class="p-2.5 text-cyan-300">24.76950718</td>
                   <td class="p-2.5 text-cyan-300">121.01944075</td>
                   <td class="p-2.5 font-sans">1F 平面大廳</td>
@@ -306,7 +304,6 @@
                 </tr>
                 <tr class="hover:bg-slate-800/40">
                   <td class="p-2.5 font-bold text-white font-sans">FAB8CD</td>
-                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-sans">裝卸碼頭</span></td>
                   <td class="p-2.5 text-cyan-300">24.77127635</td>
                   <td class="p-2.5 text-cyan-300">121.02086322</td>
                   <td class="p-2.5 font-sans">裝卸碼頭上 3F (貨梯)</td>
@@ -314,7 +311,6 @@
                 </tr>
                 <tr class="hover:bg-slate-800/40">
                   <td class="p-2.5 font-bold text-white font-sans">FAB8E</td>
-                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-sans">外廠門戶</span></td>
                   <td class="p-2.5 text-cyan-300">24.76702327</td>
                   <td class="p-2.5 text-cyan-300">121.02589480</td>
                   <td class="p-2.5 font-sans">1F 大廳門戶</td>
@@ -322,23 +318,20 @@
                 </tr>
                 <tr class="hover:bg-slate-800/40">
                   <td class="p-2.5 font-bold text-white font-sans">FAB8F</td>
-                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-sans">代工母港</span></td>
                   <td class="p-2.5 text-cyan-300">24.77256556</td>
                   <td class="p-2.5 text-cyan-300">121.01457603</td>
-                  <td class="p-2.5 font-sans">代工出入口專屬車位</td>
+                  <td class="p-2.5 font-sans">代工出入口專屬車位, 上 3F (貨梯)</td>
                   <td class="p-2.5 font-sans text-slate-400">主動脈十字路口，行車 5~10 分鐘</td>
                 </tr>
                 <tr class="hover:bg-slate-800/40">
                   <td class="p-2.5 font-bold text-white font-sans">FAB8S</td>
-                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-sans">庫房基地</span></td>
                   <td class="p-2.5 text-cyan-300">24.77540796</td>
                   <td class="p-2.5 text-cyan-300">120.99381118</td>
-                  <td class="p-2.5 font-sans">1F 碼頭 / 8S5A 庫房</td>
+                  <td class="p-2.5 font-sans">1F 大廳</td>
                   <td class="p-2.5 font-sans text-amber-300">園區西側二路，跨區行車 10 分鐘</td>
                 </tr>
                 <tr class="hover:bg-slate-800/40">
                   <td class="p-2.5 font-bold text-teal-300 font-sans">嘉晶創新</td>
-                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-sans">外包廠區 (禁休)</span></td>
                   <td class="p-2.5 text-cyan-300">24.77369675</td>
                   <td class="p-2.5 text-cyan-300">121.00097898</td>
                   <td class="p-2.5 font-sans">外廠創新碼頭（不可安排休息）</td>
@@ -346,7 +339,6 @@
                 </tr>
                 <tr class="hover:bg-slate-800/40">
                   <td class="p-2.5 font-bold text-teal-300 font-sans">嘉晶篤行</td>
-                  <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-sans">外包廠區 (禁休)</span></td>
                   <td class="p-2.5 text-cyan-300">24.77290827</td>
                   <td class="p-2.5 text-cyan-300">121.02374197</td>
                   <td class="p-2.5 font-sans">外廠篤行碼頭（不可安排休息）</td>
@@ -591,7 +583,7 @@
             <span class="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded border border-slate-700">時間間隔度量</span>
           </div>
           <p class="text-xs text-slate-400 leading-relaxed">
-            設某一特定廠區 $f$ 在指定時段內共有 $N$ 個車次抵達，各班次按抵達時刻排序為 $t_1, t_2, \dots, t_N$（單位為分鐘），則相鄰兩班車的進站間隔時間（Headway）定義為：
+            設某一特定廠區 <span class="font-mono text-cyan-300 font-bold italic text-sm">f</span> 在指定時段內共有 <span class="font-mono text-cyan-300 font-bold italic text-sm">N</span> 個車次抵達，各班次按抵達時刻排序為 <span class="font-mono text-cyan-300 font-bold italic text-sm">t<sub>1</sub>, t<sub>2</sub>, …, t<sub>N</sub></span>（單位為分鐘），則相鄰兩班車的進站間隔時間（Headway）定義為：
           </p>
           <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-cyan-300 text-base overflow-x-auto">
             $$H_i = t_i - t_{i-1}, \quad \forall i \in \{2, 3, \dots, N\}$$
@@ -695,6 +687,42 @@
           </p>
           <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-emerald-400 text-sm overflow-x-auto">
             $$\text{Utilization}(o, d) = \frac{\text{Demand}(o, d)}{\text{Cap}(o, d)} \times 100\% \le 85.0\% \quad \Big(\text{留存 } \ge 15\% \text{ 抗震裕度}\Big)$$
+          </div>
+          <div class="p-4 rounded-xl bg-slate-950/80 border border-emerald-500/30 text-xs space-y-2.5 mt-3">
+            <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+              <i class="fa-solid fa-graduation-cap text-base"></i>
+              <span>理論來源：金曼排隊公式（Kingman's Equation / VUT Equation）</span>
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+              在排隊論（Queueing Theory）與工廠物理學（Factory Physics）中，物料於各走廊等待搬運的平均排隊等候時間 \(E[W_q]\) 遵循<strong>金曼近似公式（Kingman's Formula for G/G/1 Queue）</strong>：
+            </p>
+            <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 text-center font-mono text-cyan-300 text-sm overflow-x-auto my-1">
+              $$E[W_q] \approx \underbrace{\left( \frac{c_a^2 + c_s^2}{2} \right)}_{V:\;\text{變異項}} \cdot \underbrace{\left( \frac{\rho}{1 - \rho} \right)}_{U:\;\text{利用率放大因子}} \cdot \underbrace{t_e}_{T:\;\text{平均作業時間}}$$
+            </div>
+            <p class="text-slate-400 leading-relaxed">
+              公式中 \( \frac{\rho}{1 - \rho} \) 稱為<strong>利用率敏感放大因子</strong>。當伺服器或運輸走廊的利用率 \( \rho \) 逼近 85% 以上時，排隊等候時間會產生急遽的<strong>「曲棍球桿非線性暴增效應（Hockey-Stick Effect）」</strong>：
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono text-[11px] py-1">
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <span class="text-slate-400 block text-[10px]">利用率 70%</span>
+                <span class="text-emerald-400 font-bold">\( \frac{\rho}{1-\rho} \approx 2.33 \)</span>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-emerald-500/40">
+                <span class="text-emerald-400 block text-[10px]">利用率 85% (臨界點)</span>
+                <span class="text-emerald-300 font-bold">\( \frac{\rho}{1-\rho} \approx 5.67 \)</span>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-amber-500/40">
+                <span class="text-amber-400 block text-[10px]">利用率 90% (失控)</span>
+                <span class="text-amber-300 font-bold">\( \frac{\rho}{1-\rho} \approx 9.00 \)</span>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-rose-500/40">
+                <span class="text-rose-400 block text-[10px]">利用率 95% (崩潰)</span>
+                <span class="text-rose-300 font-bold">\( \frac{\rho}{1-\rho} \approx 19.00 \)</span>
+              </div>
+            </div>
+            <p class="text-amber-300/90 leading-relaxed pt-1 border-t border-slate-800">
+              <strong>生管決策依據</strong>：一旦利用率突破 85% 紅線，產線任何微小波動（如晶圓產出偶發集中、貨梯作業短暫延誤）都將引發等候時間以指數級數倍失控暴增，造成碼頭嚴重壅塞與晶圓在製品（WIP）雪崩式滯留。因此，系統依據金曼公式將 <strong>\( \rho \le 85.0\% \)</strong> 嚴格確立為<strong>不可妥協之系統硬約束</strong>，強制為每條走廊留存 \( \ge 15\% \) 的抗震動態緩衝裕度。
+            </p>
           </div>
         </div>
 
