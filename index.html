@@ -675,16 +675,16 @@
           <table class="w-full text-left text-xs lg:text-sm text-slate-300">
             <thead class="bg-slate-900/90 text-slate-400 uppercase font-semibold text-[11px] tracking-wider border-b border-slate-700">
               <tr>
-                <th class="py-3 px-3 text-center">班次序</th>
-                <th class="py-3 px-4 font-mono text-center">抵達時刻 (Arrival)</th>
-                <th class="py-3 px-4 font-mono text-center">發車時刻 (Departure)</th>
-                <th class="py-3 px-3 text-center">車次編號</th>
-                <th class="py-3 px-3 text-center">前班等候間隔 (班距)</th>
-                <th class="py-3 px-3 text-center whitespace-nowrap min-w-[85px]">作業型態</th>
-                <th class="py-3 px-4 text-center">目標目的地 (Destination)</th>
-                <th class="py-3 px-3 text-center">預估行車</th>
-                <th class="py-3 px-3 text-center">承載運能</th>
-                <th class="py-3 px-5">📦 該站作業與裝載防呆指令</th>
+                <th class="py-3 px-3 text-center whitespace-nowrap">班次序</th>
+                <th class="py-3 px-4 font-mono text-center whitespace-nowrap">抵達時刻 (Arrival)</th>
+                <th class="py-3 px-4 font-mono text-center whitespace-nowrap">發車時刻 (Departure)</th>
+                <th class="py-3 px-3 text-center whitespace-nowrap min-w-[95px]">車次編號</th>
+                <th class="py-3 px-3 text-center whitespace-nowrap min-w-[110px]">前班等候間隔 (班距)</th>
+                <th class="py-3 px-3 text-center whitespace-nowrap min-w-[95px]">作業型態</th>
+                <th class="py-3 px-4 text-center whitespace-nowrap min-w-[130px]">目標目的地 (Destination)</th>
+                <th class="py-3 px-3 text-center whitespace-nowrap">預估行車</th>
+                <th class="py-3 px-3 text-center whitespace-nowrap min-w-[85px]">承載運能</th>
+                <th class="py-3 px-5 whitespace-nowrap">📦 該站作業與裝載防呆指令</th>
               </tr>
             </thead>
             <tbody id="fabArrivalTableBody" class="divide-y divide-slate-700/60 font-normal">
@@ -3430,11 +3430,20 @@
           total_capacity: totalCap,
           mode_count: modeCount,
           cars_count: carsCount,
-          destinations: [...new Set(visits.map(v=>v.dest_fab).filter(Boolean))],
+          destinations: [...new Set(visits.map(v=>formatTableDestFab(v.dest_fab)).filter(Boolean))],
           fleet_status: fleet_status
         };
       }
       return null;
+    }
+
+    function formatTableDestFab(dest) {
+      if (!dest) return '—';
+      let d = String(dest).trim();
+      if (/^8[A-Z0-9]+$/i.test(d)) {
+        return 'FAB' + d;
+      }
+      return d;
     }
 
     async function renderFabAnalysis() {
@@ -3487,31 +3496,31 @@
 
         html += `
           <tr class="hover:bg-slate-700/40 transition-colors">
-            <td class="py-3 px-3 text-center font-mono text-slate-400">
+            <td class="py-3 px-3 text-center font-mono text-slate-400 whitespace-nowrap">
               ${idx + 1}
             </td>
-            <td class="py-3 px-4 font-mono font-bold text-center text-emerald-400">
+            <td class="py-3 px-4 font-mono font-bold text-center text-emerald-400 whitespace-nowrap">
               ${v.arr_time}
             </td>
-            <td class="py-3 px-4 font-mono font-bold text-center text-blue-400">
+            <td class="py-3 px-4 font-mono font-bold text-center text-blue-400 whitespace-nowrap">
               ${v.dep_time}
             </td>
-            <td class="py-3 px-3 text-center">
-              <span class="px-2.5 py-0.5 rounded-lg bg-slate-900 border border-slate-700 font-bold text-white text-xs">${v.car_name}</span>
+            <td class="py-3 px-3 text-center whitespace-nowrap min-w-[95px]">
+              <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 font-bold text-white text-xs whitespace-nowrap inline-block">${v.car_name}</span>
             </td>
-            <td class="py-3 px-3 text-center">
+            <td class="py-3 px-3 text-center whitespace-nowrap min-w-[110px]">
               ${hwText}
             </td>
-            <td class="py-3 px-3 text-center whitespace-nowrap min-w-[85px]">
+            <td class="py-3 px-3 text-center whitespace-nowrap min-w-[95px]">
               ${modeBadge}
             </td>
-            <td class="py-3 px-4 text-center font-bold text-cyan-300 font-mono text-xs">
-              <i class="fa-solid fa-arrow-right text-[10px] mr-1 text-slate-500"></i>${v.dest_fab || '—'}
+            <td class="py-3 px-4 text-center font-bold text-cyan-300 font-mono text-xs whitespace-nowrap min-w-[130px]">
+              <i class="fa-solid fa-arrow-right text-[10px] mr-1 text-slate-500"></i>${formatTableDestFab(v.dest_fab)}
             </td>
-            <td class="py-3 px-3 text-center font-mono text-xs text-slate-300">
+            <td class="py-3 px-3 text-center font-mono text-xs text-slate-300 whitespace-nowrap">
               ${v.transit_mins}m
             </td>
-            <td class="py-3 px-3 text-center font-mono font-bold text-emerald-400">
+            <td class="py-3 px-3 text-center font-mono font-bold text-emerald-400 whitespace-nowrap min-w-[85px]">
               ${v.capacity_batches} 批
             </td>
             <td class="py-3 px-5 text-xs text-slate-200">
