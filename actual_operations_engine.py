@@ -18,7 +18,7 @@ from validator import parse_od_pairs, norm_fab
 
 DB_PATH = os.path.join(BASE_DIR, 'logistics.db')
 
-def evaluate_actual_operations(db_path=DB_PATH, date_str='2026-11-01', shift='all', table_name='schedules_plan3'):
+def evaluate_actual_operations(db_path=DB_PATH, date_str='2026-11-01', shift='all', table_name='schedules'):
     """
     動態營運模式評估核心
     :param db_path: SQLite 資料庫路徑
@@ -234,7 +234,7 @@ def get_actual_cars(db_path=DB_PATH, date_str='2026-11-01', shift='all'):
     return res_cars
 
 
-def get_actual_schedules(db_path=DB_PATH, date_str='2026-11-01', shift=None, car_id=None, fab=None, mode=None, search=None, base_table='schedules_plan3'):
+def get_actual_schedules(db_path=DB_PATH, date_str='2026-11-01', shift=None, car_id=None, fab=None, mode=None, search=None, base_table='schedules'):
     """依據司機真實出勤動態生成站點排程 (包含 Car U 站點，過濾停駛車輛)"""
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -314,7 +314,7 @@ def get_actual_schedules(db_path=DB_PATH, date_str='2026-11-01', shift=None, car
     return filtered_rows
 
 
-def get_actual_fab_analysis(db_path=DB_PATH, date_str='2026-11-08', fab_code='ALL', shift='all', base_table='schedules_plan3'):
+def get_actual_fab_analysis(db_path=DB_PATH, date_str='2026-11-08', fab_code='ALL', shift='all', base_table='schedules'):
     """依據指定日期的真實出勤，動態計算特定廠區或全網各廠區之班次進站與時序間隔 (包含 Car U，剔除停駛車次)"""
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row

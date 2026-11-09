@@ -126,7 +126,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 date_str = params.get('date', ['2026-11-01'])[0]
                 shift = params.get('shift', ['all'])[0].lower()
-                table = params.get('table', ['schedules_plan3'])[0]
+                table = params.get('table', ['schedules'])[0]
                 if table not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
                     table = 'schedules_plan3'
                 result = evaluate_actual_operations(DB_PATH, date_str=date_str, shift=shift, table_name=table)
@@ -152,7 +152,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                     fab=fab,
                     mode=mode,
                     search=search,
-                    base_table='schedules_plan3'
+                    base_table=params.get('base_table', ['schedules'])[0]
                 )
                 return self.send_json(rows)
 
@@ -212,7 +212,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                     date_str=date_str,
                     fab_code=fab_code,
                     shift=shift,
-                    base_table='schedules_plan3'
+                    base_table=params.get('base_table', ['schedules'])[0]
                 )
                 return self.send_json(result)
 
@@ -620,7 +620,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             data = {
                 'cars': [dict(r) for r in conn.execute("SELECT * FROM cars WHERE id != 'Car_U'").fetchall()],
                 'fabs': [dict(r) for r in conn.execute('SELECT * FROM fabs').fetchall()],
-                'schedules': [dict(r) for r in conn.execute("SELECT * FROM schedules WHERE car_id != 'Car_U'").fetchall()],
+                'schedules': [dict(r) for r in conn.execute("SELECT * FROM schedules").fetchall()],
                 'schedules_plan2': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan2 WHERE car_id != 'Car_U'").fetchall()],
                 'schedules_plan3': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan3").fetchall()],
                 'demand_matrix': [dict(r) for r in conn.execute('SELECT * FROM demand_matrix').fetchall()],
