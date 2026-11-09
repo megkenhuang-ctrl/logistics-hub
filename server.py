@@ -622,7 +622,7 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 'fabs': [dict(r) for r in conn.execute('SELECT * FROM fabs').fetchall()],
                 'schedules': [dict(r) for r in conn.execute("SELECT * FROM schedules WHERE car_id != 'Car_U'").fetchall()],
                 'schedules_plan2': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan2 WHERE car_id != 'Car_U'").fetchall()],
-                'schedules_plan3': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan3 WHERE car_id != 'Car_U'").fetchall()],
+                'schedules_plan3': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan3").fetchall()],
                 'demand_matrix': [dict(r) for r in conn.execute('SELECT * FROM demand_matrix').fetchall()],
                 'driver_roster': [dict(r) for r in conn.execute('SELECT * FROM driver_roster').fetchall()],
                 'exported_at': datetime.now().isoformat()

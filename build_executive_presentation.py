@@ -439,7 +439,7 @@ def build_presentation(output_path):
         ("RULE-SOFT-1 碼頭進站班距", "同一碼頭任意兩車抵達間隔必須 ≥ 10 分鐘，消除碼頭排隊與泊位佔用。方案三達成 0 衝突 (100.0 分)。", '10B981', '064E3B'),
         ("RULE-SOFT-2 出發目的地不重複", "同一廠區連續兩班次開往不同目的地，促進跨廠空間多向分流。方案三達成 0 警告 (100.0 分)。", '38BDF8', '0C4A6E'),
         ("目標函數 1：Min Slack (空檔=0)", "最小化車隊全網無效空檔時間： min ∑ Slack_i 達成司機工時 100% 緊湊高效，全網等候浪費歸零。", 'FBBF24', '451A03'),
-        ("目標函數 2：Min Dwell (裝卸精簡)", "在安全裝卸前提下，壓縮各站點多餘滯留時間，極大化有效輪轉週轉率。", 'A78BFA', '2E1065')
+        ("目標函數 2：Min Wait (最小化材料等候時間)", "最小化全廠需求加權預期等候時間： min ∑ Demand_od · E[W_od]，大幅縮短晶圓在途等待，杜絕產線斷料。", 'A78BFA', '2E1065')
     ]
     s_top = col_top + Inches(0.55)
     for s_t, s_d, s_fg, s_bg in softs:
@@ -638,9 +638,14 @@ def build_presentation(output_path):
         align=PP_ALIGN.CENTER
     )
 
-    # Save Presentation
-    prs.save(output_path)
-    print(f"--> 成功生成可編輯簡報：{output_path}")
+    # Save Presentation (Handle file lock if user has PowerPoint open)
+    try:
+        prs.save(output_path)
+        print(f"--> 成功生成可編輯簡報：{output_path}")
+    except PermissionError:
+        fallback_path = output_path.replace('.pptx', '_new.pptx')
+        prs.save(fallback_path)
+        print(f"--> 原檔案由 PowerPoint 開啟鎖定中，已成功另存為最新版本：{fallback_path}")
 
 
 if __name__ == '__main__':

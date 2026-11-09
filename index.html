@@ -2141,6 +2141,7 @@
       if (!newDate) return;
       currentOpsDate = newDate;
       currentRosterDate = newDate;
+      currentActualDate = newDate;
       
       const rInput = document.getElementById('rosterMainDate');
       if (rInput) rInput.value = newDate;
@@ -2216,6 +2217,38 @@
 
     function getActiveFallbackSchedules() {
       if (!fallbackData) return [];
+      if (currentPlanTable === 'actual') {
+        const targetDate = (typeof currentOpsDate !== 'undefined' && currentOpsDate)
+          ? currentOpsDate
+          : ((typeof currentActualDate !== 'undefined' && currentActualDate) ? currentActualDate : TODAY_ACTUAL_DATE);
+        
+        const roster = (fallbackData.driver_roster || []).filter(r => r.date === targetDate);
+        const activeKeys = new Map();
+        roster.forEach(r => {
+          if (r.status === '執勤') {
+            const k = `${r.car_id}_${(r.shift || '').toLowerCase()}`;
+            activeKeys.set(k, r);
+          }
+        });
+
+        const baseRows = fallbackData.schedules_plan3 || fallbackData.schedules || [];
+        return baseRows.filter(r => {
+          const k = `${r.car_id}_${(r.shift || '').toLowerCase()}`;
+          return activeKeys.has(k);
+        }).map(r => {
+          const k = `${r.car_id}_${(r.shift || '').toLowerCase()}`;
+          const rInfo = activeKeys.get(k);
+          return {
+            ...r,
+            driver_name: rInfo.driver,
+            plate_no: rInfo.plate,
+            driver_status: rInfo.status,
+            is_active_trip: 1
+          };
+        });
+      }
+
+      // Plans 1, 2, 3: standard 5-car fleet, exclude Car U
       const rows = fallbackData[currentPlanTable] || fallbackData.schedules || [];
       return rows.filter(r => r.car_id !== 'Car_U');
     }
@@ -2229,7 +2262,17 @@
     function setGlobalPlan(planTable) {
       currentPlanTable = planTable;
       if (typeof timelineCarFilters !== 'undefined') {
-        timelineCarFilters['Car U'] = (planTable === 'actual');
+        if (planTable === 'actual') {
+          const targetDate = (typeof currentOpsDate !== 'undefined' && currentOpsDate)
+            ? currentOpsDate
+            : ((typeof currentActualDate !== 'undefined' && currentActualDate) ? currentActualDate : TODAY_ACTUAL_DATE);
+          const uActive = (fallbackData && fallbackData.driver_roster)
+            ? fallbackData.driver_roster.some(r => r.date === targetDate && r.car_id === 'Car_U' && r.status === '執勤')
+            : true;
+          timelineCarFilters['Car U'] = uActive;
+        } else {
+          timelineCarFilters['Car U'] = false;
+        }
         if (typeof renderTimelineCarToggles === 'function') {
           renderTimelineCarToggles();
         }
@@ -3310,6 +3353,48 @@
           carsCount[v.car_name] = (carsCount[v.car_name] || 0) + 1;
         });
 
+        const targetDate = (typeof currentOpsDate !== 'undefined' && currentOpsDate)
+          ? currentOpsDate
+          : ((typeof currentActualDate !== 'undefined' && currentActualDate) ? currentActualDate : TODAY_ACTUAL_DATE);
+        
+        let rosterRows = (fallbackData && fallbackData.driver_roster)
+          ? fallbackData.driver_roster.filter(r => r.date === targetDate)
+          : [];
+        
+        const activeShiftCars = new Set();
+        rosterRows.forEach(r => {
+          if (r.status === '執勤') {
+            activeShiftCars.add(`${r.car_id}_${(r.shift || '').toLowerCase()}`);
+          }
+        });
+
+        const fleet_status = {};
+        ['Car_A', 'Car_B', 'Car_C', 'Car_D', 'Car_E', 'Car_U'].forEach(cid => {
+          const cname = cid.replace('_', ' ');
+          let is_act = false;
+          let dayAct = false;
+          let nightAct = false;
+          if (currentPlanTable === 'actual') {
+            dayAct = activeShiftCars.has(`${cid}_day`);
+            nightAct = activeShiftCars.has(`${cid}_night`);
+            if (shift === 'all') {
+              is_act = dayAct || nightAct;
+            } else {
+              is_act = (shift === 'day') ? dayAct : nightAct;
+            }
+          } else {
+            is_act = (cid !== 'Car_U');
+            dayAct = is_act;
+            nightAct = is_act;
+          }
+          fleet_status[cname] = {
+            is_active: is_act,
+            day_active: dayAct,
+            night_active: nightAct,
+            visits_here: carsCount[cname] || 0
+          };
+        });
+
         return {
           fab_code: fabCode,
           shift: shift,
@@ -3323,7 +3408,8 @@
           total_capacity: totalCap,
           mode_count: modeCount,
           cars_count: carsCount,
-          destinations: [...new Set(visits.map(v=>v.dest_fab).filter(Boolean))]
+          destinations: [...new Set(visits.map(v=>v.dest_fab).filter(Boolean))],
+          fleet_status: fleet_status
         };
       }
       return null;
@@ -3488,6 +3574,14 @@
             badgeText = ' (停駛)';
             titleText = `${c.name} 本班次無司機排班 (停駛)`;
             extraClass = 'opacity-40 line-through';
+          } else if (fStatus && currentShift === 'all' && currentPlanTable === 'actual' && (!fStatus.day_active || !fStatus.night_active)) {
+            if (fStatus.day_active && !fStatus.night_active) {
+              badgeText = ' (夜無司機)';
+              titleText = `${c.name} 日班正常執勤，夜班無司機排班 (停駛)`;
+            } else if (!fStatus.day_active && fStatus.night_active) {
+              badgeText = ' (日無司機)';
+              titleText = `${c.name} 日班無排班，夜班正常執勤`;
+            }
           } else if (notServingHere) {
             badgeText = ' (未停靠)';
             titleText = `${c.name} 正常執勤營運中，但路線未停靠 ${selectedFab}`;
@@ -6246,13 +6340,78 @@
   let actualOpsCachedData = null;
 
   async function fetchActualOperationsData(date, shift, plan) {
-    try {
-      const res = await fetch(`/api/actual_operations?date=${date}&shift=${shift}&table=${plan}`);
-      if (res.ok) {
-        return await res.json();
+    if (isLiveServer) {
+      try {
+        const res = await fetch(`/api/actual_operations?date=${date}&shift=${shift}&table=${plan}`);
+        if (res.ok) {
+          return await res.json();
+        }
+      } catch (e) {
+        console.warn("Actual operations API offline, using client calculation fallback", e);
       }
-    } catch (e) {
-      console.warn("Actual operations API offline, using client calculation fallback", e);
+    }
+    // Client-side fallback for GitHub Pages / offline mode
+    if (fallbackData && fallbackData.driver_roster) {
+      const rosterRows = fallbackData.driver_roster.filter(r => r.date === date);
+      const activeCars = new Set();
+      const carRosterMap = {};
+      const allCids = ['Car_A', 'Car_B', 'Car_C', 'Car_D', 'Car_E', 'Car_U'];
+      allCids.forEach(cid => {
+        carRosterMap[cid] = {
+          car_id: cid,
+          car_name: cid.replace('_', ' '),
+          driver: '—',
+          plate: '—',
+          status: '無排班',
+          shift: 'Day',
+          shift_zh: '日班'
+        };
+      });
+
+      rosterRows.forEach(r => {
+        const cid = r.car_id;
+        if (!carRosterMap[cid]) return;
+        if (shift === 'all') {
+          if (r.status === '執勤') {
+            activeCars.add(cid);
+            carRosterMap[cid] = {
+              car_id: cid,
+              car_name: r.car_name,
+              driver: r.driver,
+              plate: r.plate || '—',
+              status: '執勤',
+              shift: r.shift,
+              shift_zh: r.shift_zh
+            };
+          } else if (carRosterMap[cid].status !== '執勤') {
+            carRosterMap[cid].status = r.status;
+          }
+        } else {
+          if ((r.shift || '').toLowerCase() === shift.toLowerCase()) {
+            carRosterMap[cid] = {
+              car_id: cid,
+              car_name: r.car_name,
+              driver: r.driver,
+              plate: r.plate || '—',
+              status: r.status,
+              shift: r.shift,
+              shift_zh: r.shift_zh
+            };
+            if (r.status === '執勤') activeCars.add(cid);
+          }
+        }
+      });
+
+      return {
+        date: date,
+        shift: shift,
+        active_cars: Array.from(activeCars),
+        total_active_cars: activeCars.size,
+        u_car_active: activeCars.has('Car_U'),
+        u_boost_batches: activeCars.has('Car_U') ? 912 : 0,
+        car_roster: carRosterMap,
+        overloaded_count: 0
+      };
     }
     return null;
   }

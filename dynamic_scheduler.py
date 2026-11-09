@@ -69,7 +69,7 @@ def sync_db_exports(db_path=DB_PATH):
         'fabs': [dict(r) for r in conn.execute('SELECT * FROM fabs ORDER BY code').fetchall()],
         'schedules': [dict(r) for r in conn.execute("SELECT * FROM schedules WHERE car_id != 'Car_U'").fetchall()],
         'schedules_plan2': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan2 WHERE car_id != 'Car_U'").fetchall()],
-        'schedules_plan3': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan3 WHERE car_id != 'Car_U'").fetchall()],
+        'schedules_plan3': [dict(r) for r in conn.execute("SELECT * FROM schedules_plan3").fetchall()],
         'demand_matrix': [dict(r) for r in conn.execute('SELECT * FROM demand_matrix ORDER BY demand_batches DESC').fetchall()],
         'driver_roster': [dict(r) for r in conn.execute('SELECT * FROM driver_roster').fetchall()],
         'driver_stats': [
