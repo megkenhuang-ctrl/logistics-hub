@@ -425,3 +425,116 @@ def get_actual_fab_analysis(db_path=DB_PATH, date_str='2026-11-08', fab_code='AL
         'destinations': destinations,
         'fleet_status': fleet_status
     }
+
+
+def get_monthly_capacity_trend(db_path=DB_PATH, table_name='schedules'):
+    """
+    計算全月 (30天) 實際動態運能趨勢
+    包含每日之 日運量 (Day Cap)、夜運量 (Night Cap)、24H總運量 (Total Cap) 與 基準需求量 (Demand)
+    反映司機排班、請假/輪休/保養與機動車 (Car U) 支援時的實際運能波動
+    """
+    if table_name not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+        table_name = 'schedules'
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+
+    # 1. 取得各車日/夜班額定運能
+    car_shift_cap = {'day': {}, 'night': {}}
+    for s in ['day', 'night']:
+        rows = conn.execute(
+            f"SELECT car_id, sum(capacity_batches) as cap FROM {table_name} WHERE shift = ? AND is_break = 0 GROUP BY car_id",
+            [s]
+        ).fetchall()
+        for r in rows:
+            car_shift_cap[s][r['car_id']] = r['cap']
+
+    # 2. 需求基準 (24H 與日夜均分)
+    demand_row = conn.execute("SELECT sum(demand_batches) as tot FROM demand_matrix").fetchone()
+    tot_demand_24h = demand_row['tot'] if (demand_row and demand_row['tot']) else 5742
+    day_demand = round(tot_demand_24h * 0.5)
+    night_demand = round(tot_demand_24h * 0.5)
+
+    # 3. 遍歷 30 天排班
+    dates = [r[0] for r in conn.execute("SELECT DISTINCT date FROM driver_roster ORDER BY date").fetchall()]
+
+    trend_details = []
+    day_caps = []
+    night_caps = []
+    total_caps = []
+    demands = []
+    fulfillment_rates = []
+
+    for d in dates:
+        roster_rows = conn.execute("SELECT car_id, shift, status FROM driver_roster WHERE date = ?", [d]).fetchall()
+        
+        day_active = [r['car_id'] for r in roster_rows if r['shift'].lower() == 'day' and r['status'] == '執勤']
+        night_active = [r['car_id'] for r in roster_rows if r['shift'].lower() == 'night' and r['status'] == '執勤']
+        
+        d_cap = sum(car_shift_cap['day'].get(cid, 0) for cid in day_active)
+        n_cap = sum(car_shift_cap['night'].get(cid, 0) for cid in night_active)
+        t_cap = d_cap + n_cap
+        
+        rate = round(t_cap / tot_demand_24h * 100, 1) if tot_demand_24h > 0 else 0.0
+        
+        day_caps.append(d_cap)
+        night_caps.append(n_cap)
+        total_caps.append(t_cap)
+        demands.append(tot_demand_24h)
+        fulfillment_rates.append(rate)
+
+        trend_details.append({
+            'date': d,
+            'day_cap': d_cap,
+            'night_cap': n_cap,
+            'total_cap': t_cap,
+            'demand': tot_demand_24h,
+            'day_demand': day_demand,
+            'night_demand': night_demand,
+            'day_gap': d_cap - day_demand,
+            'night_gap': n_cap - night_demand,
+            'total_gap': t_cap - tot_demand_24h,
+            'fulfillment_rate': rate,
+            'day_active_count': len(day_active),
+            'night_active_count': len(night_active),
+            'day_active_cars': day_active,
+            'night_active_cars': night_active
+        })
+
+    conn.close()
+
+    avg_daily_cap = round(sum(total_caps) / len(total_caps), 1) if total_caps else 0
+    max_daily_cap = max(total_caps) if total_caps else 0
+    min_daily_cap = min(total_caps) if total_caps else 0
+    avg_rate = round(sum(fulfillment_rates) / len(fulfillment_rates), 1) if fulfillment_rates else 0
+    days_above = sum(1 for c in total_caps if c >= tot_demand_24h)
+    days_below = sum(1 for c in total_caps if c < tot_demand_24h)
+
+    base_caps_day = sum(car_shift_cap['day'].get(f"Car_{c}", 0) for c in ['A', 'B', 'C', 'D', 'E'])
+    base_caps_night = sum(car_shift_cap['night'].get(f"Car_{c}", 0) for c in ['A', 'B', 'C', 'D', 'E'])
+    baseline_cap_24h = base_caps_day + base_caps_night
+
+    return {
+        'status': 'success',
+        'table': table_name,
+        'total_demand_24h': tot_demand_24h,
+        'day_demand': day_demand,
+        'night_demand': night_demand,
+        'baseline_cap_24h': baseline_cap_24h,
+        'dates': dates,
+        'day_caps': day_caps,
+        'night_caps': night_caps,
+        'total_caps': total_caps,
+        'demands': demands,
+        'fulfillment_rates': fulfillment_rates,
+        'details': trend_details,
+        'monthly_stats': {
+            'avg_daily_cap': avg_daily_cap,
+            'max_daily_cap': max_daily_cap,
+            'min_daily_cap': min_daily_cap,
+            'avg_fulfillment_rate': avg_rate,
+            'days_above_demand': days_above,
+            'days_below_demand': days_below
+        }
+    }
+

@@ -6,7 +6,7 @@
       "title": "外廠門戶與全廠巡迴",
       "hub": "FAB8E 1F 大廳",
       "phone": "8644824（0960-717239）",
-      "shift_target_cap": "640 批",
+      "shift_target_cap": "624 批",
       "description": "專車直達（晨間）+ 嘉晶外廠專營 + 環廠巡迴",
       "plate_no": "KPC-6593"
     },
@@ -16,7 +16,7 @@
       "title": "FAB8F 代工母港主動脈專車",
       "hub": "FAB8F 代工出入口",
       "phone": "8644828（0960-717178）",
-      "shift_target_cap": "760 批",
+      "shift_target_cap": "720 批",
       "description": "8F 十字路口超級重砲，高密度對開與午休跨休專車",
       "plate_no": "KPC-6586"
     },
@@ -26,7 +26,7 @@
       "title": "FAB8AB 力行心臟與 8F 密集對開",
       "hub": "FAB8AB 1F 大廳",
       "phone": "8644830（0960-717258）",
-      "shift_target_cap": "696 批",
+      "shift_target_cap": "648 批",
       "description": "力行 8AB 大廳主力與午後大環巡迴",
       "plate_no": "KPC-6588"
     },
@@ -36,7 +36,7 @@
       "title": "FAB8CD 母港全日純環廠巡迴車",
       "hub": "FAB8CD 裝卸碼頭上 3F",
       "phone": "8681029（0965-702916）",
-      "shift_target_cap": "396 批",
+      "shift_target_cap": "384 批",
       "description": "全廠巡迴（8CD➔8F➔8S➔8E➔8AB），主扛 8S 庫房",
       "plate_no": "KPA-7309"
     },
@@ -46,7 +46,7 @@
       "title": "FAB8S 庫房母港專車與小環",
       "hub": "FAB8S 1F 碼頭/8S5A",
       "phone": "8681030（0965-702918）",
-      "shift_target_cap": "592 批",
+      "shift_target_cap": "600 批",
       "description": "8S 庫房始發，日班試運行，密集庫房出入料",
       "plate_no": "KPC-6131"
     }
@@ -343,7 +343,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "8E ➔ 8CD (12批)<br>8E ➔ 嘉晶篤行 (12批)<br>8E ➔ 8AB (12批)",
+      "od_flow": "8E ➔ 8CD (12批)<br>8E ➔ 嘉晶篤行 (12批)",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8CD (12批)",
       "time_range": "09:45 - 10:10",
@@ -355,7 +355,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【環廠起點】上車 36 批** (留 24 批空位)<br>➔ 卸 [8AB➔8E]，上 [8E➔CD:12, 篤行:12, AB:12]",
       "sop_details": "晨間專車結束，切換為環廠上午圈，出發裝載量 36 批。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -369,7 +369,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "8E ➔ 8CD (12批)<br>8E ➔ 嘉晶篤行 (12批)<br>8E ➔ 8AB (12批)",
+      "od_flow": "8E ➔ 8CD (12批)<br>8E ➔ 嘉晶篤行 (12批)",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8CD (12批)",
       "time_range": "21:45 - 22:10",
@@ -381,7 +381,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【環廠起點】上車 36 批** (留 24 批空位)<br>➔ 卸 [8AB➔8E]，上 [8E➔CD:12, 篤行:12, AB:12]",
       "sop_details": "晨間專車結束，切換為環廠上午圈，出發裝載量 36 批。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -447,7 +447,7 @@
       "station_raw": "🟦 **FAB8CD**<br>裝卸碼頭",
       "station_location": "裝卸碼頭",
       "mode": "環廠",
-      "od_flow": "FAB8CD ➔ FAB8E (16批)",
+      "od_flow": "FAB8CD ➔ FAB8E (24批)",
       "origin_fab": "FAB8CD",
       "dest_fab": "FAB8E (16批)",
       "time_range": "10:40 - 11:05",
@@ -459,7 +459,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【中繼換車】下 24 批、上 16 批** (裝載量 40 批)<br>➔ 卸 [8E➔CD:12, 篤行➔CD:12]，上 [CD➔E:16]",
       "sop_details": "地面碼頭下貨，送上 3F 換車，開往 8AB。",
-      "capacity_batches": 16,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -473,7 +473,7 @@
       "station_raw": "🟦 **FAB8CD**<br>裝卸碼頭",
       "station_location": "裝卸碼頭",
       "mode": "環廠",
-      "od_flow": "FAB8CD ➔ FAB8E (16批)",
+      "od_flow": "FAB8CD ➔ FAB8E (24批)",
       "origin_fab": "FAB8CD",
       "dest_fab": "FAB8E (16批)",
       "time_range": "22:40 - 23:05",
@@ -485,7 +485,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【中繼換車】下 24 批、上 16 批** (裝載量 40 批)<br>➔ 卸 [8E➔CD:12, 篤行➔CD:12]，上 [CD➔E:16]",
       "sop_details": "地面碼頭下貨，送上 3F 換車，開往 8AB。",
-      "capacity_batches": 16,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -499,7 +499,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "FAB8AB ➔ FAB8E (16批)",
+      "od_flow": "FAB8AB ➔ FAB8E (48批) [晨間環廠末站滿載]",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8E (16批)",
       "time_range": "11:10 - 11:30",
@@ -511,7 +511,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【大廳換貨】下 12 批、上 16 批** (裝載量 44 批)<br>➔ 卸 [8E➔AB:12]，上 [AB➔E:16]",
       "sop_details": "1F 大廳純平面換貨點交，開回母站 8E 準備午休預載。",
-      "capacity_batches": 16,
+      "capacity_batches": 48,
       "is_break": 0
     },
     {
@@ -525,7 +525,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "FAB8AB ➔ FAB8E (16批)",
+      "od_flow": "FAB8AB ➔ FAB8E (48批) [晨間環廠末站滿載]",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8E (16批)",
       "time_range": "23:10 - 23:30",
@@ -537,7 +537,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【大廳換貨】下 12 批、上 16 批** (裝載量 44 批)<br>➔ 卸 [8E➔AB:12]，上 [AB➔E:16]",
       "sop_details": "1F 大廳純平面換貨點交，開回母站 8E 準備午休預載。",
-      "capacity_batches": 16,
+      "capacity_batches": 48,
       "is_break": 0
     },
     {
@@ -707,7 +707,7 @@
       "station_raw": "🟦 **嘉晶創新**<br>(外廠站點)",
       "station_location": "外廠交接區",
       "mode": "環廠",
-      "od_flow": "嘉晶創新 ➔ FAB8E (12批)",
+      "od_flow": "嘉晶創新 ➔ FAB8E (24批)",
       "origin_fab": "嘉晶創新",
       "dest_fab": "FAB8E (12批)",
       "time_range": "13:30 - 13:50",
@@ -719,7 +719,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【外廠快收送】下 12 批、上 12 批** (裝載量 36 批)<br>➔ 卸 [8E➔創新:12]，收 [創新➔E:12]",
       "sop_details": "外廠交接區點驗，直開回 8E 大廳完成午後第 1 圈。",
-      "capacity_batches": 12,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -733,7 +733,7 @@
       "station_raw": "🟦 **嘉晶創新**<br>(外廠站點)",
       "station_location": "外廠交接區",
       "mode": "環廠",
-      "od_flow": "嘉晶創新 ➔ FAB8E (12批)",
+      "od_flow": "嘉晶創新 ➔ FAB8E (24批)",
       "origin_fab": "嘉晶創新",
       "dest_fab": "FAB8E (12批)",
       "time_range": "01:30 - 01:50",
@@ -745,7 +745,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【外廠快收送】下 12 批、上 12 批** (裝載量 36 批)<br>➔ 卸 [8E➔創新:12]，收 [創新➔E:12]",
       "sop_details": "外廠交接區點驗，直開回 8E 大廳完成午後第 1 圈。",
-      "capacity_batches": 12,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -759,7 +759,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "FAB8E ➔ FAB8CD (16批)<br>FAB8E ➔ 嘉晶篤行 (16批)",
+      "od_flow": "FAB8E ➔ FAB8CD (12批)<br>FAB8E ➔ 嘉晶篤行 (12批)",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8CD (16批)",
       "time_range": "14:00 - 14:25",
@@ -771,7 +771,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【午後大環第 2 圈起點】下 36 批、上 32 批** (裝載量 32 批)<br>➔ 卸回廠物料，上 [8E➔CD:16, 篤行:16]",
       "sop_details": "1F 大廳平面換車換料，開往 8CD。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -785,7 +785,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "FAB8E ➔ FAB8CD (16批)<br>FAB8E ➔ 嘉晶篤行 (16批)",
+      "od_flow": "FAB8E ➔ FAB8CD (12批)<br>FAB8E ➔ 嘉晶篤行 (12批)",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8CD (16批)",
       "time_range": "02:00 - 02:25",
@@ -797,7 +797,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【午後大環第 2 圈起點】下 36 批、上 32 批** (裝載量 32 批)<br>➔ 卸回廠物料，上 [8E➔CD:16, 篤行:16]",
       "sop_details": "1F 大廳平面換車換料，開往 8CD。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -811,7 +811,7 @@
       "station_raw": "🟦 **FAB8CD**<br>裝卸碼頭",
       "station_location": "裝卸碼頭",
       "mode": "環廠",
-      "od_flow": "FAB8CD ➔ FAB8E (16批)<br>FAB8CD ➔ 嘉晶篤行 (16批)",
+      "od_flow": "FAB8CD ➔ FAB8E (12批)<br>FAB8CD ➔ 嘉晶篤行 (12批)",
       "origin_fab": "FAB8CD",
       "dest_fab": "FAB8E (16批)",
       "time_range": "14:30 - 14:55",
@@ -823,7 +823,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【中繼換車】下 16 批、上 32 批** (裝載量 48 滿載)<br>➔ 卸 [8E➔CD:16]，上 [CD➔E:16, 篤行:16]",
       "sop_details": "地面卸貨，3F 換車，裝載量達 48 批滿載開往篤行。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -837,7 +837,7 @@
       "station_raw": "🟦 **FAB8CD**<br>裝卸碼頭",
       "station_location": "裝卸碼頭",
       "mode": "環廠",
-      "od_flow": "FAB8CD ➔ FAB8E (16批)<br>FAB8CD ➔ 嘉晶篤行 (16批)",
+      "od_flow": "FAB8CD ➔ FAB8E (12批)<br>FAB8CD ➔ 嘉晶篤行 (12批)",
       "origin_fab": "FAB8CD",
       "dest_fab": "FAB8E (16批)",
       "time_range": "02:30 - 02:55",
@@ -849,7 +849,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【中繼換車】下 16 批、上 32 批** (裝載量 48 滿載)<br>➔ 卸 [8E➔CD:16]，上 [CD➔E:16, 篤行:16]",
       "sop_details": "地面卸貨，3F 換車，裝載量達 48 批滿載開往篤行。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -863,7 +863,7 @@
       "station_raw": "🟦 **嘉晶篤行**<br>(外廠站點)",
       "station_location": "外廠交接區",
       "mode": "環廠",
-      "od_flow": "嘉晶篤行 ➔ FAB8E (32批)",
+      "od_flow": "嘉晶篤行 ➔ FAB8E (24批)",
       "origin_fab": "嘉晶篤行",
       "dest_fab": "FAB8E (32批)",
       "time_range": "15:05 - 15:25",
@@ -875,7 +875,7 @@
       "transit_mins": 0,
       "cargo_cmd": "**【外廠深度裝卸】下 32 批、上 32 批** (裝載量 48 滿載)<br>➔ 卸 [8E/CD➔篤行:32]，全上 [篤行➔E:32]",
       "sop_details": "篤行卸下 32 批、上滿回 8E 加工片 32 批。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -889,7 +889,7 @@
       "station_raw": "🟦 **嘉晶篤行**<br>(外廠站點)",
       "station_location": "外廠交接區",
       "mode": "環廠",
-      "od_flow": "嘉晶篤行 ➔ FAB8E (32批)",
+      "od_flow": "嘉晶篤行 ➔ FAB8E (24批)",
       "origin_fab": "嘉晶篤行",
       "dest_fab": "FAB8E (32批)",
       "time_range": "03:05 - 03:25",
@@ -901,7 +901,7 @@
       "transit_mins": 0,
       "cargo_cmd": "**【外廠深度裝卸】下 32 批、上 32 批** (裝載量 48 滿載)<br>➔ 卸 [8E/CD➔篤行:32]，全上 [篤行➔E:32]",
       "sop_details": "篤行卸下 32 批、上滿回 8E 加工片 32 批。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -915,7 +915,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "FAB8E ➔ FAB8S (16批)<br>FAB8E ➔ FAB8AB (16批)",
+      "od_flow": "FAB8E ➔ FAB8S (12批)<br>FAB8E ➔ FAB8AB (12批)",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8S (16批)",
       "time_range": "15:25 - 15:45",
@@ -927,7 +927,7 @@
       "transit_mins": 0,
       "cargo_cmd": "**【大廳快速換車】下 48 批、上 32 批** (裝載量 32 批)<br>➔ 卸篤行回廠貨，上 [8E➔S:16, AB:16]",
       "sop_details": "1F 大廳平面點交換貨，隨即銜接環廠第 3 圈。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -941,7 +941,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "FAB8E ➔ FAB8S (16批)<br>FAB8E ➔ FAB8AB (16批)",
+      "od_flow": "FAB8E ➔ FAB8S (12批)<br>FAB8E ➔ FAB8AB (12批)",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8S (16批)",
       "time_range": "03:25 - 03:45",
@@ -953,7 +953,7 @@
       "transit_mins": 0,
       "cargo_cmd": "**【大廳快速換車】下 48 批、上 32 批** (裝載量 32 批)<br>➔ 卸篤行回廠貨，上 [8E➔S:16, AB:16]",
       "sop_details": "1F 大廳平面點交換貨，隨即銜接環廠第 3 圈。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -967,7 +967,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "FAB8AB ➔ FAB8E (16批)<br>FAB8AB ➔ FAB8S (16批)",
+      "od_flow": "FAB8AB ➔ FAB8E (12批)<br>FAB8AB ➔ FAB8S (12批)",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8E (16批)",
       "time_range": "15:45 - 16:10",
@@ -979,7 +979,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【中繼換貨】下 16 批、上 32 批** (裝載量 48 滿載)<br>➔ 卸 [8E➔AB:16]，上 [AB➔E:16, S:16]",
       "sop_details": "1F 大廳平面點交，開往 8S 碼頭。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -993,7 +993,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "FAB8AB ➔ FAB8E (16批)<br>FAB8AB ➔ FAB8S (16批)",
+      "od_flow": "FAB8AB ➔ FAB8E (12批)<br>FAB8AB ➔ FAB8S (12批)",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8E (16批)",
       "time_range": "03:45 - 04:10",
@@ -1005,7 +1005,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【中繼換貨】下 16 批、上 32 批** (裝載量 48 滿載)<br>➔ 卸 [8E➔AB:16]，上 [AB➔E:16, S:16]",
       "sop_details": "1F 大廳平面點交，開往 8S 碼頭。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1019,7 +1019,7 @@
       "station_raw": "🟦 **FAB8S**<br>1F 碼頭/8S5A",
       "station_location": "1F 碼頭/8S5A",
       "mode": "環廠",
-      "od_flow": "FAB8S ➔ FAB8E (16批)<br>FAB8S ➔ FAB8CD (16批)",
+      "od_flow": "FAB8S ➔ FAB8E (24批)",
       "origin_fab": "FAB8S",
       "dest_fab": "FAB8E (16批)",
       "time_range": "16:20 - 16:55",
@@ -1031,7 +1031,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【庫房深度作業】下 32 批、上 32 批** (裝載量 48 滿載)<br>➔ 卸 [8E/AB➔S:32]，長推上 [S➔E:16, CD:16]",
       "sop_details": "8S5A 深度點交 35 分鐘，開回 8E。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1045,7 +1045,7 @@
       "station_raw": "🟦 **FAB8S**<br>1F 碼頭/8S5A",
       "station_location": "1F 碼頭/8S5A",
       "mode": "環廠",
-      "od_flow": "FAB8S ➔ FAB8E (16批)<br>FAB8S ➔ FAB8CD (16批)",
+      "od_flow": "FAB8S ➔ FAB8E (24批)",
       "origin_fab": "FAB8S",
       "dest_fab": "FAB8E (16批)",
       "time_range": "04:20 - 04:55",
@@ -1057,7 +1057,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【庫房深度作業】下 32 批、上 32 批** (裝載量 48 滿載)<br>➔ 卸 [8E/AB➔S:32]，長推上 [S➔E:16, CD:16]",
       "sop_details": "8S5A 深度點交 35 分鐘，開回 8E。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1071,7 +1071,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "FAB8E ➔ FAB8CD (32批)",
+      "od_flow": "FAB8E ➔ FAB8CD (24批)",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8CD (32批)",
       "time_range": "17:05 - 17:25",
@@ -1083,7 +1083,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【環廠第 3 圈收尾】下 32 批、上 32 批** (裝載量 48 滿載)<br>➔ 卸回廠料，上 [8E➔CD:32]，準備傍晚專車",
       "sop_details": "1F 大廳換車，環廠結束，切換為傍晚專車直達。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1097,7 +1097,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "環廠",
-      "od_flow": "FAB8E ➔ FAB8CD (32批)",
+      "od_flow": "FAB8E ➔ FAB8CD (24批)",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8CD (32批)",
       "time_range": "05:05 - 05:25",
@@ -1109,7 +1109,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【環廠第 3 圈收尾】下 32 批、上 32 批** (裝載量 48 滿載)<br>➔ 卸回廠料，上 [8E➔CD:32]，準備傍晚專車",
       "sop_details": "1F 大廳換車，環廠結束，切換為傍晚專車直達。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1539,7 +1539,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 1",
-      "od_flow": "8AB ➔ 8F (20批), 8AB ➔ 8S (16批)",
+      "od_flow": "8AB ➔ 8F (12批), 8AB ➔ 8S (12批)",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8F",
       "time_range": "10:15 - 10:40",
@@ -1551,7 +1551,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 36 批**<br>➔ 卸回廠料，上 [8AB ➔ 8F (20批), 8AB ➔ 8S (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1565,7 +1565,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 1",
-      "od_flow": "8AB ➔ 8F (20批), 8AB ➔ 8S (16批)",
+      "od_flow": "8AB ➔ 8F (12批), 8AB ➔ 8S (12批)",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8F",
       "time_range": "22:15 - 22:40",
@@ -1577,7 +1577,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 36 批**<br>➔ 卸回廠料，上 [8AB ➔ 8F (20批), 8AB ➔ 8S (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1591,7 +1591,7 @@
       "station_raw": "🟦 **FAB8F**<br>代工出入口",
       "station_location": "代工出入口",
       "mode": "小環 1",
-      "od_flow": "8F ➔ 8S (32批) [在途: AB➔S 16批]",
+      "od_flow": "8F ➔ 8S (24批) [在途: AB➔S 12批]",
       "origin_fab": "FAB8F",
       "dest_fab": "FAB8S",
       "time_range": "10:45 - 11:10",
@@ -1603,7 +1603,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【動態滾動裝卸】下 20 批、上 32 批**<br>➔ 卸回廠料，上 [8F ➔ 8S (32批) [在途: AB➔S 16批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1617,7 +1617,7 @@
       "station_raw": "🟦 **FAB8F**<br>代工出入口",
       "station_location": "代工出入口",
       "mode": "小環 1",
-      "od_flow": "8F ➔ 8S (32批) [在途: AB➔S 16批]",
+      "od_flow": "8F ➔ 8S (24批) [在途: AB➔S 12批]",
       "origin_fab": "FAB8F",
       "dest_fab": "FAB8S",
       "time_range": "22:45 - 23:10",
@@ -1629,7 +1629,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【動態滾動裝卸】下 20 批、上 32 批**<br>➔ 卸回廠料，上 [8F ➔ 8S (32批) [在途: AB➔S 16批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1851,7 +1851,7 @@
       "station_raw": "🟦 **FAB8F**<br>代工出入口",
       "station_location": "代工出入口",
       "mode": "小環 2",
-      "od_flow": "8F ➔ 8AB (20批), 8F ➔ 8S (16批)",
+      "od_flow": "8F ➔ 8AB (12批), 8F ➔ 8S (12批)",
       "origin_fab": "FAB8F",
       "dest_fab": "FAB8AB",
       "time_range": "13:55 - 14:20",
@@ -1863,7 +1863,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 36 批**<br>➔ 卸回廠料，上 [8F ➔ 8AB (20批), 8F ➔ 8S (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1877,7 +1877,7 @@
       "station_raw": "🟦 **FAB8F**<br>代工出入口",
       "station_location": "代工出入口",
       "mode": "小環 2",
-      "od_flow": "8F ➔ 8AB (20批), 8F ➔ 8S (16批)",
+      "od_flow": "8F ➔ 8AB (12批), 8F ➔ 8S (12批)",
       "origin_fab": "FAB8F",
       "dest_fab": "FAB8AB",
       "time_range": "01:55 - 02:20",
@@ -1889,7 +1889,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 36 批**<br>➔ 卸回廠料，上 [8F ➔ 8AB (20批), 8F ➔ 8S (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1903,7 +1903,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 2",
-      "od_flow": "8AB ➔ 8S (32批) [在途: F➔S 16批]",
+      "od_flow": "8AB ➔ 8S (24批) [在途: F➔S 12批]",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8S",
       "time_range": "14:25 - 14:50",
@@ -1915,7 +1915,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【動態滾動裝卸】下 20 批、上 32 批**<br>➔ 卸回廠料，上 [8AB ➔ 8S (32批) [在途: F➔S 16批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -1929,7 +1929,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 2",
-      "od_flow": "8AB ➔ 8S (32批) [在途: F➔S 16批]",
+      "od_flow": "8AB ➔ 8S (24批) [在途: F➔S 12批]",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8S",
       "time_range": "02:25 - 02:50",
@@ -1941,7 +1941,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【動態滾動裝卸】下 20 批、上 32 批**<br>➔ 卸回廠料，上 [8AB ➔ 8S (32批) [在途: F➔S 16批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -2579,7 +2579,7 @@
       "station_raw": "🟦 **FAB8CD**<br>裝卸碼頭",
       "station_location": "裝卸碼頭",
       "mode": "小環 1",
-      "od_flow": "8CD ➔ 8F (20批), 8CD ➔ 8AB (12批)",
+      "od_flow": "8CD ➔ 8F (12批), 8CD ➔ 8AB (12批)",
       "origin_fab": "FAB8CD",
       "dest_fab": "FAB8F",
       "time_range": "10:50 - 11:15",
@@ -2591,7 +2591,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 32 批**<br>➔ 卸回廠料，上 [8CD ➔ 8F (20批), 8CD ➔ 8AB (12批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -2605,7 +2605,7 @@
       "station_raw": "🟦 **FAB8CD**<br>裝卸碼頭",
       "station_location": "裝卸碼頭",
       "mode": "小環 1",
-      "od_flow": "8CD ➔ 8F (20批), 8CD ➔ 8AB (12批)",
+      "od_flow": "8CD ➔ 8F (12批), 8CD ➔ 8AB (12批)",
       "origin_fab": "FAB8CD",
       "dest_fab": "FAB8F",
       "time_range": "22:50 - 23:15",
@@ -2617,7 +2617,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 32 批**<br>➔ 卸回廠料，上 [8CD ➔ 8F (20批), 8CD ➔ 8AB (12批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -2631,7 +2631,7 @@
       "station_raw": "🟦 **FAB8F**<br>代工出入口",
       "station_location": "代工出入口",
       "mode": "小環 1",
-      "od_flow": "8F ➔ 8AB (36批) [在途: CD➔AB 12批]",
+      "od_flow": "8F ➔ 8AB (24批) [在途: CD➔AB 12批]",
       "origin_fab": "FAB8F",
       "dest_fab": "FAB8AB",
       "time_range": "11:20 - 11:40",
@@ -2643,7 +2643,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 20 批、上 36 批**<br>➔ 卸回廠料，上 [8F ➔ 8AB (36批) [在途: CD➔AB 12批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -2657,7 +2657,7 @@
       "station_raw": "🟦 **FAB8F**<br>代工出入口",
       "station_location": "代工出入口",
       "mode": "小環 1",
-      "od_flow": "8F ➔ 8AB (36批) [在途: CD➔AB 12批]",
+      "od_flow": "8F ➔ 8AB (24批) [在途: CD➔AB 12批]",
       "origin_fab": "FAB8F",
       "dest_fab": "FAB8AB",
       "time_range": "23:20 - 23:40",
@@ -2669,7 +2669,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 20 批、上 36 批**<br>➔ 卸回廠料，上 [8F ➔ 8AB (36批) [在途: CD➔AB 12批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -2995,7 +2995,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 2",
-      "od_flow": "8E ➔ 8AB (20批), 8E ➔ 8F (12批)",
+      "od_flow": "8E ➔ 8AB (12批), 8E ➔ 8F (12批)",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8AB",
       "time_range": "15:50 - 16:10",
@@ -3007,7 +3007,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 32 批**<br>➔ 卸回廠料，上 [8E ➔ 8AB (20批), 8E ➔ 8F (12批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -3021,7 +3021,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 2",
-      "od_flow": "8E ➔ 8AB (20批), 8E ➔ 8F (12批)",
+      "od_flow": "8E ➔ 8AB (12批), 8E ➔ 8F (12批)",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8AB",
       "time_range": "03:50 - 04:10",
@@ -3033,7 +3033,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 32 批**<br>➔ 卸回廠料，上 [8E ➔ 8AB (20批), 8E ➔ 8F (12批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -3047,7 +3047,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 2",
-      "od_flow": "8AB ➔ 8F (20批), 8AB ➔ 8E (12批)",
+      "od_flow": "8AB ➔ 8F (12批), 8AB ➔ 8E (12批)",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8F",
       "time_range": "16:15 - 16:40",
@@ -3059,7 +3059,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 20 批、上 32 批**<br>➔ 卸回廠料，上 [8AB ➔ 8F (20批), 8AB ➔ 8E (12批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -3073,7 +3073,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 2",
-      "od_flow": "8AB ➔ 8F (20批), 8AB ➔ 8E (12批)",
+      "od_flow": "8AB ➔ 8F (12批), 8AB ➔ 8E (12批)",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8F",
       "time_range": "04:15 - 04:40",
@@ -3085,7 +3085,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 20 批、上 32 批**<br>➔ 卸回廠料，上 [8AB ➔ 8F (20批), 8AB ➔ 8E (12批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -3099,7 +3099,7 @@
       "station_raw": "🟦 **FAB8F**<br>代工出入口",
       "station_location": "代工出入口",
       "mode": "小環 2",
-      "od_flow": "8F ➔ 8E (36批) [在途: AB➔E 12批]",
+      "od_flow": "8F ➔ 8E (24批) [在途: AB➔E 12批]",
       "origin_fab": "FAB8F",
       "dest_fab": "FAB8E",
       "time_range": "16:45 - 17:10",
@@ -3111,7 +3111,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 32 批、上 36 批**<br>➔ 卸回廠料，上 [8F ➔ 8E (36批) [在途: AB➔E 12批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -3125,7 +3125,7 @@
       "station_raw": "🟦 **FAB8F**<br>代工出入口",
       "station_location": "代工出入口",
       "mode": "小環 2",
-      "od_flow": "8F ➔ 8E (36批) [在途: AB➔E 12批]",
+      "od_flow": "8F ➔ 8E (24批) [在途: AB➔E 12批]",
       "origin_fab": "FAB8F",
       "dest_fab": "FAB8E",
       "time_range": "04:45 - 05:10",
@@ -3137,7 +3137,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 32 批、上 36 批**<br>➔ 卸回廠料，上 [8F ➔ 8E (36批) [在途: AB➔E 12批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -3567,7 +3567,7 @@
       "station_raw": "🟦 **FAB8F**<br>代工出入口",
       "station_location": "代工出入口",
       "mode": "環廠",
-      "od_flow": "8F ➔ 8S (36批) [在途: CD➔S 12批]",
+      "od_flow": "8F ➔ 8S (24批) [在途: CD➔S 12批]",
       "origin_fab": "FAB8F",
       "dest_fab": "FAB8S",
       "time_range": "10:30 - 10:55",
@@ -3579,7 +3579,7 @@
       "transit_mins": 15,
       "cargo_cmd": "**【動態滾動裝卸】下 12 批、上 36 批**<br>➔ 卸回廠料，上 [8F ➔ 8S (36批) [在途: CD➔S 12批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -3593,7 +3593,7 @@
       "station_raw": "🟦 **FAB8F**<br>代工出入口",
       "station_location": "代工出入口",
       "mode": "環廠",
-      "od_flow": "8F ➔ 8S (36批) [在途: CD➔S 12批]",
+      "od_flow": "8F ➔ 8S (24批) [在途: CD➔S 12批]",
       "origin_fab": "FAB8F",
       "dest_fab": "FAB8S",
       "time_range": "22:30 - 22:55",
@@ -3605,7 +3605,7 @@
       "transit_mins": 15,
       "cargo_cmd": "**【動態滾動裝卸】下 12 批、上 36 批**<br>➔ 卸回廠料，上 [8F ➔ 8S (36批) [在途: CD➔S 12批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 36,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -4399,7 +4399,7 @@
       "station_raw": "🟦 **FAB8CD**<br>裝卸碼頭",
       "station_location": "裝卸碼頭",
       "mode": "小環 1",
-      "od_flow": "8CD ➔ 8AB (16批), 8CD ➔ 8S (16批)",
+      "od_flow": "8CD ➔ 8AB (12批), 8CD ➔ 8S (12批)",
       "origin_fab": "FAB8CD",
       "dest_fab": "FAB8S (跨)",
       "time_range": "09:10 - 09:35",
@@ -4411,7 +4411,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 32 批**<br>➔ 卸回廠料，上 [8CD ➔ 8AB (16批), 8CD ➔ 8S (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -4425,7 +4425,7 @@
       "station_raw": "🟦 **FAB8CD**<br>裝卸碼頭",
       "station_location": "裝卸碼頭",
       "mode": "小環 1",
-      "od_flow": "8CD ➔ 8AB (16批), 8CD ➔ 8S (16批)",
+      "od_flow": "8CD ➔ 8AB (12批), 8CD ➔ 8S (12批)",
       "origin_fab": "FAB8CD",
       "dest_fab": "FAB8S (跨)",
       "time_range": "21:10 - 21:35",
@@ -4437,7 +4437,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 32 批**<br>➔ 卸回廠料，上 [8CD ➔ 8AB (16批), 8CD ➔ 8S (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -4451,7 +4451,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 1",
-      "od_flow": "8AB ➔ 8E (16批), 8AB ➔ 8S (16批)",
+      "od_flow": "8AB ➔ 8E (12批), 8AB ➔ 8S (12批)",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8E",
       "time_range": "09:40 - 10:05",
@@ -4463,7 +4463,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 16 批、上 32 批**<br>➔ 卸回廠料，上 [8AB ➔ 8E (16批), 8AB ➔ 8S (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -4477,7 +4477,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 1",
-      "od_flow": "8AB ➔ 8E (16批), 8AB ➔ 8S (16批)",
+      "od_flow": "8AB ➔ 8E (12批), 8AB ➔ 8S (12批)",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8E",
       "time_range": "21:40 - 22:05",
@@ -4489,7 +4489,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 16 批、上 32 批**<br>➔ 卸回廠料，上 [8AB ➔ 8E (16批), 8AB ➔ 8S (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -4503,7 +4503,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 1",
-      "od_flow": "8E ➔ 8S (16批) [在途: CD➔S 16, AB➔S 16]",
+      "od_flow": "8E ➔ 8S (24批) [在途: CD➔S 12, AB➔S 12]",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8S",
       "time_range": "10:10 - 10:30",
@@ -4515,7 +4515,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【動態滾動裝卸】下 16 批、上 16 批**<br>➔ 卸回廠料，上 [8E ➔ 8S (16批) [在途: CD➔S 16, AB➔S 16]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 16,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -4529,7 +4529,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 1",
-      "od_flow": "8E ➔ 8S (16批) [在途: CD➔S 16, AB➔S 16]",
+      "od_flow": "8E ➔ 8S (24批) [在途: CD➔S 12, AB➔S 12]",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8S",
       "time_range": "22:10 - 22:30",
@@ -4541,7 +4541,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【動態滾動裝卸】下 16 批、上 16 批**<br>➔ 卸回廠料，上 [8E ➔ 8S (16批) [在途: CD➔S 16, AB➔S 16]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 16,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -5023,7 +5023,7 @@
       "station_raw": "🟦 **FAB8S**<br>1F 碼頭/8S5A",
       "station_location": "1F 碼頭/8S5A",
       "mode": "小環 2",
-      "od_flow": "8S ➔ 8AB (16批), 8S ➔ 8E (16批)",
+      "od_flow": "8S ➔ 8AB (12批), 8S ➔ 8E (12批)",
       "origin_fab": "FAB8S",
       "dest_fab": "FAB8AB",
       "time_range": "16:00 - 16:45",
@@ -5035,7 +5035,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 32 批**<br>➔ 卸回廠料，上 [8S ➔ 8AB (16批), 8S ➔ 8E (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -5049,7 +5049,7 @@
       "station_raw": "🟦 **FAB8S**<br>1F 碼頭/8S5A",
       "station_location": "1F 碼頭/8S5A",
       "mode": "小環 2",
-      "od_flow": "8S ➔ 8AB (16批), 8S ➔ 8E (16批)",
+      "od_flow": "8S ➔ 8AB (12批), 8S ➔ 8E (12批)",
       "origin_fab": "FAB8S",
       "dest_fab": "FAB8AB",
       "time_range": "04:00 - 04:45",
@@ -5061,7 +5061,7 @@
       "transit_mins": 10,
       "cargo_cmd": "**【動態滾動裝卸】下 48 批、上 32 批**<br>➔ 卸回廠料，上 [8S ➔ 8AB (16批), 8S ➔ 8E (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -5075,7 +5075,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 2",
-      "od_flow": "8AB ➔ 8E (16批), 8AB ➔ 8CD (16批)",
+      "od_flow": "8AB ➔ 8E (12批), 8AB ➔ 8CD (12批)",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8E",
       "time_range": "16:55 - 17:20",
@@ -5087,7 +5087,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 16 批、上 32 批**<br>➔ 卸回廠料，上 [8AB ➔ 8E (16批), 8AB ➔ 8CD (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -5101,7 +5101,7 @@
       "station_raw": "🟦 **FAB8AB**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 2",
-      "od_flow": "8AB ➔ 8E (16批), 8AB ➔ 8CD (16批)",
+      "od_flow": "8AB ➔ 8E (12批), 8AB ➔ 8CD (12批)",
       "origin_fab": "FAB8AB",
       "dest_fab": "FAB8E",
       "time_range": "04:55 - 05:20",
@@ -5113,7 +5113,7 @@
       "transit_mins": 5,
       "cargo_cmd": "**【動態滾動裝卸】下 16 批、上 32 批**<br>➔ 卸回廠料，上 [8AB ➔ 8E (16批), 8AB ➔ 8CD (16批)]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 32,
+      "capacity_batches": 24,
       "is_break": 0
     },
     {
@@ -5127,7 +5127,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 2",
-      "od_flow": "8E ➔ 8CD (16批) [在途: AB➔CD 16批]",
+      "od_flow": "8E ➔ 8CD (48批) [小環末站滿載回碼頭]",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8CD",
       "time_range": "17:25 - 17:50",
@@ -5139,7 +5139,7 @@
       "transit_mins": 15,
       "cargo_cmd": "**【動態滾動裝卸】下 32 批、上 16 批**<br>➔ 卸回廠料，上 [8E ➔ 8CD (16批) [在途: AB➔CD 16批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 16,
+      "capacity_batches": 48,
       "is_break": 0
     },
     {
@@ -5153,7 +5153,7 @@
       "station_raw": "🟦 **FAB8E**<br>1F 大廳",
       "station_location": "1F 大廳",
       "mode": "小環 2",
-      "od_flow": "8E ➔ 8CD (16批) [在途: AB➔CD 16批]",
+      "od_flow": "8E ➔ 8CD (48批) [小環末站滿載回碼頭]",
       "origin_fab": "FAB8E",
       "dest_fab": "FAB8CD",
       "time_range": "05:25 - 05:50",
@@ -5165,7 +5165,7 @@
       "transit_mins": 15,
       "cargo_cmd": "**【動態滾動裝卸】下 32 批、上 16 批**<br>➔ 卸回廠料，上 [8E ➔ 8CD (16批) [在途: AB➔CD 16批]]",
       "sop_details": "多點流動式共乘，離站裝載量控制在安全上限之內。",
-      "capacity_batches": 16,
+      "capacity_batches": 48,
       "is_break": 0
     },
     {
@@ -22921,8 +22921,8 @@
   ],
   "audit_reports": {
     "schedules": {
-      "timestamp": "2026-11-10 20:26:39",
-      "db_path": "logistics.db",
+      "timestamp": "2026-11-10 22:46:47",
+      "db_path": "G:\\我的雲端硬碟\\AI\\Logistics\\logistics.db",
       "table_name": "schedules",
       "plan_label": "原方案 (Baseline 原始基準)",
       "summary": {
@@ -22938,12 +22938,12 @@
         "total_violations": 73,
         "total_warnings": 23,
         "total_demand_24h": 5742,
-        "active_od_cap_24h": 6000,
-        "max_utilization": 200.0,
-        "avg_utilization": 95.7,
+        "active_od_cap_24h": 5808,
+        "max_utilization": 201.5,
+        "avg_utilization": 98.9,
         "total_slack_mins": 60,
-        "weighted_wait_batch_mins": 425525,
-        "weighted_avg_wait_mins": 74.1
+        "weighted_wait_batch_mins": 441941,
+        "weighted_avg_wait_mins": 77.0
       },
       "stats": {
         "total_stops": 198,
@@ -22952,13 +22952,13 @@
         "cars_count": 5,
         "active_corridors_count": 22,
         "total_demand_24h": 5742,
-        "total_fleet_cap_24h": 6168,
-        "active_od_cap_24h": 6000,
-        "max_utilization": 200.0,
-        "avg_utilization": 95.7,
+        "total_fleet_cap_24h": 5952,
+        "active_od_cap_24h": 5808,
+        "max_utilization": 201.5,
+        "avg_utilization": 98.9,
         "total_slack_mins": 60,
-        "weighted_wait_batch_mins": 425525,
-        "weighted_avg_wait_mins": 74.1
+        "weighted_wait_batch_mins": 441941,
+        "weighted_avg_wait_mins": 77.0
       },
       "rules": {
         "cap_48_standard": {
@@ -23251,9 +23251,9 @@
               "from": "FAB8F",
               "to": "FAB8S",
               "demand": 858,
-              "capacity": 600,
-              "utilization": 143.0,
-              "msg": "走廊 FAB8F ➔ FAB8S 利用率達 143.0% 超出 85.0% 上限 (需求 858 批 / 供給 600 批)"
+              "capacity": 552,
+              "utilization": 155.4,
+              "msg": "走廊 FAB8F ➔ FAB8S 利用率達 155.4% 超出 85.0% 上限 (需求 858 批 / 供給 552 批)"
             },
             {
               "from": "FAB8S",
@@ -23267,57 +23267,49 @@
               "from": "FAB8AB",
               "to": "FAB8F",
               "demand": 532,
-              "capacity": 368,
-              "utilization": 144.6,
-              "msg": "走廊 FAB8AB ➔ FAB8F 利用率達 144.6% 超出 85.0% 上限 (需求 532 批 / 供給 368 批)"
+              "capacity": 336,
+              "utilization": 158.3,
+              "msg": "走廊 FAB8AB ➔ FAB8F 利用率達 158.3% 超出 85.0% 上限 (需求 532 批 / 供給 336 批)"
             },
             {
               "from": "FAB8F",
               "to": "FAB8AB",
               "demand": 532,
-              "capacity": 304,
-              "utilization": 175.0,
-              "msg": "走廊 FAB8F ➔ FAB8AB 利用率達 175.0% 超出 85.0% 上限 (需求 532 批 / 供給 304 批)"
+              "capacity": 264,
+              "utilization": 201.5,
+              "msg": "走廊 FAB8F ➔ FAB8AB 利用率達 201.5% 超出 85.0% 上限 (需求 532 批 / 供給 264 批)"
             },
             {
               "from": "FAB8CD",
               "to": "FAB8E",
               "demand": 373,
-              "capacity": 400,
-              "utilization": 93.2,
-              "msg": "走廊 FAB8CD ➔ FAB8E 利用率達 93.2% 超出 85.0% 上限 (需求 373 批 / 供給 400 批)"
-            },
-            {
-              "from": "FAB8AB",
-              "to": "FAB8E",
-              "demand": 302,
-              "capacity": 344,
-              "utilization": 87.8,
-              "msg": "走廊 FAB8AB ➔ FAB8E 利用率達 87.8% 超出 85.0% 上限 (需求 302 批 / 供給 344 批)"
+              "capacity": 408,
+              "utilization": 91.4,
+              "msg": "走廊 FAB8CD ➔ FAB8E 利用率達 91.4% 超出 85.0% 上限 (需求 373 批 / 供給 408 批)"
             },
             {
               "from": "FAB8E",
               "to": "FAB8AB",
               "demand": 302,
-              "capacity": 288,
-              "utilization": 104.9,
-              "msg": "走廊 FAB8E ➔ FAB8AB 利用率達 104.9% 超出 85.0% 上限 (需求 302 批 / 供給 288 批)"
+              "capacity": 240,
+              "utilization": 125.8,
+              "msg": "走廊 FAB8E ➔ FAB8AB 利用率達 125.8% 超出 85.0% 上限 (需求 302 批 / 供給 240 批)"
             },
             {
               "from": "FAB8E",
               "to": "嘉晶篤行",
               "demand": 96,
-              "capacity": 56,
-              "utilization": 171.4,
-              "msg": "走廊 FAB8E ➔ 嘉晶篤行 利用率達 171.4% 超出 85.0% 上限 (需求 96 批 / 供給 56 批)"
+              "capacity": 48,
+              "utilization": 200.0,
+              "msg": "走廊 FAB8E ➔ 嘉晶篤行 利用率達 200.0% 超出 85.0% 上限 (需求 96 批 / 供給 48 批)"
             },
             {
               "from": "嘉晶篤行",
               "to": "FAB8E",
               "demand": 96,
-              "capacity": 88,
-              "utilization": 109.1,
-              "msg": "走廊 嘉晶篤行 ➔ FAB8E 利用率達 109.1% 超出 85.0% 上限 (需求 96 批 / 供給 88 批)"
+              "capacity": 72,
+              "utilization": 133.3,
+              "msg": "走廊 嘉晶篤行 ➔ FAB8E 利用率達 133.3% 超出 85.0% 上限 (需求 96 批 / 供給 72 批)"
             },
             {
               "from": "FAB8E",
@@ -23331,9 +23323,17 @@
               "from": "嘉晶創新",
               "to": "FAB8E",
               "demand": 48,
-              "capacity": 24,
-              "utilization": 200.0,
-              "msg": "走廊 嘉晶創新 ➔ FAB8E 利用率達 200.0% 超出 85.0% 上限 (需求 48 批 / 供給 24 批)"
+              "capacity": 48,
+              "utilization": 100.0,
+              "msg": "走廊 嘉晶創新 ➔ FAB8E 利用率達 100.0% 超出 85.0% 上限 (需求 48 批 / 供給 48 批)"
+            },
+            {
+              "from": "FAB8F",
+              "to": "FAB8E",
+              "demand": 45,
+              "capacity": 48,
+              "utilization": 93.8,
+              "msg": "走廊 FAB8F ➔ FAB8E 利用率達 93.8% 超出 85.0% 上限 (需求 45 批 / 供給 48 批)"
             }
           ],
           "od_table": [
@@ -23344,10 +23344,10 @@
               "day_trips": 8,
               "night_trips": 8,
               "total_trips": 16,
-              "day_cap": 300,
-              "night_cap": 300,
-              "capacity": 600,
-              "utilization": 143.0,
+              "day_cap": 276,
+              "night_cap": 276,
+              "capacity": 552,
+              "utilization": 155.4,
               "avg_wait_mins": 45.0,
               "status": "FAIL"
             },
@@ -23372,10 +23372,10 @@
               "day_trips": 5,
               "night_trips": 5,
               "total_trips": 10,
-              "day_cap": 184,
-              "night_cap": 184,
-              "capacity": 368,
-              "utilization": 144.6,
+              "day_cap": 168,
+              "night_cap": 168,
+              "capacity": 336,
+              "utilization": 158.3,
               "avg_wait_mins": 72.0,
               "status": "FAIL"
             },
@@ -23386,10 +23386,10 @@
               "day_trips": 4,
               "night_trips": 4,
               "total_trips": 8,
-              "day_cap": 152,
-              "night_cap": 152,
-              "capacity": 304,
-              "utilization": 175.0,
+              "day_cap": 132,
+              "night_cap": 132,
+              "capacity": 264,
+              "utilization": 201.5,
               "avg_wait_mins": 90.0,
               "status": "FAIL"
             },
@@ -23400,10 +23400,10 @@
               "day_trips": 9,
               "night_trips": 9,
               "total_trips": 18,
-              "day_cap": 332,
-              "night_cap": 332,
-              "capacity": 664,
-              "utilization": 66.1,
+              "day_cap": 324,
+              "night_cap": 324,
+              "capacity": 648,
+              "utilization": 67.7,
               "avg_wait_mins": 40.0,
               "status": "PASS"
             },
@@ -23428,10 +23428,10 @@
               "day_trips": 6,
               "night_trips": 6,
               "total_trips": 12,
-              "day_cap": 200,
-              "night_cap": 200,
-              "capacity": 400,
-              "utilization": 93.2,
+              "day_cap": 204,
+              "night_cap": 204,
+              "capacity": 408,
+              "utilization": 91.4,
               "avg_wait_mins": 60.0,
               "status": "FAIL"
             },
@@ -23442,10 +23442,10 @@
               "day_trips": 8,
               "night_trips": 8,
               "total_trips": 16,
-              "day_cap": 220,
-              "night_cap": 220,
-              "capacity": 440,
-              "utilization": 84.8,
+              "day_cap": 240,
+              "night_cap": 240,
+              "capacity": 480,
+              "utilization": 77.7,
               "avg_wait_mins": 45.0,
               "status": "PASS"
             },
@@ -23456,25 +23456,25 @@
               "day_trips": 7,
               "night_trips": 7,
               "total_trips": 14,
-              "day_cap": 172,
-              "night_cap": 172,
-              "capacity": 344,
-              "utilization": 87.8,
+              "day_cap": 192,
+              "night_cap": 192,
+              "capacity": 384,
+              "utilization": 78.6,
               "avg_wait_mins": 51.4,
-              "status": "FAIL"
+              "status": "PASS"
             },
             {
               "from": "FAB8E",
               "to": "FAB8AB",
               "demand": 302,
-              "day_trips": 5,
-              "night_trips": 5,
-              "total_trips": 10,
-              "day_cap": 144,
-              "night_cap": 144,
-              "capacity": 288,
-              "utilization": 104.9,
-              "avg_wait_mins": 72.0,
+              "day_trips": 4,
+              "night_trips": 4,
+              "total_trips": 8,
+              "day_cap": 120,
+              "night_cap": 120,
+              "capacity": 240,
+              "utilization": 125.8,
+              "avg_wait_mins": 90.0,
               "status": "FAIL"
             },
             {
@@ -23484,10 +23484,10 @@
               "day_trips": 2,
               "night_trips": 2,
               "total_trips": 4,
-              "day_cap": 28,
-              "night_cap": 28,
-              "capacity": 56,
-              "utilization": 171.4,
+              "day_cap": 24,
+              "night_cap": 24,
+              "capacity": 48,
+              "utilization": 200.0,
               "avg_wait_mins": 180.0,
               "status": "FAIL"
             },
@@ -23498,10 +23498,10 @@
               "day_trips": 2,
               "night_trips": 2,
               "total_trips": 4,
-              "day_cap": 44,
-              "night_cap": 44,
-              "capacity": 88,
-              "utilization": 109.1,
+              "day_cap": 36,
+              "night_cap": 36,
+              "capacity": 72,
+              "utilization": 133.3,
               "avg_wait_mins": 180.0,
               "status": "FAIL"
             },
@@ -23512,10 +23512,10 @@
               "day_trips": 5,
               "night_trips": 5,
               "total_trips": 10,
-              "day_cap": 104,
-              "night_cap": 104,
-              "capacity": 208,
-              "utilization": 35.6,
+              "day_cap": 84,
+              "night_cap": 84,
+              "capacity": 168,
+              "utilization": 44.0,
               "avg_wait_mins": 72.0,
               "status": "PASS"
             },
@@ -23526,10 +23526,10 @@
               "day_trips": 2,
               "night_trips": 2,
               "total_trips": 4,
-              "day_cap": 64,
-              "night_cap": 64,
-              "capacity": 128,
-              "utilization": 57.8,
+              "day_cap": 60,
+              "night_cap": 60,
+              "capacity": 120,
+              "utilization": 61.7,
               "avg_wait_mins": 180.0,
               "status": "PASS"
             },
@@ -23540,10 +23540,10 @@
               "day_trips": 4,
               "night_trips": 4,
               "total_trips": 8,
-              "day_cap": 52,
-              "night_cap": 52,
-              "capacity": 104,
-              "utilization": 58.7,
+              "day_cap": 48,
+              "night_cap": 48,
+              "capacity": 96,
+              "utilization": 63.5,
               "avg_wait_mins": 90.0,
               "status": "PASS"
             },
@@ -23551,14 +23551,14 @@
               "from": "FAB8S",
               "to": "FAB8CD",
               "demand": 61,
-              "day_trips": 2,
-              "night_trips": 2,
-              "total_trips": 4,
-              "day_cap": 64,
-              "night_cap": 64,
-              "capacity": 128,
-              "utilization": 47.7,
-              "avg_wait_mins": 180.0,
+              "day_trips": 1,
+              "night_trips": 1,
+              "total_trips": 2,
+              "day_cap": 48,
+              "night_cap": 48,
+              "capacity": 96,
+              "utilization": 63.5,
+              "avg_wait_mins": 360.0,
               "status": "PASS"
             },
             {
@@ -23582,10 +23582,10 @@
               "day_trips": 1,
               "night_trips": 1,
               "total_trips": 2,
-              "day_cap": 12,
-              "night_cap": 12,
-              "capacity": 24,
-              "utilization": 200.0,
+              "day_cap": 24,
+              "night_cap": 24,
+              "capacity": 48,
+              "utilization": 100.0,
               "avg_wait_mins": 360.0,
               "status": "FAIL"
             },
@@ -23610,12 +23610,12 @@
               "day_trips": 1,
               "night_trips": 1,
               "total_trips": 2,
-              "day_cap": 36,
-              "night_cap": 36,
-              "capacity": 72,
-              "utilization": 62.5,
+              "day_cap": 24,
+              "night_cap": 24,
+              "capacity": 48,
+              "utilization": 93.8,
               "avg_wait_mins": 360.0,
-              "status": "PASS"
+              "status": "FAIL"
             },
             {
               "from": "FAB8E",
@@ -23624,10 +23624,10 @@
               "day_trips": 4,
               "night_trips": 4,
               "total_trips": 8,
-              "day_cap": 92,
-              "night_cap": 92,
-              "capacity": 184,
-              "utilization": 23.4,
+              "day_cap": 96,
+              "night_cap": 96,
+              "capacity": 192,
+              "utilization": 22.4,
               "avg_wait_mins": 90.0,
               "status": "PASS"
             },
@@ -23638,10 +23638,10 @@
               "day_trips": 5,
               "night_trips": 5,
               "total_trips": 10,
-              "day_cap": 104,
-              "night_cap": 104,
-              "capacity": 208,
-              "utilization": 20.7,
+              "day_cap": 108,
+              "night_cap": 108,
+              "capacity": 216,
+              "utilization": 19.9,
               "avg_wait_mins": 72.0,
               "status": "PASS"
             }
@@ -24251,8 +24251,8 @@
       }
     },
     "schedules_plan2": {
-      "timestamp": "2026-11-10 20:26:39",
-      "db_path": "logistics.db",
+      "timestamp": "2026-11-10 22:46:47",
+      "db_path": "G:\\我的雲端硬碟\\AI\\Logistics\\logistics.db",
       "table_name": "schedules_plan2",
       "plan_label": "方案二 (CP-SAT 雙層路網優化)",
       "summary": {
@@ -24742,8 +24742,8 @@
       }
     },
     "schedules_plan3": {
-      "timestamp": "2026-11-10 20:26:39",
-      "db_path": "logistics.db",
+      "timestamp": "2026-11-10 22:46:47",
+      "db_path": "G:\\我的雲端硬碟\\AI\\Logistics\\logistics.db",
       "table_name": "schedules_plan3",
       "plan_label": "方案三 (100% 剛性合規落地版)",
       "summary": {
@@ -25192,5 +25192,5 @@
       }
     }
   },
-  "exported_at": "2026-11-10T20:26:39.803991"
+  "exported_at": "2026-11-10T22:46:47.390934"
 }

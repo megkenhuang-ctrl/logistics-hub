@@ -760,7 +760,7 @@
               <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono font-bold text-[10px]">49.4 / 100 🔴 FAILED</span>
             </div>
             <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-300 font-mono pt-1">
-              <div>24H運能: <b class="text-white">6,168批</b> (有效6,000)</div>
+              <div>24H運能: <b class="text-white">5,952批</b> (物理額定)</div>
               <div>最高利用率: <b class="text-rose-400">200.0%</b> (18條超標)</div>
               <div>硬約束合規: <b class="text-rose-400">50.0% (3/6)</b></div>
               <div>軟約束: <b class="text-rose-300">8衝突 / 21同向</b></div>
@@ -1460,6 +1460,62 @@
           <table id="rosterMatrixTable" class="w-full text-center text-xs border-collapse">
             <!-- Dynamically generated 30-day matrix table -->
           </table>
+        </div>
+      </div>
+
+      <!-- 30-Day Monthly Actual Capacity & Demand Dynamic Trend Chart -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <span class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-chart-area text-cyan-400"></i>
+                2026 年 11 月 30 天實際動態運能趨勢 (30-Day Actual Fleet Capacity vs. Demand)
+              </h3>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+              結合司機排班出勤/調休狀態與機動車 (Car U)，動態計算每日「<span class="text-amber-400 font-bold">☀️ 日運量</span>」、「<span class="text-indigo-400 font-bold">🌙 夜運量</span>」、「<span class="text-cyan-400 font-bold">🕒 24H 總運量</span>」與「<span class="text-rose-400 font-bold">🔴 基準需求量 (5,742 批)</span>」。<strong class="text-slate-200">點擊折線上的任意日期節點可一鍵切換全站檢視！</strong>
+            </p>
+          </div>
+
+          <!-- KPI Cards Summary -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full lg:w-auto">
+            <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-center">
+              <div class="text-[10px] text-slate-400 uppercase font-mono">基準需求量</div>
+              <div id="trendKpiDemand" class="text-sm font-bold text-rose-400 font-mono">5,742 批</div>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-center">
+              <div class="text-[10px] text-slate-400 uppercase font-mono">月均總運能</div>
+              <div id="trendKpiAvgCap" class="text-sm font-bold text-cyan-400 font-mono">5,883 批</div>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-center">
+              <div class="text-[10px] text-slate-400 uppercase font-mono">月均達標率</div>
+              <div id="trendKpiAvgRate" class="text-sm font-bold text-emerald-400 font-mono">102.5%</div>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-center">
+              <div class="text-[10px] text-slate-400 uppercase font-mono">達標天數</div>
+              <div id="trendKpiPassDays" class="text-sm font-bold text-amber-400 font-mono">25天 / 30天</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="relative w-full h-[320px] bg-slate-900/60 rounded-xl p-3 border border-slate-700/60">
+          <canvas id="monthlyCapacityTrendChart"></canvas>
+        </div>
+
+        <!-- Legend / Footer note -->
+        <div class="flex flex-wrap items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-700/50">
+          <div class="flex flex-wrap items-center gap-4">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-400/80 border border-amber-500"></span>☀️ 日班實際運能</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-indigo-500/80 border border-indigo-600"></span>🌙 夜班實際運能</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-1.5 rounded-full bg-cyan-400"></span>🕒 24H 實際總運能</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 border-b-2 border-dashed border-rose-500"></span>🔴 24H 基準需求線 (5,742 批)</span>
+          </div>
+          <div class="text-slate-400 italic">
+            💡 提示：點擊圖表數據點或下方日期，可直接切換全站至該日之實際出勤與路徑分析。
+          </div>
         </div>
       </div>
 
@@ -2283,11 +2339,11 @@
       }
 
       const isOpt = (baseTable === 'schedules_plan3');
-      CARS_INFO['Car_A'].target_cap = isOpt ? '912 批/班 (24H: 1,824批)' : '640 批/班 (24H: 1,280批)';
-      CARS_INFO['Car_B'].target_cap = isOpt ? '720 批/班 (24H: 1,440批)' : '760 批/班 (24H: 1,520批)';
-      CARS_INFO['Car_C'].target_cap = isOpt ? '768 批/班 (24H: 1,536批)' : '696 批/班 (24H: 1,392批)';
-      CARS_INFO['Car_D'].target_cap = isOpt ? '576 批/班 (24H: 1,152批)' : '396 批/班 (24H: 792批)';
-      CARS_INFO['Car_E'].target_cap = isOpt ? '768 批/班 (24H: 1,536批)' : '592 批/班 (24H: 1,184批)';
+      CARS_INFO['Car_A'].target_cap = isOpt ? '912 批/班 (24H: 1,824批)' : '624 批/班 (24H: 1,248批)';
+      CARS_INFO['Car_B'].target_cap = isOpt ? '720 批/班 (24H: 1,440批)' : '720 批/班 (24H: 1,440批)';
+      CARS_INFO['Car_C'].target_cap = isOpt ? '768 批/班 (24H: 1,536批)' : '648 批/班 (24H: 1,296批)';
+      CARS_INFO['Car_D'].target_cap = isOpt ? '576 批/班 (24H: 1,152批)' : '384 批/班 (24H: 768批)';
+      CARS_INFO['Car_E'].target_cap = isOpt ? '768 批/班 (24H: 1,536批)' : '600 批/班 (24H: 1,200批)';
 
       updateTopActualOpsBar();
       if (typeof updateActualOperationsView === 'function') {
@@ -2451,11 +2507,11 @@
 
       // Update CARS_INFO target capacities dynamically
       const isOpt = (planTable === 'schedules_plan2' || planTable === 'schedules_plan3');
-      CARS_INFO['Car_A'].target_cap = isOpt ? '912 批/班 (24H: 1,824批)' : '640 批/班 (24H: 1,280批)';
-      CARS_INFO['Car_B'].target_cap = isOpt ? '720 批/班 (24H: 1,440批)' : '760 批/班 (24H: 1,520批)';
-      CARS_INFO['Car_C'].target_cap = isOpt ? '768 批/班 (24H: 1,536批)' : '696 批/班 (24H: 1,392批)';
-      CARS_INFO['Car_D'].target_cap = isOpt ? '576 批/班 (24H: 1,152批)' : '396 批/班 (24H: 792批)';
-      CARS_INFO['Car_E'].target_cap = isOpt ? '768 批/班 (24H: 1,536批)' : '592 批/班 (24H: 1,184批)';
+      CARS_INFO['Car_A'].target_cap = isOpt ? '912 批/班 (24H: 1,824批)' : '624 批/班 (24H: 1,248批)';
+      CARS_INFO['Car_B'].target_cap = isOpt ? '720 批/班 (24H: 1,440批)' : '720 批/班 (24H: 1,440批)';
+      CARS_INFO['Car_C'].target_cap = isOpt ? '768 批/班 (24H: 1,536批)' : '648 批/班 (24H: 1,296批)';
+      CARS_INFO['Car_D'].target_cap = isOpt ? '576 批/班 (24H: 1,152批)' : '384 批/班 (24H: 768批)';
+      CARS_INFO['Car_E'].target_cap = isOpt ? '768 批/班 (24H: 1,536批)' : '600 批/班 (24H: 1,200批)';
 
       renderCarSchedules();
       renderFabAnalysis();
@@ -2859,7 +2915,7 @@
               <p class="text-xs text-slate-400 mt-1">涵蓋 Car A、Car B、Car C、Car D、Car E、Car U 全車隊連續排程時刻表。</p>
             </div>
             <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 font-mono text-emerald-300">
-              5 輛車 (Car A~E，排除 Car U) | ${currentPlanTable === 'schedules' ? '單班 3,084 批 (24H: 6,168 批)' : '單班 3,744 批 (24H: 7,488 批)'}
+              5 輛車 (Car A~E，排除 Car U) | ${currentPlanTable === 'schedules' ? '單班 2,976 批 (24H: 5,952 批)' : '單班 3,744 批 (24H: 7,488 批)'}
             </div>
           </div>
         `;
@@ -5167,6 +5223,9 @@
 
       // 3. Render Calendar Matrix
       renderRosterMatrix();
+
+      // 4. Render 30-Day Monthly Capacity Dynamic Trend Chart
+      renderMonthlyCapacityTrend();
     }
 
     async function renderDriverStatsTable() {
@@ -5355,6 +5414,308 @@
       renderDriverRosterView();
       updateTab1DriverWidget();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ==============================================================
+    // 30-Day Monthly Actual Dynamic Capacity & Demand Trend Chart
+    // ==============================================================
+    let monthlyCapacityTrendChartInstance = null;
+
+    async function renderMonthlyCapacityTrend() {
+      const canvas = document.getElementById('monthlyCapacityTrendChart');
+      if (!canvas) return;
+
+      const baseTbl = (typeof actualOpsBaseTable !== 'undefined') ? actualOpsBaseTable : 'schedules';
+      let trendData = null;
+
+      if (isLiveServer) {
+        try {
+          const res = await fetch(`/api/monthly_trend?table=${baseTbl}`);
+          if (res.ok) {
+            trendData = await res.json();
+          }
+        } catch (e) {
+          console.warn('Failed to fetch /api/monthly_trend, falling back to local computation:', e);
+        }
+      }
+
+      if (!trendData || trendData.status !== 'success') {
+        trendData = computeOfflineMonthlyTrend(baseTbl);
+      }
+
+      if (!trendData || !trendData.dates || trendData.dates.length === 0) return;
+
+      // Update KPI Badges
+      const kDemand = document.getElementById('trendKpiDemand');
+      const kAvgCap = document.getElementById('trendKpiAvgCap');
+      const kAvgRate = document.getElementById('trendKpiAvgRate');
+      const kPassDays = document.getElementById('trendKpiPassDays');
+
+      if (kDemand) kDemand.textContent = `${(trendData.total_demand_24h || 5742).toLocaleString()} 批`;
+      if (kAvgCap && trendData.monthly_stats) kAvgCap.textContent = `${Math.round(trendData.monthly_stats.avg_daily_cap).toLocaleString()} 批`;
+      if (kAvgRate && trendData.monthly_stats) {
+        const rate = trendData.monthly_stats.avg_fulfillment_rate;
+        kAvgRate.textContent = `${rate}%`;
+        kAvgRate.className = `text-sm font-bold font-mono ${rate >= 100 ? 'text-emerald-400' : 'text-amber-400'}`;
+      }
+      if (kPassDays && trendData.monthly_stats) {
+        kPassDays.textContent = `${trendData.monthly_stats.days_above_demand}天 / ${trendData.dates.length}天`;
+      }
+
+      // Prepare chart labels: "11/01 (日)", "11/02 (一)"...
+      const weekdayNames = ['日', '一', '二', '三', '四', '五', '六'];
+      const labels = trendData.dates.map(dStr => {
+        const dt = new Date(dStr);
+        const w = weekdayNames[dt.getDay()];
+        const parts = dStr.split('-');
+        return `${parts[1]}/${parts[2]} (${w})`;
+      });
+
+      if (monthlyCapacityTrendChartInstance) {
+        monthlyCapacityTrendChartInstance.destroy();
+      }
+
+      const activeDate = (typeof currentOpsDate !== 'undefined') ? currentOpsDate : ((typeof TODAY_ACTUAL_DATE !== 'undefined') ? TODAY_ACTUAL_DATE : '2026-11-09');
+
+      const ctx = canvas.getContext('2d');
+      monthlyCapacityTrendChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              type: 'line',
+              label: '🔴 全日基準需求量 (5,742 批)',
+              data: trendData.demands,
+              borderColor: '#f43f5e',
+              borderWidth: 2,
+              borderDash: [5, 4],
+              pointRadius: 0,
+              pointHoverRadius: 0,
+              fill: false,
+              tension: 0,
+              order: 1
+            },
+            {
+              type: 'line',
+              label: '🕒 24H 實際總運能 (日+夜)',
+              data: trendData.total_caps,
+              borderColor: '#22d3ee',
+              backgroundColor: 'rgba(34, 211, 238, 0.08)',
+              borderWidth: 2.5,
+              pointRadius: trendData.dates.map(d => d === activeDate ? 6.5 : 3.5),
+              pointBackgroundColor: trendData.dates.map(d => d === activeDate ? '#38bdf8' : '#22d3ee'),
+              pointBorderColor: trendData.dates.map(d => d === activeDate ? '#ffffff' : '#0891b2'),
+              pointBorderWidth: trendData.dates.map(d => d === activeDate ? 2.5 : 1),
+              pointHoverRadius: 7.5,
+              fill: false,
+              tension: 0.25,
+              order: 2
+            },
+            {
+              type: 'bar',
+              label: '☀️ 日班實際運能',
+              data: trendData.day_caps,
+              backgroundColor: 'rgba(251, 191, 36, 0.75)',
+              borderColor: '#f59e0b',
+              borderWidth: 1,
+              borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 4, bottomRight: 4 },
+              stack: 'shifts',
+              order: 3
+            },
+            {
+              type: 'bar',
+              label: '🌙 夜班實際運能',
+              data: trendData.night_caps,
+              backgroundColor: 'rgba(99, 102, 241, 0.75)',
+              borderColor: '#6366f1',
+              borderWidth: 1,
+              borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+              stack: 'shifts',
+              order: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleColor: '#38bdf8',
+              titleFont: { weight: 'bold', size: 13 },
+              bodyFont: { family: 'ui-monospace, monospace', size: 12 },
+              padding: 12,
+              borderColor: '#334155',
+              borderWidth: 1,
+              callbacks: {
+                title: function(items) {
+                  if (!items || !items.length) return '';
+                  const idx = items[0].dataIndex;
+                  const dateStr = trendData.dates[idx];
+                  const isCur = (dateStr === activeDate);
+                  return `📅 ${dateStr} ${isCur ? '【📍 當前選取日期】' : ''}`;
+                },
+                afterBody: function(items) {
+                  if (!items || !items.length) return '';
+                  const idx = items[0].dataIndex;
+                  const item = trendData.details ? trendData.details[idx] : null;
+                  if (!item) return '';
+                  const diff = item.total_cap - item.demand;
+                  const diffText = diff >= 0 ? `+${diff} 批 (充裕)` : `${diff} 批 (缺額)`;
+                  return [
+                    `-------------------------------`,
+                    `📊 需求達成率: ${item.fulfillment_rate}% (${diffText})`,
+                    `☀️ 日班出勤: ${item.day_active_count} 輛 (${item.day_active_cars.join(', ') || '無'})`,
+                    `🌙 夜班出勤: ${item.night_active_count} 輛 (${item.night_active_cars.join(', ') || '無'})`,
+                    `💡 點擊圖表任意處，立即切換全站檢視此日！`
+                  ];
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: 'rgba(51, 65, 85, 0.4)'
+              },
+              ticks: {
+                color: function(ctx) {
+                  const idx = ctx.index;
+                  if (trendData && trendData.dates && trendData.dates[idx] === activeDate) {
+                    return '#38bdf8';
+                  }
+                  return '#94a3b8';
+                },
+                font: function(ctx) {
+                  const idx = ctx.index;
+                  if (trendData && trendData.dates && trendData.dates[idx] === activeDate) {
+                    return { weight: 'bold', size: 11 };
+                  }
+                  return { size: 10 };
+                },
+                maxRotation: 45,
+                minRotation: 30
+              }
+            },
+            y: {
+              grid: {
+                color: 'rgba(51, 65, 85, 0.4)'
+              },
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'ui-monospace, monospace' },
+                callback: function(val) {
+                  return val.toLocaleString() + ' 批';
+                }
+              },
+              min: 2000,
+              max: 6500
+            }
+          },
+          onClick: function(event, elements) {
+            if (elements && elements.length > 0) {
+              const idx = elements[0].index;
+              const clickedDate = trendData.dates[idx];
+              if (clickedDate) {
+                changeGlobalOpsDate(clickedDate);
+              }
+            }
+          },
+          onHover: function(event, elements) {
+            if (event && event.native && event.native.target) {
+              event.native.target.style.cursor = (elements && elements.length > 0) ? 'pointer' : 'default';
+            }
+          }
+        }
+      });
+    }
+
+    function computeOfflineMonthlyTrend(baseTable = 'schedules') {
+      if (!fallbackData || !fallbackData.driver_roster) return null;
+      const roster = fallbackData.driver_roster;
+      const schedRows = (fallbackData[baseTable] || fallbackData.schedules || []).filter(r => r.is_break === 0);
+      
+      const carShiftCap = { day: {}, night: {} };
+      ['day', 'night'].forEach(s => {
+        schedRows.filter(r => (r.shift || '').toLowerCase() === s).forEach(r => {
+          carShiftCap[s][r.car_id] = (carShiftCap[s][r.car_id] || 0) + (r.capacity_batches || 0);
+        });
+      });
+
+      const totDemand = 5742;
+      const dayDemand = 2871;
+      const nightDemand = 2871;
+
+      const dates = [...new Set(roster.map(r => r.date))].sort();
+      const dayCaps = [];
+      const nightCaps = [];
+      const totalCaps = [];
+      const demands = [];
+      const rates = [];
+      const details = [];
+
+      dates.forEach(d => {
+        const dRows = roster.filter(r => r.date === d);
+        const dayActive = dRows.filter(r => (r.shift || '').toLowerCase() === 'day' && r.status === '執勤').map(r => r.car_id);
+        const nightActive = dRows.filter(r => (r.shift || '').toLowerCase() === 'night' && r.status === '執勤').map(r => r.car_id);
+
+        const dCap = dayActive.reduce((sum, cid) => sum + (carShiftCap.day[cid] || 0), 0);
+        const nCap = nightActive.reduce((sum, cid) => sum + (carShiftCap.night[cid] || 0), 0);
+        const tCap = dCap + nCap;
+        const rate = Math.round((tCap / totDemand) * 1000) / 10;
+
+        dayCaps.push(dCap);
+        nightCaps.push(nCap);
+        totalCaps.push(tCap);
+        demands.push(totDemand);
+        rates.push(rate);
+
+        details.push({
+          date: d,
+          day_cap: dCap,
+          night_cap: nCap,
+          total_cap: tCap,
+          demand: totDemand,
+          fulfillment_rate: rate,
+          day_active_count: dayActive.length,
+          night_active_count: nightActive.length,
+          day_active_cars: dayActive,
+          night_active_cars: nightActive
+        });
+      });
+
+      const avgCap = Math.round(totalCaps.reduce((a, b) => a + b, 0) / totalCaps.length * 10) / 10;
+      const avgRate = Math.round(rates.reduce((a, b) => a + b, 0) / rates.length * 10) / 10;
+      const daysAbove = totalCaps.filter(c => c >= totDemand).length;
+
+      return {
+        status: 'success',
+        table: baseTable,
+        total_demand_24h: totDemand,
+        dates,
+        day_caps: dayCaps,
+        night_caps: nightCaps,
+        total_caps: totalCaps,
+        demands,
+        fulfillment_rates: rates,
+        details,
+        monthly_stats: {
+          avg_daily_cap: avgCap,
+          max_daily_cap: Math.max(...totalCaps),
+          min_daily_cap: Math.min(...totalCaps),
+          avg_fulfillment_rate: avgRate,
+          days_above_demand: daysAbove,
+          days_below_demand: dates.length - daysAbove
+        }
+      };
     }
 
     // --- Dynamic Demand Upload & Recomputation Client Logic ---

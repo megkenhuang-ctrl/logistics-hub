@@ -13,7 +13,7 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 from datetime import datetime
 from validator import ScheduleValidator, parse_od_pairs
-from actual_operations_engine import evaluate_actual_operations, get_actual_cars, get_actual_schedules, get_actual_fab_analysis
+from actual_operations_engine import evaluate_actual_operations, get_actual_cars, get_actual_schedules, get_actual_fab_analysis, get_monthly_capacity_trend
 
 # Safe UTF-8 console output on Windows
 if hasattr(sys.stdout, 'reconfigure'):
@@ -687,6 +687,16 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
                 })
             stats.sort(key=lambda x: x['total'], reverse=True)
             return self.send_json(stats)
+
+        elif path == '/api/monthly_trend':
+            try:
+                table = params.get('table', ['schedules'])[0]
+                if table not in ['schedules', 'schedules_plan2', 'schedules_plan3']:
+                    table = 'schedules'
+                res = get_monthly_capacity_trend(DB_PATH, table_name=table)
+                return self.send_json(res)
+            except Exception as e:
+                return self.send_json({'status': 'error', 'error': str(e)}, status=500)
 
         elif path == '/api/download_demand_template':
             template_path = os.path.join(os.path.dirname(__file__), 'Demand_from_to.xlsx')
