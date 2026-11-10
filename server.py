@@ -285,8 +285,11 @@ class LogisticsAPIHandler(http.server.SimpleHTTPRequestHandler):
             fleet_status = {}
             for cid in ['Car_A', 'Car_B', 'Car_C', 'Car_D', 'Car_E', 'Car_U']:
                 cname = cid.replace('_', ' ')
+                is_act = (cid != 'Car_U')
                 fleet_status[cname] = {
-                    'is_active': (cid != 'Car_U'),
+                    'is_active': is_act,
+                    'day_active': is_act,
+                    'night_active': is_act,
                     'visits_here': cars_count.get(cname, 0)
                 }
 

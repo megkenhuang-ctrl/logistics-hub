@@ -530,6 +530,9 @@
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
         <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">請選擇欲查詢之 Fab 廠區：</label>
         <div class="flex flex-wrap gap-2.5" id="fabButtonGroup">
+          <button onclick="selectFab('ALL')" class="fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-slate-700 text-slate-300 border-slate-600 hover:border-amber-400" data-fab="ALL" title="全廠區總覽（包含全部 6 輛車次動態與流向）">
+            🌐 全廠總覽 (ALL)
+          </button>
           <button onclick="selectFab('FAB8F')" class="fab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all bg-amber-600 text-white border-amber-500 shadow-md" data-fab="FAB8F" title="代工母港樞紐">
             🏭 FAB8F
           </button>
@@ -3407,7 +3410,7 @@
       // Fallback
       const activeRows = getActiveFallbackSchedules();
       if (activeRows.length > 0) {
-        let visits = activeRows.filter(r => r.fab_code === fabCode && r.is_break === 0);
+        let visits = activeRows.filter(r => (fabCode === 'ALL' || r.fab_code === fabCode) && r.is_break === 0);
         if (shift !== 'all') visits = visits.filter(r => r.shift === shift);
         
         const getFabTimelineMin = (r) => {
@@ -3555,7 +3558,7 @@
       updateRouteFinderDestOptions(data.destinations);
 
       // 4. Render Table
-      document.getElementById('fabTableTitle').innerText = `${selectedFab} 班車抵達時刻與等候時間明細表`;
+      document.getElementById('fabTableTitle').innerText = (selectedFab === 'ALL' ? '全廠區所有車輛' : selectedFab) + ' 班車抵達時刻與等候時間明細表';
       document.getElementById('fabArrivalCount').innerText = `${data.visits.length} 班次`;
 
       const tbody = document.getElementById('fabArrivalTableBody');
@@ -3682,25 +3685,26 @@
             badgeText = ' (停駛)';
             titleText = `${c.name} 本班次無司機排班 (停駛)`;
             extraClass = 'opacity-40 line-through';
-          } else if (fStatus && currentShift === 'all' && currentPlanTable === 'actual' && (!fStatus.day_active || !fStatus.night_active)) {
+          } else if (notServingHere) {
+            // 車輛全日正常執勤營運中，僅因路線專責劃分而未停靠當前選取的特定單一廠區（例如 Car A 專營 8E、嘉晶外廠、8CD、8AB、8S，不停靠 8F）
+            badgeText = ' (未行經本廠)';
+            titleText = `${c.name} 全日正常執勤營運中（非停駛），唯路線未停靠 ${selectedFab}`;
+            extraClass = 'opacity-85 border-dashed ring-0';
+          } else if (fStatus && currentShift === 'all' && currentPlanTable === 'actual' && (fStatus.day_active !== undefined) && (!fStatus.day_active || !fStatus.night_active)) {
             if (fStatus.day_active && !fStatus.night_active) {
               badgeText = ' (夜無司機)';
-              titleText = `${c.name} 日班正常執勤，夜班無司機排班 (停駛)`;
+              titleText = `${c.name} 日班正常執勤，夜班無司機排班`;
             } else if (!fStatus.day_active && fStatus.night_active) {
               badgeText = ' (日無司機)';
               titleText = `${c.name} 日班無排班，夜班正常執勤`;
             }
-          } else if (notServingHere) {
-            badgeText = ' (未停靠)';
-            titleText = `${c.name} 正常執勤營運中，但路線未停靠 ${selectedFab}`;
-            extraClass = 'opacity-70 border-dashed';
           }
 
           return `
             <button onclick="toggleTimelineCar('${c.name}')" 
               class="px-2 py-0.5 rounded-md text-[11px] font-bold border transition-all flex items-center gap-1 ${c.bg} text-white ${c.border} shadow-sm ring-1 ring-white/20 hover:brightness-110 ${extraClass}"
               title="${titleText}">
-              <span class="w-1.5 h-1.5 rounded-full ${isSuspended ? 'bg-slate-400' : (notServingHere ? 'bg-amber-300' : 'bg-white')}"></span>
+              <span class="w-1.5 h-1.5 rounded-full ${isSuspended ? 'bg-slate-400' : (notServingHere ? 'bg-blue-300' : 'bg-white')}"></span>
               <span>✓ ${c.name}${badgeText}</span>
             </button>
           `;

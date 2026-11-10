@@ -395,14 +395,16 @@ def get_actual_fab_analysis(db_path=DB_PATH, date_str='2026-11-08', fab_code='AL
     fleet_status = {}
     for cid in ['Car_A', 'Car_B', 'Car_C', 'Car_D', 'Car_E', 'Car_U']:
         cname = cid.replace('_', ' ')
+        day_act = (cid, 'day') in active_shift_cars
+        night_act = (cid, 'night') in active_shift_cars
         if shift == 'all':
-            day_act = (cid, 'day') in active_shift_cars
-            night_act = (cid, 'night') in active_shift_cars
             is_act = day_act or night_act
         else:
             is_act = (cid, shift.lower()) in active_shift_cars
         fleet_status[cname] = {
             'is_active': is_act,
+            'day_active': day_act,
+            'night_active': night_act,
             'visits_here': cars_count.get(cname, 0)
         }
 
